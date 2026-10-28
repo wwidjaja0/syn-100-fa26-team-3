@@ -1,0 +1,5627 @@
+{
+ "groups": [
+  "shutters",
+  "cabinet",
+  "map",
+  "speaker",
+  "radio",
+  "jar",
+  "papers",
+  "bench",
+  "sky",
+  "lantern",
+  "instruments",
+  "power",
+  "filter",
+  "crates",
+  "sandbags",
+  "flashlight"
+ ],
+ "group_roots": {
+  "shutters": [
+   "shutter_hinge_L",
+   "shutter_hinge_R"
+  ],
+  "cabinet": [
+   "03_supply_cabinet_closed",
+   "cabinet_hinge_L",
+   "cabinet_hinge_R",
+   "supply_tin_or_canister_0010",
+   "supply_tin_or_canister_0011",
+   "supply_tin_or_canister_0012",
+   "supply_tin_or_canister_0013",
+   "supply_tin_or_canister_0014",
+   "supply_tin_or_canister_0016"
+  ],
+  "map": [
+   "map_pin_0",
+   "map_pin_1",
+   "map_pin_2",
+   "map_pin_3",
+   "pnw_map"
+  ],
+  "speaker": [
+   "speaker_rig"
+  ],
+  "radio": [
+   "02_emergency_weather_radio",
+   "radio_wire_red",
+   "radio_wire_yel"
+  ],
+  "jar": [
+   "jar_glass",
+   "jar_label",
+   "jar_lid",
+   "jar_mushrooms"
+  ],
+  "papers": [
+   "papers_booklet",
+   "papers_sheet"
+  ],
+  "bench": [
+   "01_wooden_workbench"
+  ],
+  "sky": [
+   "storm_window_emit"
+  ],
+  "lantern": [
+   "10_emergency_lantern"
+  ],
+  "instruments": [
+   "08_wall_weather_instruments"
+  ],
+  "power": [
+   "04_portable_power_station"
+  ],
+  "filter": [
+   "07_gravity_water_filter"
+  ],
+  "crates": [
+   "09_supply_crates"
+  ],
+  "sandbags": [
+   "06_sandbag_flood_barrier"
+  ],
+  "flashlight": [
+   "11_flashlight"
+  ]
+ },
+ "start_hidden": [
+  "speaker_grill_bar_0009",
+  "speaker_grill_bar_0010",
+  "speaker_grill_bar_0011",
+  "speaker_grill_bar_0012",
+  "speaker_grill_bar_0013",
+  "speaker_grill_bar_0014",
+  "speaker_grill_bar_0015",
+  "speaker_grill_bar_0016",
+  "speaker_grill_bar_0017",
+  "speaker_grill_bar_0018",
+  "speaker_panel_0008"
+ ],
+ "materials": {
+  "floor_plank_0": {
+   "kind": "toon",
+   "color": [
+    0.30000001192092896,
+    0.17000000178813934,
+    0.09000000357627869
+   ],
+   "strength": 0.0
+  },
+  "floor_plank_1": {
+   "kind": "toon",
+   "color": [
+    0.36000001430511475,
+    0.20999999344348907,
+    0.10999999940395355
+   ],
+   "strength": 0.0
+  },
+  "floor_plank_2": {
+   "kind": "toon",
+   "color": [
+    0.27000001072883606,
+    0.15000000596046448,
+    0.07999999821186066
+   ],
+   "strength": 0.0
+  },
+  "floor_plank_3": {
+   "kind": "toon",
+   "color": [
+    0.33000001311302185,
+    0.1899999976158142,
+    0.10000000149011612
+   ],
+   "strength": 0.0
+  },
+  "jar_glass": {
+   "kind": "toon",
+   "color": [
+    0.550000011920929,
+    0.6800000071525574,
+    0.6000000238418579
+   ],
+   "strength": 0.0
+  },
+  "jar_label": {
+   "kind": "toon",
+   "color": [
+    0.8799999952316284,
+    0.800000011920929,
+    0.6000000238418579
+   ],
+   "strength": 0.0
+  },
+  "jar_lid": {
+   "kind": "toon",
+   "color": [
+    0.550000011920929,
+    0.14000000059604645,
+    0.07999999821186066
+   ],
+   "strength": 0.0
+  },
+  "jar_mushrooms": {
+   "kind": "toon",
+   "color": [
+    0.41999998688697815,
+    0.25999999046325684,
+    0.12999999523162842
+   ],
+   "strength": 0.0
+  },
+  "lamp_shade": {
+   "kind": "toon",
+   "color": [
+    0.20000000298023224,
+    0.23999999463558197,
+    0.2199999988079071
+   ],
+   "strength": 0.0
+  },
+  "map_pin": {
+   "kind": "toon",
+   "color": [
+    0.75,
+    0.11999999731779099,
+    0.07999999821186066
+   ],
+   "strength": 0.0
+  },
+  "mat_analog_dial_face_23": {
+   "kind": "toon",
+   "color": [
+    0.886274516582489,
+    0.843137264251709,
+    0.7450980544090271
+   ],
+   "strength": 0.0
+  },
+  "mat_analog_dial_face_8": {
+   "kind": "toon",
+   "color": [
+    0.886274516582489,
+    0.843137264251709,
+    0.7450980544090271
+   ],
+   "strength": 0.0
+  },
+  "mat_analog_gauge_metal_rim_22": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_analog_gauge_metal_rim_7": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_antenna_lower_33": {
+   "kind": "toon",
+   "color": [
+    0.529411792755127,
+    0.5686274766921997,
+    0.5843137502670288
+   ],
+   "strength": 0.0
+  },
+  "mat_antenna_tip_35": {
+   "kind": "toon",
+   "color": [
+    0.658823549747467,
+    0.3176470696926117,
+    0.2666666805744171
+   ],
+   "strength": 0.0
+  },
+  "mat_antenna_upper_34": {
+   "kind": "toon",
+   "color": [
+    0.6980392336845398,
+    0.7058823704719543,
+    0.6784313917160034
+   ],
+   "strength": 0.0
+  },
+  "mat_base_brass_trim_3": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_basin_handle_left_27": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_basin_handle_right_29": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_basin_handle_top_28": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_basin_rim_26": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_battery_charge_segment_11": {
+   "kind": "toon",
+   "color": [
+    0.7176470756530762,
+    0.8901960849761963,
+    0.7254902124404907
+   ],
+   "strength": 0.0
+  },
+  "mat_battery_charge_segment_12": {
+   "kind": "toon",
+   "color": [
+    0.7176470756530762,
+    0.8901960849761963,
+    0.7254902124404907
+   ],
+   "strength": 0.0
+  },
+  "mat_battery_charge_segment_13": {
+   "kind": "toon",
+   "color": [
+    0.7176470756530762,
+    0.8901960849761963,
+    0.7254902124404907
+   ],
+   "strength": 0.0
+  },
+  "mat_battery_charge_segment_14": {
+   "kind": "toon",
+   "color": [
+    0.7176470756530762,
+    0.8901960849761963,
+    0.7254902124404907
+   ],
+   "strength": 0.0
+  },
+  "mat_battery_charge_segment_15": {
+   "kind": "toon",
+   "color": [
+    0.46666666865348816,
+    0.7019608020782471,
+    0.6901960968971252
+   ],
+   "strength": 0.0
+  },
+  "mat_beveled_outer_front_2": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_crossbar_12": {
+   "kind": "toon",
+   "color": [
+    0.45490196347236633,
+    0.2666666805744171,
+    0.18039216101169586
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_crossbar_12.001": {
+   "kind": "toon",
+   "color": [
+    0.45490196347236633,
+    0.2666666805744171,
+    0.18039216101169586
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_crossbar_31": {
+   "kind": "toon",
+   "color": [
+    0.45490196347236633,
+    0.2666666805744171,
+    0.18039216101169586
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_crossbar_31.001": {
+   "kind": "toon",
+   "color": [
+    0.45490196347236633,
+    0.2666666805744171,
+    0.18039216101169586
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_left_bottom_1": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_left_corner_rivet_18": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_left_corner_rivet_19": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_left_corner_rivet_21": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_left_corner_rivet_22": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_left_corner_rivet_24": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_left_corner_rivet_25": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_left_corner_rivet_27": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_left_corner_rivet_28": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_left_diagonal_reinforcement_29": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_left_front_back_plank_10": {
+   "kind": "toon",
+   "color": [
+    0.658823549747467,
+    0.4627451002597809,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_left_front_back_plank_3": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_left_front_back_plank_4": {
+   "kind": "toon",
+   "color": [
+    0.658823549747467,
+    0.4627451002597809,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_left_front_back_plank_5": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_left_front_back_plank_6": {
+   "kind": "toon",
+   "color": [
+    0.658823549747467,
+    0.4627451002597809,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_left_front_back_plank_7": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_left_front_back_plank_8": {
+   "kind": "toon",
+   "color": [
+    0.658823549747467,
+    0.4627451002597809,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_left_front_back_plank_9": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_left_lid_2": {
+   "kind": "toon",
+   "color": [
+    0.7333333492279053,
+    0.5254902243614197,
+    0.3490196168422699
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_left_metal_corner_17": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_left_metal_corner_20": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_left_metal_corner_23": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_left_metal_corner_26": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_left_side_plank_11": {
+   "kind": "toon",
+   "color": [
+    0.6666666865348816,
+    0.45098039507865906,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_left_side_plank_12": {
+   "kind": "toon",
+   "color": [
+    0.6666666865348816,
+    0.45098039507865906,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_left_side_plank_13": {
+   "kind": "toon",
+   "color": [
+    0.6666666865348816,
+    0.45098039507865906,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_left_side_plank_14": {
+   "kind": "toon",
+   "color": [
+    0.6666666865348816,
+    0.45098039507865906,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_left_side_plank_15": {
+   "kind": "toon",
+   "color": [
+    0.6666666865348816,
+    0.45098039507865906,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_left_side_plank_16": {
+   "kind": "toon",
+   "color": [
+    0.6666666865348816,
+    0.45098039507865906,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_plinth_7": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_plinth_7.001": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_right_bottom_30": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_right_corner_rivet_46": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_right_corner_rivet_47": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_right_corner_rivet_49": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_right_corner_rivet_50": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_right_corner_rivet_52": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_right_corner_rivet_53": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_right_corner_rivet_55": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_right_corner_rivet_56": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_right_diagonal_reinforcement_57": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_right_food_tin_58": {
+   "kind": "toon",
+   "color": [
+    0.42352941632270813,
+    0.4627451002597809,
+    0.4745098054409027
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_right_food_tin_60": {
+   "kind": "toon",
+   "color": [
+    0.658823549747467,
+    0.3176470696926117,
+    0.2666666805744171
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_right_food_tin_62": {
+   "kind": "toon",
+   "color": [
+    0.3803921639919281,
+    0.4627451002597809,
+    0.3921568691730499
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_right_food_tin_lid_59": {
+   "kind": "toon",
+   "color": [
+    0.6980392336845398,
+    0.7058823704719543,
+    0.6784313917160034
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_right_food_tin_lid_61": {
+   "kind": "toon",
+   "color": [
+    0.6980392336845398,
+    0.7058823704719543,
+    0.6784313917160034
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_right_food_tin_lid_63": {
+   "kind": "toon",
+   "color": [
+    0.6980392336845398,
+    0.7058823704719543,
+    0.6784313917160034
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_right_front_back_plank_31": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_right_front_back_plank_32": {
+   "kind": "toon",
+   "color": [
+    0.658823549747467,
+    0.4627451002597809,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_right_front_back_plank_33": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_right_front_back_plank_34": {
+   "kind": "toon",
+   "color": [
+    0.658823549747467,
+    0.4627451002597809,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_right_front_back_plank_35": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_right_front_back_plank_36": {
+   "kind": "toon",
+   "color": [
+    0.658823549747467,
+    0.4627451002597809,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_right_front_back_plank_37": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_right_front_back_plank_38": {
+   "kind": "toon",
+   "color": [
+    0.658823549747467,
+    0.4627451002597809,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_right_metal_corner_45": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_right_metal_corner_48": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_right_metal_corner_51": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_right_metal_corner_54": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_right_side_plank_39": {
+   "kind": "toon",
+   "color": [
+    0.6666666865348816,
+    0.45098039507865906,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_right_side_plank_40": {
+   "kind": "toon",
+   "color": [
+    0.6666666865348816,
+    0.45098039507865906,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_right_side_plank_41": {
+   "kind": "toon",
+   "color": [
+    0.6666666865348816,
+    0.45098039507865906,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_right_side_plank_42": {
+   "kind": "toon",
+   "color": [
+    0.6666666865348816,
+    0.45098039507865906,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_right_side_plank_43": {
+   "kind": "toon",
+   "color": [
+    0.6666666865348816,
+    0.45098039507865906,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_bottom_right_side_plank_44": {
+   "kind": "toon",
+   "color": [
+    0.6666666865348816,
+    0.45098039507865906,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_brightness_knob_21": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_burner_flame_6": {
+   "kind": "emit",
+   "color": [
+    1.0,
+    0.550000011920929,
+    0.15000000596046448
+   ],
+   "strength": 12.0
+  },
+  "mat_cabinet_shell_1": {
+   "kind": "toon",
+   "color": [
+    0.7098039388656616,
+    0.6549019813537598,
+    0.5411764979362488
+   ],
+   "strength": 0.0
+  },
+  "mat_cabinet_shell_1.001": {
+   "kind": "toon",
+   "color": [
+    0.7098039388656616,
+    0.6549019813537598,
+    0.5411764979362488
+   ],
+   "strength": 0.0
+  },
+  "mat_cabinet_side_trim_8": {
+   "kind": "toon",
+   "color": [
+    0.45490196347236633,
+    0.2666666805744171,
+    0.18039216101169586
+   ],
+   "strength": 0.0
+  },
+  "mat_cabinet_side_trim_8.001": {
+   "kind": "toon",
+   "color": [
+    0.45490196347236633,
+    0.2666666805744171,
+    0.18039216101169586
+   ],
+   "strength": 0.0
+  },
+  "mat_cabinet_side_trim_9": {
+   "kind": "toon",
+   "color": [
+    0.45490196347236633,
+    0.2666666805744171,
+    0.18039216101169586
+   ],
+   "strength": 0.0
+  },
+  "mat_cabinet_side_trim_9.001": {
+   "kind": "toon",
+   "color": [
+    0.45490196347236633,
+    0.2666666805744171,
+    0.18039216101169586
+   ],
+   "strength": 0.0
+  },
+  "mat_center_needle_hub_21": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_center_needle_hub_36": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_center_reinforcement_13": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_center_reinforcement_13.001": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_center_reinforcement_32": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_center_reinforcement_32.001": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_central_emitter_6": {
+   "kind": "toon",
+   "color": [
+    0.886274516582489,
+    0.843137264251709,
+    0.7450980544090271
+   ],
+   "strength": 0.0
+  },
+  "mat_chamber_lower_guard_7": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_chamber_top_guard_8": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_chimney_13": {
+   "kind": "toon",
+   "color": [
+    0.2549019753932953,
+    0.3333333432674408,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_collector_base_16": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_collector_lid_15": {
+   "kind": "toon",
+   "color": [
+    0.42352941632270813,
+    0.4627451002597809,
+    0.4745098054409027
+   ],
+   "strength": 0.0
+  },
+  "mat_control_face_3": {
+   "kind": "toon",
+   "color": [
+    0.2549019753932953,
+    0.3333333432674408,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_control_knob_center_26": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_control_knob_center_28": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_control_knob_outer_25": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_control_knob_outer_27": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_control_panel_4": {
+   "kind": "toon",
+   "color": [
+    0.14901961386203766,
+    0.18039216101169586,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_cooling_vent_35": {
+   "kind": "toon",
+   "color": [
+    0.2549019753932953,
+    0.3333333432674408,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_cooling_vent_36": {
+   "kind": "toon",
+   "color": [
+    0.2549019753932953,
+    0.3333333432674408,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_cooling_vent_37": {
+   "kind": "toon",
+   "color": [
+    0.2549019753932953,
+    0.3333333432674408,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_cooling_vent_38": {
+   "kind": "toon",
+   "color": [
+    0.2549019753932953,
+    0.3333333432674408,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_cooling_vent_39": {
+   "kind": "toon",
+   "color": [
+    0.2549019753932953,
+    0.3333333432674408,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_cooling_vent_40": {
+   "kind": "toon",
+   "color": [
+    0.2549019753932953,
+    0.3333333432674408,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_cooling_vent_41": {
+   "kind": "toon",
+   "color": [
+    0.2549019753932953,
+    0.3333333432674408,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_cooling_vent_42": {
+   "kind": "toon",
+   "color": [
+    0.2549019753932953,
+    0.3333333432674408,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_dark_gauge_pointer_20": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_dark_gauge_pointer_35": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_display_readout_16": {
+   "kind": "emit",
+   "color": [
+    0.3499999940395355,
+    0.949999988079071,
+    0.75
+   ],
+   "strength": 3.0
+  },
+  "mat_door_inset_trim_bottom_17": {
+   "kind": "toon",
+   "color": [
+    0.45490196347236633,
+    0.2666666805744171,
+    0.18039216101169586
+   ],
+   "strength": 0.0
+  },
+  "mat_door_inset_trim_bottom_31": {
+   "kind": "toon",
+   "color": [
+    0.45490196347236633,
+    0.2666666805744171,
+    0.18039216101169586
+   ],
+   "strength": 0.0
+  },
+  "mat_door_inset_trim_left_14": {
+   "kind": "toon",
+   "color": [
+    0.45490196347236633,
+    0.2666666805744171,
+    0.18039216101169586
+   ],
+   "strength": 0.0
+  },
+  "mat_door_inset_trim_left_28": {
+   "kind": "toon",
+   "color": [
+    0.45490196347236633,
+    0.2666666805744171,
+    0.18039216101169586
+   ],
+   "strength": 0.0
+  },
+  "mat_door_inset_trim_right_15": {
+   "kind": "toon",
+   "color": [
+    0.45490196347236633,
+    0.2666666805744171,
+    0.18039216101169586
+   ],
+   "strength": 0.0
+  },
+  "mat_door_inset_trim_right_29": {
+   "kind": "toon",
+   "color": [
+    0.45490196347236633,
+    0.2666666805744171,
+    0.18039216101169586
+   ],
+   "strength": 0.0
+  },
+  "mat_door_inset_trim_top_16": {
+   "kind": "toon",
+   "color": [
+    0.45490196347236633,
+    0.2666666805744171,
+    0.18039216101169586
+   ],
+   "strength": 0.0
+  },
+  "mat_door_inset_trim_top_30": {
+   "kind": "toon",
+   "color": [
+    0.45490196347236633,
+    0.2666666805744171,
+    0.18039216101169586
+   ],
+   "strength": 0.0
+  },
+  "mat_door_pull_18": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_door_pull_32": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_door_vertical_plank_seam_11": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_door_vertical_plank_seam_12": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_door_vertical_plank_seam_13": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_door_vertical_plank_seam_25": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_door_vertical_plank_seam_26": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_door_vertical_plank_seam_27": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_drawer_body_26": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_drawer_face_27": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_drawer_knob_pin_29": {
+   "kind": "toon",
+   "color": [
+    0.529411792755127,
+    0.5686274766921997,
+    0.5843137502670288
+   ],
+   "strength": 0.0
+  },
+  "mat_drawer_knob_pin_30": {
+   "kind": "toon",
+   "color": [
+    0.529411792755127,
+    0.5686274766921997,
+    0.5843137502670288
+   ],
+   "strength": 0.0
+  },
+  "mat_drawer_pull_28": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_end_stretcher_left_11": {
+   "kind": "toon",
+   "color": [
+    0.45490196347236633,
+    0.2666666805744171,
+    0.18039216101169586
+   ],
+   "strength": 0.0
+  },
+  "mat_end_stretcher_right_12": {
+   "kind": "toon",
+   "color": [
+    0.45490196347236633,
+    0.2666666805744171,
+    0.18039216101169586
+   ],
+   "strength": 0.0
+  },
+  "mat_filter_narrowing_18": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_foldable_arched_handle_15": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_foldable_arched_handle_16": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_foldable_arched_handle_17": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_foldable_arched_handle_18": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_foldable_arched_handle_19": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_foldable_arched_handle_20": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_front_bezel_3": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_front_case_screw_4": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_front_case_screw_5": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_front_case_screw_6": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_front_case_screw_7": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_front_stretcher_10": {
+   "kind": "toon",
+   "color": [
+    0.45490196347236633,
+    0.2666666805744171,
+    0.18039216101169586
+   ],
+   "strength": 0.0
+  },
+  "mat_fuel_reservoir_2": {
+   "kind": "toon",
+   "color": [
+    0.2549019753932953,
+    0.3333333432674408,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_glass_lantern_chamber_4": {
+   "kind": "toon",
+   "color": [
+    0.7607843279838562,
+    0.8470588326454163,
+    0.8117647171020508
+   ],
+   "strength": 0.0
+  },
+  "mat_handle_grip_30": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_handle_post_31": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_handle_post_32": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_handle_top_30": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_handle_upright_28": {
+   "kind": "toon",
+   "color": [
+    0.1921568661928177,
+    0.23137255012989044,
+    0.24313725531101227
+   ],
+   "strength": 0.0
+  },
+  "mat_handle_upright_29": {
+   "kind": "toon",
+   "color": [
+    0.1921568661928177,
+    0.23137255012989044,
+    0.24313725531101227
+   ],
+   "strength": 0.0
+  },
+  "mat_heavy_hinge_14": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_heavy_hinge_14.001": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_heavy_hinge_16": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_heavy_hinge_16.001": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_heavy_hinge_33": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_heavy_hinge_33.001": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_heavy_hinge_35": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_heavy_hinge_35.001": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_hinge_leaf_20": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_hinge_leaf_20.001": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_hinge_leaf_22": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_hinge_leaf_22.001": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_hinge_leaf_27": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_hinge_leaf_29": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_hinge_leaf_34": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_hinge_leaf_36": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_hinge_pin_21": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_hinge_pin_21.001": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_hinge_pin_23": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_hinge_pin_23.001": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_hinge_pin_28": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_hinge_pin_30": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_hinge_pin_35": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_hinge_pin_37": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_horizontal_storm_slats_2": {
+   "kind": "toon",
+   "color": [
+    0.7333333492279053,
+    0.5254902243614197,
+    0.3490196168422699
+   ],
+   "strength": 0.0
+  },
+  "mat_horizontal_storm_slats_2.001": {
+   "kind": "toon",
+   "color": [
+    0.7333333492279053,
+    0.5254902243614197,
+    0.3490196168422699
+   ],
+   "strength": 0.0
+  },
+  "mat_horizontal_storm_slats_21": {
+   "kind": "toon",
+   "color": [
+    0.7333333492279053,
+    0.5254902243614197,
+    0.3490196168422699
+   ],
+   "strength": 0.0
+  },
+  "mat_horizontal_storm_slats_21.001": {
+   "kind": "toon",
+   "color": [
+    0.7333333492279053,
+    0.5254902243614197,
+    0.3490196168422699
+   ],
+   "strength": 0.0
+  },
+  "mat_horizontal_storm_slats_22": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_horizontal_storm_slats_22.001": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_horizontal_storm_slats_23": {
+   "kind": "toon",
+   "color": [
+    0.7333333492279053,
+    0.5254902243614197,
+    0.3490196168422699
+   ],
+   "strength": 0.0
+  },
+  "mat_horizontal_storm_slats_23.001": {
+   "kind": "toon",
+   "color": [
+    0.7333333492279053,
+    0.5254902243614197,
+    0.3490196168422699
+   ],
+   "strength": 0.0
+  },
+  "mat_horizontal_storm_slats_24": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_horizontal_storm_slats_24.001": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_horizontal_storm_slats_25": {
+   "kind": "toon",
+   "color": [
+    0.7333333492279053,
+    0.5254902243614197,
+    0.3490196168422699
+   ],
+   "strength": 0.0
+  },
+  "mat_horizontal_storm_slats_25.001": {
+   "kind": "toon",
+   "color": [
+    0.7333333492279053,
+    0.5254902243614197,
+    0.3490196168422699
+   ],
+   "strength": 0.0
+  },
+  "mat_horizontal_storm_slats_26": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_horizontal_storm_slats_26.001": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_horizontal_storm_slats_27": {
+   "kind": "toon",
+   "color": [
+    0.7333333492279053,
+    0.5254902243614197,
+    0.3490196168422699
+   ],
+   "strength": 0.0
+  },
+  "mat_horizontal_storm_slats_27.001": {
+   "kind": "toon",
+   "color": [
+    0.7333333492279053,
+    0.5254902243614197,
+    0.3490196168422699
+   ],
+   "strength": 0.0
+  },
+  "mat_horizontal_storm_slats_3": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_horizontal_storm_slats_3.001": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_horizontal_storm_slats_4": {
+   "kind": "toon",
+   "color": [
+    0.7333333492279053,
+    0.5254902243614197,
+    0.3490196168422699
+   ],
+   "strength": 0.0
+  },
+  "mat_horizontal_storm_slats_4.001": {
+   "kind": "toon",
+   "color": [
+    0.7333333492279053,
+    0.5254902243614197,
+    0.3490196168422699
+   ],
+   "strength": 0.0
+  },
+  "mat_horizontal_storm_slats_5": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_horizontal_storm_slats_5.001": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_horizontal_storm_slats_6": {
+   "kind": "toon",
+   "color": [
+    0.7333333492279053,
+    0.5254902243614197,
+    0.3490196168422699
+   ],
+   "strength": 0.0
+  },
+  "mat_horizontal_storm_slats_6.001": {
+   "kind": "toon",
+   "color": [
+    0.7333333492279053,
+    0.5254902243614197,
+    0.3490196168422699
+   ],
+   "strength": 0.0
+  },
+  "mat_horizontal_storm_slats_7": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_horizontal_storm_slats_7.001": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_horizontal_storm_slats_8": {
+   "kind": "toon",
+   "color": [
+    0.7333333492279053,
+    0.5254902243614197,
+    0.3490196168422699
+   ],
+   "strength": 0.0
+  },
+  "mat_horizontal_storm_slats_8.001": {
+   "kind": "toon",
+   "color": [
+    0.7333333492279053,
+    0.5254902243614197,
+    0.3490196168422699
+   ],
+   "strength": 0.0
+  },
+  "mat_inset_dark_interior_2": {
+   "kind": "toon",
+   "color": [
+    0.2235294133424759,
+    0.16078431904315948,
+    0.12156862765550613
+   ],
+   "strength": 0.0
+  },
+  "mat_inset_dark_interior_2.001": {
+   "kind": "toon",
+   "color": [
+    0.2235294133424759,
+    0.16078431904315948,
+    0.12156862765550613
+   ],
+   "strength": 0.0
+  },
+  "mat_interior_flame_glow_5": {
+   "kind": "emit",
+   "color": [
+    1.0,
+    0.550000011920929,
+    0.15000000596046448
+   ],
+   "strength": 12.0
+  },
+  "mat_interior_shelf_3": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_interior_shelf_3.001": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_interior_shelf_4": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_interior_shelf_4.001": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_interior_shelf_5": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_interior_shelf_5.001": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_keyhole_19": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_keyhole_33": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_lantern_foot_1": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_latch_rivet_19": {
+   "kind": "toon",
+   "color": [
+    0.529411792755127,
+    0.5686274766921997,
+    0.5843137502670288
+   ],
+   "strength": 0.0
+  },
+  "mat_latch_rivet_19.001": {
+   "kind": "toon",
+   "color": [
+    0.529411792755127,
+    0.5686274766921997,
+    0.5843137502670288
+   ],
+   "strength": 0.0
+  },
+  "mat_latch_rivet_38": {
+   "kind": "toon",
+   "color": [
+    0.529411792755127,
+    0.5686274766921997,
+    0.5843137502670288
+   ],
+   "strength": 0.0
+  },
+  "mat_latch_rivet_38.001": {
+   "kind": "toon",
+   "color": [
+    0.529411792755127,
+    0.5686274766921997,
+    0.5843137502670288
+   ],
+   "strength": 0.0
+  },
+  "mat_lcd_border_19": {
+   "kind": "emit",
+   "color": [
+    0.3499999940395355,
+    0.949999988079071,
+    0.75
+   ],
+   "strength": 0.0
+  },
+  "mat_lcd_glass_20": {
+   "kind": "emit",
+   "color": [
+    0.3499999940395355,
+    0.949999988079071,
+    0.75
+   ],
+   "strength": 0.0
+  },
+  "mat_LCD_inner_10": {
+   "kind": "emit",
+   "color": [
+    0.3499999940395355,
+    0.949999988079071,
+    0.75
+   ],
+   "strength": 3.0
+  },
+  "mat_lcd_level_segment_21": {
+   "kind": "emit",
+   "color": [
+    0.3499999940395355,
+    0.949999988079071,
+    0.75
+   ],
+   "strength": 0.0
+  },
+  "mat_lcd_level_segment_22": {
+   "kind": "emit",
+   "color": [
+    0.3499999940395355,
+    0.949999988079071,
+    0.75
+   ],
+   "strength": 0.0
+  },
+  "mat_lcd_level_segment_23": {
+   "kind": "emit",
+   "color": [
+    0.3499999940395355,
+    0.949999988079071,
+    0.75
+   ],
+   "strength": 0.0
+  },
+  "mat_lcd_level_segment_24": {
+   "kind": "emit",
+   "color": [
+    0.3499999940395355,
+    0.949999988079071,
+    0.75
+   ],
+   "strength": 0.0
+  },
+  "mat_LCD_outer_9": {
+   "kind": "emit",
+   "color": [
+    0.3499999940395355,
+    0.949999988079071,
+    0.75
+   ],
+   "strength": 3.0
+  },
+  "mat_lens_metal_bezel_4": {
+   "kind": "emit",
+   "color": [
+    1.0,
+    0.9200000166893005,
+    0.699999988079071
+   ],
+   "strength": 4.0
+  },
+  "mat_lid_dome_13": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_lower_collecting_tank_14": {
+   "kind": "toon",
+   "color": [
+    0.529411792755127,
+    0.5686274766921997,
+    0.5843137502670288
+   ],
+   "strength": 0.0
+  },
+  "mat_lower_shelf_13": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_main_enclosure_1": {
+   "kind": "toon",
+   "color": [
+    0.3803921639919281,
+    0.4627451002597809,
+    0.3921568691730499
+   ],
+   "strength": 0.0
+  },
+  "mat_main_flashlight_body_1": {
+   "kind": "toon",
+   "color": [
+    0.1921568661928177,
+    0.23137255012989044,
+    0.24313725531101227
+   ],
+   "strength": 0.0
+  },
+  "mat_mercury_fill_40": {
+   "kind": "toon",
+   "color": [
+    0.658823549747467,
+    0.3176470696926117,
+    0.2666666805744171
+   ],
+   "strength": 0.0
+  },
+  "mat_mercury_tube_39": {
+   "kind": "toon",
+   "color": [
+    0.7607843279838562,
+    0.8470588326454163,
+    0.8117647171020508
+   ],
+   "strength": 0.0
+  },
+  "mat_oak_mounting_board_1": {
+   "kind": "toon",
+   "color": [
+    0.45490196347236633,
+    0.2666666805744171,
+    0.18039216101169586
+   ],
+   "strength": 0.0
+  },
+  "mat_on_off_button_27": {
+   "kind": "toon",
+   "color": [
+    0.658823549747467,
+    0.3176470696926117,
+    0.2666666805744171
+   ],
+   "strength": 0.0
+  },
+  "mat_open_door_panel_17": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_open_door_panel_24": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_open_door_pull_19": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_open_door_pull_26": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_open_door_stile_18": {
+   "kind": "toon",
+   "color": [
+    0.5803921818733215,
+    0.35686275362968445,
+    0.2235294133424759
+   ],
+   "strength": 0.0
+  },
+  "mat_open_door_stile_25": {
+   "kind": "toon",
+   "color": [
+    0.5803921818733215,
+    0.35686275362968445,
+    0.2235294133424759
+   ],
+   "strength": 0.0
+  },
+  "mat_output_socket_dark_center_18": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_output_socket_dark_center_20": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_output_socket_dark_center_22": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_output_socket_recess_17": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_output_socket_recess_19": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_output_socket_recess_21": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_panel_mount_screw_5": {
+   "kind": "toon",
+   "color": [
+    0.6980392336845398,
+    0.7058823704719543,
+    0.6784313917160034
+   ],
+   "strength": 0.0
+  },
+  "mat_panel_mount_screw_6": {
+   "kind": "toon",
+   "color": [
+    0.6980392336845398,
+    0.7058823704719543,
+    0.6784313917160034
+   ],
+   "strength": 0.0
+  },
+  "mat_panel_mount_screw_7": {
+   "kind": "toon",
+   "color": [
+    0.6980392336845398,
+    0.7058823704719543,
+    0.6784313917160034
+   ],
+   "strength": 0.0
+  },
+  "mat_panel_mount_screw_8": {
+   "kind": "toon",
+   "color": [
+    0.6980392336845398,
+    0.7058823704719543,
+    0.6784313917160034
+   ],
+   "strength": 0.0
+  },
+  "mat_panel_wood_screw_3": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_panel_wood_screw_4": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_panel_wood_screw_5": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_panel_wood_screw_6": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_portable_basin_25": {
+   "kind": "toon",
+   "color": [
+    0.5686274766921997,
+    0.6313725709915161,
+    0.5411764979362488
+   ],
+   "strength": 0.0
+  },
+  "mat_power_switch_29": {
+   "kind": "toon",
+   "color": [
+    0.658823549747467,
+    0.3176470696926117,
+    0.2666666805744171
+   ],
+   "strength": 0.0
+  },
+  "mat_radial_tick_10": {
+   "kind": "toon",
+   "color": [
+    0.1921568661928177,
+    0.23137255012989044,
+    0.24313725531101227
+   ],
+   "strength": 0.0
+  },
+  "mat_radial_tick_11": {
+   "kind": "toon",
+   "color": [
+    0.1921568661928177,
+    0.23137255012989044,
+    0.24313725531101227
+   ],
+   "strength": 0.0
+  },
+  "mat_radial_tick_12": {
+   "kind": "toon",
+   "color": [
+    0.1921568661928177,
+    0.23137255012989044,
+    0.24313725531101227
+   ],
+   "strength": 0.0
+  },
+  "mat_radial_tick_13": {
+   "kind": "toon",
+   "color": [
+    0.1921568661928177,
+    0.23137255012989044,
+    0.24313725531101227
+   ],
+   "strength": 0.0
+  },
+  "mat_radial_tick_14": {
+   "kind": "toon",
+   "color": [
+    0.1921568661928177,
+    0.23137255012989044,
+    0.24313725531101227
+   ],
+   "strength": 0.0
+  },
+  "mat_radial_tick_15": {
+   "kind": "toon",
+   "color": [
+    0.1921568661928177,
+    0.23137255012989044,
+    0.24313725531101227
+   ],
+   "strength": 0.0
+  },
+  "mat_radial_tick_16": {
+   "kind": "toon",
+   "color": [
+    0.1921568661928177,
+    0.23137255012989044,
+    0.24313725531101227
+   ],
+   "strength": 0.0
+  },
+  "mat_radial_tick_17": {
+   "kind": "toon",
+   "color": [
+    0.1921568661928177,
+    0.23137255012989044,
+    0.24313725531101227
+   ],
+   "strength": 0.0
+  },
+  "mat_radial_tick_18": {
+   "kind": "toon",
+   "color": [
+    0.1921568661928177,
+    0.23137255012989044,
+    0.24313725531101227
+   ],
+   "strength": 0.0
+  },
+  "mat_radial_tick_19": {
+   "kind": "toon",
+   "color": [
+    0.1921568661928177,
+    0.23137255012989044,
+    0.24313725531101227
+   ],
+   "strength": 0.0
+  },
+  "mat_radial_tick_24": {
+   "kind": "toon",
+   "color": [
+    0.1921568661928177,
+    0.23137255012989044,
+    0.24313725531101227
+   ],
+   "strength": 0.0
+  },
+  "mat_radial_tick_25": {
+   "kind": "toon",
+   "color": [
+    0.1921568661928177,
+    0.23137255012989044,
+    0.24313725531101227
+   ],
+   "strength": 0.0
+  },
+  "mat_radial_tick_26": {
+   "kind": "toon",
+   "color": [
+    0.1921568661928177,
+    0.23137255012989044,
+    0.24313725531101227
+   ],
+   "strength": 0.0
+  },
+  "mat_radial_tick_27": {
+   "kind": "toon",
+   "color": [
+    0.1921568661928177,
+    0.23137255012989044,
+    0.24313725531101227
+   ],
+   "strength": 0.0
+  },
+  "mat_radial_tick_28": {
+   "kind": "toon",
+   "color": [
+    0.1921568661928177,
+    0.23137255012989044,
+    0.24313725531101227
+   ],
+   "strength": 0.0
+  },
+  "mat_radial_tick_29": {
+   "kind": "toon",
+   "color": [
+    0.1921568661928177,
+    0.23137255012989044,
+    0.24313725531101227
+   ],
+   "strength": 0.0
+  },
+  "mat_radial_tick_30": {
+   "kind": "toon",
+   "color": [
+    0.1921568661928177,
+    0.23137255012989044,
+    0.24313725531101227
+   ],
+   "strength": 0.0
+  },
+  "mat_radial_tick_31": {
+   "kind": "toon",
+   "color": [
+    0.1921568661928177,
+    0.23137255012989044,
+    0.24313725531101227
+   ],
+   "strength": 0.0
+  },
+  "mat_radial_tick_32": {
+   "kind": "toon",
+   "color": [
+    0.1921568661928177,
+    0.23137255012989044,
+    0.24313725531101227
+   ],
+   "strength": 0.0
+  },
+  "mat_radial_tick_33": {
+   "kind": "toon",
+   "color": [
+    0.1921568661928177,
+    0.23137255012989044,
+    0.24313725531101227
+   ],
+   "strength": 0.0
+  },
+  "mat_radial_tick_34": {
+   "kind": "toon",
+   "color": [
+    0.1921568661928177,
+    0.23137255012989044,
+    0.24313725531101227
+   ],
+   "strength": 0.0
+  },
+  "mat_radial_tick_9": {
+   "kind": "toon",
+   "color": [
+    0.1921568661928177,
+    0.23137255012989044,
+    0.24313725531101227
+   ],
+   "strength": 0.0
+  },
+  "mat_rear_stretcher_9": {
+   "kind": "toon",
+   "color": [
+    0.45490196347236633,
+    0.2666666805744171,
+    0.18039216101169586
+   ],
+   "strength": 0.0
+  },
+  "mat_recessed_table_bolt_22": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_recessed_table_bolt_23": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_recessed_table_bolt_24": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_recessed_table_bolt_25": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_removable_door_panel_10": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_removable_door_panel_24": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_rubber_foot_36": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_rubber_foot_37": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_rubber_grip_rib_10": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_rubber_grip_rib_11": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_rubber_grip_rib_12": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_rubber_grip_rib_7": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_rubber_grip_rib_8": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_rubber_grip_rib_9": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_rubber_power_button_13": {
+   "kind": "toon",
+   "color": [
+    0.658823549747467,
+    0.3176470696926117,
+    0.2666666805744171
+   ],
+   "strength": 0.0
+  },
+  "mat_rubberized_radio_case_1": {
+   "kind": "toon",
+   "color": [
+    0.14901961386203766,
+    0.18039216101169586,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_11": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_12": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_13": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_14": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_15": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_18": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_19": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_20": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_21": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_22": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_25": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_26": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_27": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_28": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_29": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_3": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_33": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_34": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_35": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_36": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_37": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_4": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_40": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_41": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_42": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_43": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_44": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_48": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_49": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_5": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_50": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_51": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_52": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_55": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_56": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_57": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_58": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_59": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_6": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_62": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_63": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_64": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_65": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_66": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_7": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_70": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_71": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_72": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_73": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_74": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_78": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_79": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_80": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_81": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_82": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_85": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_86": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_87": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_88": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_seam_cross_stitch_89": {
+   "kind": "toon",
+   "color": [
+    0.8196078538894653,
+    0.6392157077789307,
+    0.4274509847164154
+   ],
+   "strength": 0.0
+  },
+  "mat_shock_foot_31": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_shock_foot_32": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_shock_foot_33": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_shock_foot_34": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_shutter_backing_1": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_shutter_backing_1.001": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_shutter_backing_20": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_shutter_backing_20.001": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_side_framing_10": {
+   "kind": "toon",
+   "color": [
+    0.45490196347236633,
+    0.2666666805744171,
+    0.18039216101169586
+   ],
+   "strength": 0.0
+  },
+  "mat_side_framing_10.001": {
+   "kind": "toon",
+   "color": [
+    0.45490196347236633,
+    0.2666666805744171,
+    0.18039216101169586
+   ],
+   "strength": 0.0
+  },
+  "mat_side_framing_28": {
+   "kind": "toon",
+   "color": [
+    0.45490196347236633,
+    0.2666666805744171,
+    0.18039216101169586
+   ],
+   "strength": 0.0
+  },
+  "mat_side_framing_28.001": {
+   "kind": "toon",
+   "color": [
+    0.45490196347236633,
+    0.2666666805744171,
+    0.18039216101169586
+   ],
+   "strength": 0.0
+  },
+  "mat_side_framing_29": {
+   "kind": "toon",
+   "color": [
+    0.45490196347236633,
+    0.2666666805744171,
+    0.18039216101169586
+   ],
+   "strength": 0.0
+  },
+  "mat_side_framing_29.001": {
+   "kind": "toon",
+   "color": [
+    0.45490196347236633,
+    0.2666666805744171,
+    0.18039216101169586
+   ],
+   "strength": 0.0
+  },
+  "mat_side_framing_9": {
+   "kind": "toon",
+   "color": [
+    0.45490196347236633,
+    0.2666666805744171,
+    0.18039216101169586
+   ],
+   "strength": 0.0
+  },
+  "mat_side_framing_9.001": {
+   "kind": "toon",
+   "color": [
+    0.45490196347236633,
+    0.2666666805744171,
+    0.18039216101169586
+   ],
+   "strength": 0.0
+  },
+  "mat_sliding_latch_18": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_sliding_latch_18.001": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_sliding_latch_37": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_sliding_latch_37.001": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_speaker_grill_bar_10": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_speaker_grill_bar_11": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_speaker_grill_bar_12": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_speaker_grill_bar_13": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_speaker_grill_bar_14": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_speaker_grill_bar_15": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_speaker_grill_bar_16": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_speaker_grill_bar_17": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_speaker_grill_bar_18": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_speaker_grill_bar_9": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_speaker_panel_8": {
+   "kind": "toon",
+   "color": [
+    0.1921568661928177,
+    0.23137255012989044,
+    0.24313725531101227
+   ],
+   "strength": 0.0
+  },
+  "mat_spout_down_22": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_squared_oak_leg_1": {
+   "kind": "toon",
+   "color": [
+    0.45490196347236633,
+    0.2666666805744171,
+    0.18039216101169586
+   ],
+   "strength": 0.0
+  },
+  "mat_squared_oak_leg_3": {
+   "kind": "toon",
+   "color": [
+    0.45490196347236633,
+    0.2666666805744171,
+    0.18039216101169586
+   ],
+   "strength": 0.0
+  },
+  "mat_squared_oak_leg_5": {
+   "kind": "toon",
+   "color": [
+    0.45490196347236633,
+    0.2666666805744171,
+    0.18039216101169586
+   ],
+   "strength": 0.0
+  },
+  "mat_squared_oak_leg_7": {
+   "kind": "toon",
+   "color": [
+    0.45490196347236633,
+    0.2666666805744171,
+    0.18039216101169586
+   ],
+   "strength": 0.0
+  },
+  "mat_stand_crossbar_depth_10": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_stand_crossbar_depth_6": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_stand_crossbar_depth_8": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_stand_crossbar_left_to_right_5": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_stand_crossbar_left_to_right_7": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_stand_crossbar_left_to_right_9": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_steel_foot_plate_2": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_steel_foot_plate_4": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_steel_foot_plate_6": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_steel_foot_plate_8": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_steel_hinge_bolt_15": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_steel_hinge_bolt_15.001": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_steel_hinge_bolt_17": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_steel_hinge_bolt_17.001": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_steel_hinge_bolt_34": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_steel_hinge_bolt_34.001": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_steel_hinge_bolt_36": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_steel_hinge_bolt_36.001": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_stitched_upper_edge_10": {
+   "kind": "toon",
+   "color": [
+    0.5882353186607361,
+    0.5254902243614197,
+    0.4117647111415863
+   ],
+   "strength": 0.0
+  },
+  "mat_stitched_upper_edge_17": {
+   "kind": "toon",
+   "color": [
+    0.5882353186607361,
+    0.5254902243614197,
+    0.4117647111415863
+   ],
+   "strength": 0.0
+  },
+  "mat_stitched_upper_edge_2": {
+   "kind": "toon",
+   "color": [
+    0.5882353186607361,
+    0.5254902243614197,
+    0.4117647111415863
+   ],
+   "strength": 0.0
+  },
+  "mat_stitched_upper_edge_24": {
+   "kind": "toon",
+   "color": [
+    0.5882353186607361,
+    0.5254902243614197,
+    0.4117647111415863
+   ],
+   "strength": 0.0
+  },
+  "mat_stitched_upper_edge_32": {
+   "kind": "toon",
+   "color": [
+    0.5882353186607361,
+    0.5254902243614197,
+    0.4117647111415863
+   ],
+   "strength": 0.0
+  },
+  "mat_stitched_upper_edge_39": {
+   "kind": "toon",
+   "color": [
+    0.5882353186607361,
+    0.5254902243614197,
+    0.4117647111415863
+   ],
+   "strength": 0.0
+  },
+  "mat_stitched_upper_edge_47": {
+   "kind": "toon",
+   "color": [
+    0.5882353186607361,
+    0.5254902243614197,
+    0.4117647111415863
+   ],
+   "strength": 0.0
+  },
+  "mat_stitched_upper_edge_54": {
+   "kind": "toon",
+   "color": [
+    0.5882353186607361,
+    0.5254902243614197,
+    0.4117647111415863
+   ],
+   "strength": 0.0
+  },
+  "mat_stitched_upper_edge_61": {
+   "kind": "toon",
+   "color": [
+    0.5882353186607361,
+    0.5254902243614197,
+    0.4117647111415863
+   ],
+   "strength": 0.0
+  },
+  "mat_stitched_upper_edge_69": {
+   "kind": "toon",
+   "color": [
+    0.5882353186607361,
+    0.5254902243614197,
+    0.4117647111415863
+   ],
+   "strength": 0.0
+  },
+  "mat_stitched_upper_edge_77": {
+   "kind": "toon",
+   "color": [
+    0.5882353186607361,
+    0.5254902243614197,
+    0.4117647111415863
+   ],
+   "strength": 0.0
+  },
+  "mat_stitched_upper_edge_84": {
+   "kind": "toon",
+   "color": [
+    0.5882353186607361,
+    0.5254902243614197,
+    0.4117647111415863
+   ],
+   "strength": 0.0
+  },
+  "mat_stuffed_burlap_bag_1": {
+   "kind": "toon",
+   "color": [
+    0.7607843279838562,
+    0.6745098233222961,
+    0.5098039507865906
+   ],
+   "strength": 0.0
+  },
+  "mat_stuffed_burlap_bag_16": {
+   "kind": "toon",
+   "color": [
+    0.5882353186607361,
+    0.5254902243614197,
+    0.4117647111415863
+   ],
+   "strength": 0.0
+  },
+  "mat_stuffed_burlap_bag_23": {
+   "kind": "toon",
+   "color": [
+    0.7607843279838562,
+    0.6745098233222961,
+    0.5098039507865906
+   ],
+   "strength": 0.0
+  },
+  "mat_stuffed_burlap_bag_31": {
+   "kind": "toon",
+   "color": [
+    0.7098039388656616,
+    0.6549019813537598,
+    0.5411764979362488
+   ],
+   "strength": 0.0
+  },
+  "mat_stuffed_burlap_bag_38": {
+   "kind": "toon",
+   "color": [
+    0.5882353186607361,
+    0.5254902243614197,
+    0.4117647111415863
+   ],
+   "strength": 0.0
+  },
+  "mat_stuffed_burlap_bag_46": {
+   "kind": "toon",
+   "color": [
+    0.7607843279838562,
+    0.6745098233222961,
+    0.5098039507865906
+   ],
+   "strength": 0.0
+  },
+  "mat_stuffed_burlap_bag_53": {
+   "kind": "toon",
+   "color": [
+    0.7098039388656616,
+    0.6549019813537598,
+    0.5411764979362488
+   ],
+   "strength": 0.0
+  },
+  "mat_stuffed_burlap_bag_60": {
+   "kind": "toon",
+   "color": [
+    0.7607843279838562,
+    0.6745098233222961,
+    0.5098039507865906
+   ],
+   "strength": 0.0
+  },
+  "mat_stuffed_burlap_bag_68": {
+   "kind": "toon",
+   "color": [
+    0.7098039388656616,
+    0.6549019813537598,
+    0.5411764979362488
+   ],
+   "strength": 0.0
+  },
+  "mat_stuffed_burlap_bag_76": {
+   "kind": "toon",
+   "color": [
+    0.7607843279838562,
+    0.6745098233222961,
+    0.5098039507865906
+   ],
+   "strength": 0.0
+  },
+  "mat_stuffed_burlap_bag_83": {
+   "kind": "toon",
+   "color": [
+    0.8588235378265381,
+    0.772549033164978,
+    0.6039215922355652
+   ],
+   "strength": 0.0
+  },
+  "mat_stuffed_burlap_bag_9": {
+   "kind": "toon",
+   "color": [
+    0.8588235378265381,
+    0.772549033164978,
+    0.6039215922355652
+   ],
+   "strength": 0.0
+  },
+  "mat_supply_tin_or_canister_10": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_supply_tin_or_canister_11": {
+   "kind": "toon",
+   "color": [
+    0.658823549747467,
+    0.3176470696926117,
+    0.2666666805744171
+   ],
+   "strength": 0.0
+  },
+  "mat_supply_tin_or_canister_12": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_supply_tin_or_canister_13": {
+   "kind": "toon",
+   "color": [
+    0.5098039507865906,
+    0.7098039388656616,
+    0.7058823704719543
+   ],
+   "strength": 0.0
+  },
+  "mat_supply_tin_or_canister_14": {
+   "kind": "toon",
+   "color": [
+    0.3803921639919281,
+    0.4627451002597809,
+    0.3921568691730499
+   ],
+   "strength": 0.0
+  },
+  "mat_supply_tin_or_canister_15": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_supply_tin_or_canister_16": {
+   "kind": "toon",
+   "color": [
+    0.7607843279838562,
+    0.6745098233222961,
+    0.5098039507865906
+   ],
+   "strength": 0.0
+  },
+  "mat_support_frame_leg_1": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_support_frame_leg_2": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_support_frame_leg_3": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_support_frame_leg_4": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_tabletop_front_nosing_19": {
+   "kind": "toon",
+   "color": [
+    0.5803921818733215,
+    0.35686275362968445,
+    0.2235294133424759
+   ],
+   "strength": 0.0
+  },
+  "mat_tabletop_plank_14": {
+   "kind": "toon",
+   "color": [
+    0.7333333492279053,
+    0.5254902243614197,
+    0.3490196168422699
+   ],
+   "strength": 0.0
+  },
+  "mat_tabletop_plank_15": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_tabletop_plank_16": {
+   "kind": "toon",
+   "color": [
+    0.7333333492279053,
+    0.5254902243614197,
+    0.3490196168422699
+   ],
+   "strength": 0.0
+  },
+  "mat_tabletop_plank_17": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_tabletop_plank_18": {
+   "kind": "toon",
+   "color": [
+    0.7333333492279053,
+    0.5254902243614197,
+    0.3490196168422699
+   ],
+   "strength": 0.0
+  },
+  "mat_tail_cap_2": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_tank_filter_stage_17": {
+   "kind": "toon",
+   "color": [
+    0.7882353067398071,
+    0.7333333492279053,
+    0.6274510025978088
+   ],
+   "strength": 0.0
+  },
+  "mat_tap_outlet_20": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_thermo_backing_37": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_thermo_white_scale_38": {
+   "kind": "toon",
+   "color": [
+    0.886274516582489,
+    0.843137264251709,
+    0.7450980544090271
+   ],
+   "strength": 0.0
+  },
+  "mat_thermometer_bulb_41": {
+   "kind": "toon",
+   "color": [
+    0.658823549747467,
+    0.3176470696926117,
+    0.2666666805744171
+   ],
+   "strength": 0.0
+  },
+  "mat_thermometer_scale_mark_42": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_thermometer_scale_mark_43": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_thermometer_scale_mark_44": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_thermometer_scale_mark_45": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_thermometer_scale_mark_46": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_thermometer_scale_mark_47": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_thick_top_cap_6": {
+   "kind": "toon",
+   "color": [
+    0.5803921818733215,
+    0.35686275362968445,
+    0.2235294133424759
+   ],
+   "strength": 0.0
+  },
+  "mat_thick_top_cap_6.001": {
+   "kind": "toon",
+   "color": [
+    0.5803921818733215,
+    0.35686275362968445,
+    0.2235294133424759
+   ],
+   "strength": 0.0
+  },
+  "mat_tied_sack_knot_30": {
+   "kind": "toon",
+   "color": [
+    0.5882353186607361,
+    0.5254902243614197,
+    0.4117647111415863
+   ],
+   "strength": 0.0
+  },
+  "mat_tied_sack_knot_45": {
+   "kind": "toon",
+   "color": [
+    0.5882353186607361,
+    0.5254902243614197,
+    0.4117647111415863
+   ],
+   "strength": 0.0
+  },
+  "mat_tied_sack_knot_67": {
+   "kind": "toon",
+   "color": [
+    0.5882353186607361,
+    0.5254902243614197,
+    0.4117647111415863
+   ],
+   "strength": 0.0
+  },
+  "mat_tied_sack_knot_75": {
+   "kind": "toon",
+   "color": [
+    0.5882353186607361,
+    0.5254902243614197,
+    0.4117647111415863
+   ],
+   "strength": 0.0
+  },
+  "mat_tied_sack_knot_8": {
+   "kind": "toon",
+   "color": [
+    0.5882353186607361,
+    0.5254902243614197,
+    0.4117647111415863
+   ],
+   "strength": 0.0
+  },
+  "mat_top_crate_bottom_64": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_top_crate_corner_rivet_81": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_top_crate_corner_rivet_82": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_top_crate_corner_rivet_84": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_top_crate_corner_rivet_85": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_top_crate_corner_rivet_87": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_top_crate_corner_rivet_88": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_top_crate_corner_rivet_90": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_top_crate_corner_rivet_91": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_top_crate_diagonal_reinforcement_92": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_top_crate_front_back_plank_66": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_top_crate_front_back_plank_67": {
+   "kind": "toon",
+   "color": [
+    0.658823549747467,
+    0.4627451002597809,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_top_crate_front_back_plank_68": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_top_crate_front_back_plank_69": {
+   "kind": "toon",
+   "color": [
+    0.658823549747467,
+    0.4627451002597809,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_top_crate_front_back_plank_70": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_top_crate_front_back_plank_71": {
+   "kind": "toon",
+   "color": [
+    0.658823549747467,
+    0.4627451002597809,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_top_crate_front_back_plank_72": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_top_crate_front_back_plank_73": {
+   "kind": "toon",
+   "color": [
+    0.658823549747467,
+    0.4627451002597809,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_top_crate_lid_65": {
+   "kind": "toon",
+   "color": [
+    0.7333333492279053,
+    0.5254902243614197,
+    0.3490196168422699
+   ],
+   "strength": 0.0
+  },
+  "mat_top_crate_metal_corner_80": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_top_crate_metal_corner_83": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_top_crate_metal_corner_86": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_top_crate_metal_corner_89": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_top_crate_side_plank_74": {
+   "kind": "toon",
+   "color": [
+    0.6666666865348816,
+    0.45098039507865906,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_top_crate_side_plank_75": {
+   "kind": "toon",
+   "color": [
+    0.6666666865348816,
+    0.45098039507865906,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_top_crate_side_plank_76": {
+   "kind": "toon",
+   "color": [
+    0.6666666865348816,
+    0.45098039507865906,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_top_crate_side_plank_77": {
+   "kind": "toon",
+   "color": [
+    0.6666666865348816,
+    0.45098039507865906,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_top_crate_side_plank_78": {
+   "kind": "toon",
+   "color": [
+    0.6666666865348816,
+    0.45098039507865906,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_top_crate_side_plank_79": {
+   "kind": "toon",
+   "color": [
+    0.6666666865348816,
+    0.45098039507865906,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_top_crossbar_11": {
+   "kind": "toon",
+   "color": [
+    0.45490196347236633,
+    0.2666666805744171,
+    0.18039216101169586
+   ],
+   "strength": 0.0
+  },
+  "mat_top_crossbar_11.001": {
+   "kind": "toon",
+   "color": [
+    0.45490196347236633,
+    0.2666666805744171,
+    0.18039216101169586
+   ],
+   "strength": 0.0
+  },
+  "mat_top_crossbar_30": {
+   "kind": "toon",
+   "color": [
+    0.45490196347236633,
+    0.2666666805744171,
+    0.18039216101169586
+   ],
+   "strength": 0.0
+  },
+  "mat_top_crossbar_30.001": {
+   "kind": "toon",
+   "color": [
+    0.45490196347236633,
+    0.2666666805744171,
+    0.18039216101169586
+   ],
+   "strength": 0.0
+  },
+  "mat_top_recess_2": {
+   "kind": "toon",
+   "color": [
+    0.5686274766921997,
+    0.6313725709915161,
+    0.5411764979362488
+   ],
+   "strength": 0.0
+  },
+  "mat_top_side_nosing_left_20": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_top_side_nosing_right_21": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_torch_head_flared_3": {
+   "kind": "toon",
+   "color": [
+    0.2549019753932953,
+    0.3333333432674408,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_upper_filter_tank_11": {
+   "kind": "toon",
+   "color": [
+    0.2078431397676468,
+    0.2980392277240753,
+    0.3686274588108063
+   ],
+   "strength": 0.0
+  },
+  "mat_upper_tank_lid_12": {
+   "kind": "toon",
+   "color": [
+    0.1921568661928177,
+    0.23137255012989044,
+    0.24313725531101227
+   ],
+   "strength": 0.0
+  },
+  "mat_USB_dark_slot_24": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_USB_dark_slot_26": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_USB_port_23": {
+   "kind": "toon",
+   "color": [
+    0.529411792755127,
+    0.5686274766921997,
+    0.5843137502670288
+   ],
+   "strength": 0.0
+  },
+  "mat_USB_port_25": {
+   "kind": "toon",
+   "color": [
+    0.529411792755127,
+    0.5686274766921997,
+    0.5843137502670288
+   ],
+   "strength": 0.0
+  },
+  "mat_vent_cap_14": {
+   "kind": "toon",
+   "color": [
+    0.1921568661928177,
+    0.23137255012989044,
+    0.24313725531101227
+   ],
+   "strength": 0.0
+  },
+  "mat_vice_base_31": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_vice_handle_35": {
+   "kind": "toon",
+   "color": [
+    0.529411792755127,
+    0.5686274766921997,
+    0.5843137502670288
+   ],
+   "strength": 0.0
+  },
+  "mat_vice_jaw_fixed_32": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_vice_jaw_mobile_33": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_vice_screw_34": {
+   "kind": "toon",
+   "color": [
+    0.6980392336845398,
+    0.7058823704719543,
+    0.6784313917160034
+   ],
+   "strength": 0.0
+  },
+  "mat_water_level_blue_24": {
+   "kind": "toon",
+   "color": [
+    0.5098039507865906,
+    0.7098039388656616,
+    0.7058823704719543
+   ],
+   "strength": 0.0
+  },
+  "mat_water_level_window_23": {
+   "kind": "toon",
+   "color": [
+    0.529411792755127,
+    0.5686274766921997,
+    0.5843137502670288
+   ],
+   "strength": 0.0
+  },
+  "mat_water_tap_handle_21": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_water_tube_19": {
+   "kind": "toon",
+   "color": [
+    0.2078431397676468,
+    0.2980392277240753,
+    0.3686274588108063
+   ],
+   "strength": 0.0
+  },
+  "mat_weather_station_face_2": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_wire_protective_guard_10": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_wire_protective_guard_11": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_wire_protective_guard_12": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_wire_protective_guard_9": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_wrist_strap_anchor_14": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_yellowish_lens_5": {
+   "kind": "emit",
+   "color": [
+    1.0,
+    0.9200000166893005,
+    0.699999988079071
+   ],
+   "strength": 4.0
+  },
+  "pa_bracket": {
+   "kind": "toon",
+   "color": [
+    0.30000001192092896,
+    0.3100000023841858,
+    0.33000001311302185
+   ],
+   "strength": 0.0
+  },
+  "pa_cable": {
+   "kind": "toon",
+   "color": [
+    0.05000000074505806,
+    0.05000000074505806,
+    0.05000000074505806
+   ],
+   "strength": 0.0
+  },
+  "pa_copper": {
+   "kind": "toon",
+   "color": [
+    0.8500000238418579,
+    0.41999998688697815,
+    0.15000000596046448
+   ],
+   "strength": 0.0
+  },
+  "pa_driver": {
+   "kind": "toon",
+   "color": [
+    0.20000000298023224,
+    0.20999999344348907,
+    0.20000000298023224
+   ],
+   "strength": 0.0
+  },
+  "pa_horn": {
+   "kind": "toon",
+   "color": [
+    0.5799999833106995,
+    0.6000000238418579,
+    0.5
+   ],
+   "strength": 0.0
+  },
+  "pa_led": {
+   "kind": "emit",
+   "color": [
+    1.0,
+    0.07999999821186066,
+    0.03999999910593033
+   ],
+   "strength": 6.62537956237793
+  },
+  "pa_mouth": {
+   "kind": "toon",
+   "color": [
+    0.07000000029802322,
+    0.07000000029802322,
+    0.07999999821186066
+   ],
+   "strength": 0.0
+  },
+  "papers_cover": {
+   "kind": "toon",
+   "color": [
+    0.800000011920929,
+    0.3499999940395355,
+    0.10000000149011612
+   ],
+   "strength": 0.0
+  },
+  "papers_sheet": {
+   "kind": "toon",
+   "color": [
+    0.949999988079071,
+    0.9200000166893005,
+    0.8399999737739563
+   ],
+   "strength": 0.0
+  },
+  "pendant_bulb_emit": {
+   "kind": "emit",
+   "color": [
+    1.0,
+    0.75,
+    0.4000000059604645
+   ],
+   "strength": 15.0
+  },
+  "plaster_wall": {
+   "kind": "toon",
+   "color": [
+    0.6200000047683716,
+    0.44999998807907104,
+    0.27000001072883606
+   ],
+   "strength": 0.0
+  },
+  "pnw_map": {
+   "kind": "toon",
+   "color": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "strength": 0.0,
+   "texture": true
+  },
+  "radio_hole": {
+   "kind": "toon",
+   "color": [
+    0.012000000104308128,
+    0.009999999776482582,
+    0.009999999776482582
+   ],
+   "strength": 0.0
+  },
+  "stone_0_0": {
+   "kind": "toon",
+   "color": [
+    0.17000000178813934,
+    0.1899999976158142,
+    0.23000000417232513
+   ],
+   "strength": 0.0
+  },
+  "stone_0_3": {
+   "kind": "toon",
+   "color": [
+    0.17000000178813934,
+    0.1899999976158142,
+    0.23000000417232513
+   ],
+   "strength": 0.0
+  },
+  "stone_1_2": {
+   "kind": "toon",
+   "color": [
+    0.17000000178813934,
+    0.1899999976158142,
+    0.23000000417232513
+   ],
+   "strength": 0.0
+  },
+  "stone_2_1": {
+   "kind": "toon",
+   "color": [
+    0.17000000178813934,
+    0.1899999976158142,
+    0.23000000417232513
+   ],
+   "strength": 0.0
+  },
+  "stone_2_4": {
+   "kind": "toon",
+   "color": [
+    0.17000000178813934,
+    0.1899999976158142,
+    0.23000000417232513
+   ],
+   "strength": 0.0
+  },
+  "stone_3_0": {
+   "kind": "toon",
+   "color": [
+    0.17000000178813934,
+    0.1899999976158142,
+    0.23000000417232513
+   ],
+   "strength": 0.0
+  },
+  "stone_3_3": {
+   "kind": "toon",
+   "color": [
+    0.30000001192092896,
+    0.3100000023841858,
+    0.3499999940395355
+   ],
+   "strength": 0.0
+  },
+  "stone_4_2": {
+   "kind": "toon",
+   "color": [
+    0.17000000178813934,
+    0.1899999976158142,
+    0.23000000417232513
+   ],
+   "strength": 0.0
+  },
+  "stone_5_1": {
+   "kind": "toon",
+   "color": [
+    0.30000001192092896,
+    0.3100000023841858,
+    0.3499999940395355
+   ],
+   "strength": 0.0
+  },
+  "stone_5_4": {
+   "kind": "toon",
+   "color": [
+    0.17000000178813934,
+    0.1899999976158142,
+    0.23000000417232513
+   ],
+   "strength": 0.0
+  },
+  "stone_6_0": {
+   "kind": "toon",
+   "color": [
+    0.17000000178813934,
+    0.1899999976158142,
+    0.23000000417232513
+   ],
+   "strength": 0.0
+  },
+  "stone_6_3": {
+   "kind": "toon",
+   "color": [
+    0.17000000178813934,
+    0.1899999976158142,
+    0.23000000417232513
+   ],
+   "strength": 0.0
+  },
+  "stone_7_2": {
+   "kind": "toon",
+   "color": [
+    0.17000000178813934,
+    0.1899999976158142,
+    0.23000000417232513
+   ],
+   "strength": 0.0
+  },
+  "stone_wall": {
+   "kind": "toon",
+   "color": [
+    0.2199999988079071,
+    0.23999999463558197,
+    0.2800000011920929
+   ],
+   "strength": 0.0
+  },
+  "storm_window_emit": {
+   "kind": "sky",
+   "color": [
+    0.1,
+    0.42,
+    0.95
+   ],
+   "strength": 2.5
+  },
+  "timber_beam": {
+   "kind": "toon",
+   "color": [
+    0.2199999988079071,
+    0.11999999731779099,
+    0.05999999865889549
+   ],
+   "strength": 0.0
+  },
+  "toon_outline": {
+   "kind": "outline",
+   "color": [
+    0.017999999225139618,
+    0.009999999776482582,
+    0.012000000104308128
+   ],
+   "strength": 1.0
+  },
+  "wire_red": {
+   "kind": "toon",
+   "color": [
+    0.800000011920929,
+    0.10000000149011612,
+    0.05000000074505806
+   ],
+   "strength": 0.0
+  },
+  "wire_yel": {
+   "kind": "toon",
+   "color": [
+    0.8999999761581421,
+    0.75,
+    0.10000000149011612
+   ],
+   "strength": 0.0
+  }
+ },
+ "lights": [
+  {
+   "name": "cabinet_fill",
+   "type": "POINT",
+   "pos": [
+    4.25,
+    1.5,
+    -0.1
+   ],
+   "dir": [
+    0.0,
+    -1.0,
+    -0.0
+   ],
+   "color": [
+    1.0,
+    0.6200000047683716,
+    0.3199999928474426
+   ],
+   "energy": 110.0,
+   "size": 0.0,
+   "radius": 0.30000001192092896
+  },
+  {
+   "name": "cabinet_interior",
+   "type": "POINT",
+   "pos": [
+    4.35,
+    1.55,
+    -0.75
+   ],
+   "dir": [
+    0.0,
+    -1.0,
+    -0.0
+   ],
+   "color": [
+    1.0,
+    0.7200000286102295,
+    0.41999998688697815
+   ],
+   "energy": -3.552713678800501e-14,
+   "size": 0.0,
+   "radius": 0.20000000298023224
+  },
+  {
+   "name": "cool_front_fill",
+   "type": "AREA",
+   "pos": [
+    -1.0,
+    2.2,
+    3.0
+   ],
+   "dir": [
+    0.2203,
+    -0.3085,
+    -0.9254
+   ],
+   "color": [
+    0.30000001192092896,
+    0.550000011920929,
+    0.8999999761581421
+   ],
+   "energy": 160.0,
+   "size": 5.0,
+   "radius": 0.0
+  },
+  {
+   "name": "lantern_glow",
+   "type": "POINT",
+   "pos": [
+    3.3475,
+    1.3351,
+    -1.45
+   ],
+   "dir": [
+    0.0,
+    -1.0,
+    -0.0
+   ],
+   "color": [
+    1.0,
+    0.550000011920929,
+    0.2199999988079071
+   ],
+   "energy": 91.09044647216797,
+   "size": 0.0,
+   "radius": 0.05000000074505806
+  },
+  {
+   "name": "pendant_key",
+   "type": "POINT",
+   "pos": [
+    2.75,
+    2.3,
+    -0.75
+   ],
+   "dir": [
+    0.0,
+    -1.0,
+    -0.0
+   ],
+   "color": [
+    1.0,
+    0.699999988079071,
+    0.3799999952316284
+   ],
+   "energy": 300.0,
+   "size": 0.0,
+   "radius": 0.10000000149011612
+  },
+  {
+   "name": "radio_glow",
+   "type": "POINT",
+   "pos": [
+    2.3799,
+    1.453,
+    -1.065
+   ],
+   "dir": [
+    0.0,
+    -1.0,
+    -0.0
+   ],
+   "color": [
+    0.44999998807907104,
+    1.0,
+    0.699999988079071
+   ],
+   "energy": 0.0,
+   "size": 0.0,
+   "radius": 0.15000000596046448
+  },
+  {
+   "name": "storm_moon_rim",
+   "type": "SUN",
+   "pos": [
+    0.0,
+    5.0,
+    -0.0
+   ],
+   "dir": [
+    0.5265,
+    -0.5736,
+    0.6275
+   ],
+   "color": [
+    0.3499999940395355,
+    0.6499999761581421,
+    1.0
+   ],
+   "energy": 1.600000023841858,
+   "size": 0.0,
+   "radius": 0.0
+  },
+  {
+   "name": "storm_window",
+   "type": "AREA",
+   "pos": [
+    -1.5,
+    1.55,
+    -1.6
+   ],
+   "dir": [
+    -0.131,
+    -0.5077,
+    0.8515
+   ],
+   "color": [
+    0.2199999988079071,
+    0.6000000238418579,
+    1.0
+   ],
+   "energy": 420.0,
+   "size": 2.799999952316284,
+   "radius": 0.0
+  }
+ ],
+ "world_color": [
+  0.012000000104308128,
+  0.03500000014901161,
+  0.05999999865889549
+ ],
+ "camera": {
+  "ortho_width": 6.6,
+  "tilt_deg": 8.0,
+  "x_left": -1.5,
+  "x_right": 2.6,
+  "pos_y": 3.2200772115207856,
+  "pos_z": 9.883216824898845
+ },
+ "points": {
+  "window": [
+   -1.5,
+   1.53,
+   -2.0
+  ],
+  "speaker_mount": [
+   5.24,
+   2.68,
+   -1.86
+  ]
+ }
+}
