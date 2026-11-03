@@ -272,8 +272,8 @@ func _group_at(p: Vector2) -> String:
 
 func label_for(group: String) -> String:
 	var name: String = "CLOSE SHUTTERS" if group == "sky" else LABELS.get(group, "")
-	if ui.held != "" and name != "":
-		return "USE %s ON %s" % [ui.ITEM_NAMES[ui.held], name]
+	if ui.held != null and name != "":
+		return "USE %s ON %s" % [ui.held.name, name]
 	return name
 
 
@@ -332,16 +332,20 @@ func toggle_cabinet() -> void:
 	door_at = clock
 
 
-## take a prop off the shelf/bench: hide it in the room, fly its icon to the inventory
-func pick_up(group: String, item: String) -> void:
+## take a prop off the shelf/bench: hide it in the room, fly its icon to the inventory.
+## item_id names res://items/<item_id>.tres. Nothing happens while the bar is full.
+func pick_up(group: String, item_id: String) -> void:
+	if not ui.has_room():
+		return
 	var from := group_screen_pt(group)
 	groups[group].visible = false
-	ui.fly(item, from, clock)
-	GameState.set_flag("took_" + item)
+	ui.fly(InventoryManager.get_item(item_id), from, clock)
+	GameState.set_flag("took_" + item_id)
 
 
-## a held item clicked on something in the room; false = nothing happens, it goes back
-func use_item(item: String, group: String) -> bool:
+## a held item clicked on something in the room; false = nothing happens, it goes back.
+## An item the use consumes should leave with InventoryManager.remove_item(item).
+func use_item(item: ItemData, group: String) -> bool:
 	return false
 
 
@@ -355,12 +359,12 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		click()
 	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
-		ui.held = ""
+		ui.held = null
 	elif event is InputEventKey and event.pressed and not event.echo:
 		match event.keycode:
 			KEY_ESCAPE:
-				if ui.held != "":
-					ui.held = ""
+				if ui.held != null:
+					ui.held = null
 				else:
 					ui.close_panel()
 
@@ -370,9 +374,9 @@ func click() -> void:
 	ui.ripple(cursor, clock)
 	if ui.handle_click(cursor):
 		return
-	if ui.held != "":
-		var item: String = ui.held
-		ui.held = ""                     # back to its slot unless the use consumes it
+	if ui.held != null:
+		var item: ItemData = ui.held
+		ui.held = null                   # back to its slot unless the use consumes it
 		if hover != "":
 			use_item(item, hover)
 		return
@@ -483,9 +487,9 @@ func _demo(out: String) -> void:
 		[700, "shot", "14_cabinet_open"],
 		[701, "hover", "jar"], [720, "shot", "15_hover_jar"], [721, "click"], [728, "shot", "16_jar_flying"],
 		[745, "hover", "papers"], [765, "shot", "17_hover_papers"], [766, "click"],
-		[800, "point", Vector2(206, 255)], [815, "shot", "18_hover_slot"], [816, "click"],
+		[800, "point", Vector2(196, 255)], [815, "shot", "18_hover_slot"], [816, "click"],
 		[817, "hover", "bench", Vector2(0, 20)], [840, "shot", "19_holding_over_bench"], [841, "click"],
-		[860, "point", Vector2(228, 255)], [870, "shot", "20_back_in_inventory"],
+		[860, "point", Vector2(218, 255)], [870, "shot", "20_back_in_inventory"],
 		[871, "quit"],
 	]
 	for s in steps:

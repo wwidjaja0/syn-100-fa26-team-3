@@ -1,7 +1,7 @@
-# Before the Surge
+# Ouroboros' Cabin
 
 First-person point-and-click in a climate shelter cabin, rendered as low-res toon pixel art.
-Godot 4.7. Desktop game for Windows and macOS.
+Godot 4.7. Desktop game for Windows, macOS and Linux (Ubuntu).
 
 **Making art or props? Read [`ASSET_GUIDE.md`](ASSET_GUIDE.md) first.**
 
@@ -19,6 +19,7 @@ Open `project.godot` in Godot 4.7.x and press F5.
 |---|---|---|
 | Windows | Forward+ on Vulkan | `rendering_device/driver.windows` |
 | macOS | Forward+ on Metal | `rendering_device/driver.macos` |
+| Linux | Forward+ on Vulkan | Godot default |
 | Fallback | Compatibility (OpenGL) | Used automatically when a machine can't run Vulkan or Metal |
 
 On Macs that can't use Metal, Godot tries Vulkan (MoltenVK) first, then OpenGL.
@@ -34,7 +35,11 @@ project.godot, export_presets.cfg   Godot project (repo root)
 scenes/main.tscn                    the cabin: viewports, camera, lights, UI layer
 scripts/main.gd                     room setup, camera pan, hover/click, interactions
 scripts/ui.gd                       pixel UI: labels, inventory, map panel, cursor
-scripts/game_state.gd               autoload: day, inventory, story flags
+scripts/game_state.gd               autoload: day, story flags
+InventoryManager.gd                 autoload: what the player carries (ItemData list, 5 slots)
+inventory_data.gd, item_data.gd     ItemData (id, name, icon) and InventoryData resource classes
+items/                              one ItemData .tres per item (jar, papers, cig, speaker, battery)
+InventoryBar.tscn, SlotUI.tscn      placeholder Control-based inventory bar (not used in the game yet)
 shaders/toon.gdshader               every 3D surface + the object-id mask pass
 shaders/post.gdshader               toon banding, dither, 40-colour palette, outline, heat
 assets/                             shelter.glb (the room) + scene_meta.json + palette.json
@@ -66,16 +71,27 @@ Use Project > Export, or the command line. You need the Godot 4.7.2 export templ
 (Editor > Manage Export Templates).
 
 ```sh
-godot --headless --path . --export-release "Windows Desktop" build/windows/BeforeTheSurge.exe
-godot --headless --path . --export-release "macOS" build/macos/BeforeTheSurge.zip
+godot --headless --path . --export-release "Windows Desktop" build/windows/OuroborosCabin.exe
+godot --headless --path . --export-release "macOS" build/macos/OuroborosCabin.zip
+godot --headless --path . --export-release "Linux" build/linux/OuroborosCabin.x86_64
 ```
 
 - **Windows:** one `.exe` with the game data embedded.
 - **macOS:** a zipped universal `.app` (Intel and Apple Silicon), ad-hoc signed and **not notarized**.
-  The first launch needs right-click > Open, or `xattr -cr "Before the Surge.app"` in Terminal.
+  The first launch needs right-click > Open, or `xattr -cr "Ouroboros' Cabin.app"` in Terminal.
   `application/bundle_identifier` in `export_presets.cfg` is a placeholder.
+- **Linux:** one x86_64 executable with the game data embedded, built for Ubuntu (any distro from the last
+  few years works). Run it with `chmod +x OuroborosCabin.x86_64 && ./OuroborosCabin.x86_64`. It needs Vulkan
+  drivers (Mesa, or NVIDIA's own driver). On Wayland desktops such as Ubuntu's it runs through XWayland.
 
 A **Web** preset is also in `export_presets.cfg`, but the web isn't a target.
+
+### CI builds
+
+`.github/workflows/build.yml` runs on every push to any branch. It exports all three platforms with Godot
+4.7.2, and you can download them from the run's page under **Artifacts**
+(`OuroborosCabin-windows`, `-macos`, `-linux-x86_64`). Pushing a tag such as `v0.1` also attaches them to a
+GitHub release. When the team moves to a new Godot version, change `GODOT_VERSION` in the workflow.
 
 ## Dev screenshots
 
@@ -89,5 +105,5 @@ godot --path . --rendering-driver opengl3 -- --demo screens   # same through Com
 
 ## Temporary developer notes
 
-In the FileSystem, you can (right-click) res:// -> Create New -> Resource -> (double-click) Resource and make
-placeholder items like `battery.tres` or `speaker.tres`.
+In the FileSystem, you can (right-click) `items/` -> Create New -> Resource -> (double-click) ItemData and make
+items like `items/battery.tres` or `items/speaker.tres`. Set `id` to the file name.

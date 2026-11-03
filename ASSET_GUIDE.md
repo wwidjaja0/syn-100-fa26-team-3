@@ -66,7 +66,7 @@ hidden goes in `start_hidden` (`pipeline/godot/export_glb.py`).
 2. **Label it.** Add the hover text to `LABELS` in `scripts/main.gd`. Use the pixel font's character set only:
    `A–Z 0–9 . , ' - : ? ! ( ) / + = %`, written in caps.
 3. **Script it.** Add a `match hover:` branch in `click()` (`scripts/main.gd`). Item-on-object combos
-   go in `use_item()`. Story progress goes in `GameState` flags and inventory.
+   go in `use_item()`. Story progress goes in `GameState` flags; carried items go through `InventoryManager`.
 4. **Re-export** (section 6) and check the outline in a screenshot.
 
 The full outline and hover come from the mask pass, so a group has to be **visible to the camera**
@@ -82,7 +82,11 @@ Everything is drawn at 1x on the 480x270 canvas by `scripts/ui.gd`.
 | Item icons | `pixui.ICONS` + `ICON_COLORS` | 12x12 character grids, `K` ink outline, drawn in 20x20 slots |
 | Cursors | `pixui.ARROW` / `HAND` | `X` ink, `W` fill, hotspot in `SPRITES` |
 | Map panel | `pipeline/scene/make_map.py` | 200x225 panel with frame, title strip and close box |
-| Item names | `ITEM_NAMES` in `pixui.py` and `scripts/ui.gd` | Keep both in sync |
+| Items | `items/<id>.tres` (`ItemData`: id, name, icon) | `name` is the in-game label; `icon` is a 12x12 PNG from `ui/`. No icon draws a `?` box |
+
+**Adding an item:** draw its icon in `pixui.ICONS` and regenerate (below), then create `items/<id>.tres`
+(FileSystem > right-click `items/` > Create New > Resource > ItemData) with `id` matching the file name.
+Pick it up with `pick_up("<group>", "<id>")` in `main.gd`. `pixui.ITEM_NAMES` only feeds the Blender video.
 
 Rules:
 - **Use palette colours exactly.** The UI is drawn after the palette snap, so off-palette colours show

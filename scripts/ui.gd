@@ -11,17 +11,11 @@ const HAND := preload("res://ui/cursor_hand.png")
 const MAP_PANEL := preload("res://ui/map_panel.png")
 const WHITE := Color(1, 1, 1)
 const INK := Color8(14, 5, 5)
-const INV_POS := Vector2i(196, 245)      # first inventory slot, top-left
 const SLOT := 20
 const SLOT_STEP := 22
-const SLOTS := 4
+const SLOTS: int = preload("res://InventoryManager.gd").MAX_ITEMS
+const INV_POS := Vector2i((W - SLOT_STEP * SLOTS + SLOT_STEP - SLOT) / 2, 245)   # first slot, top-left; bar centred
 const FLY := 16.0                        # frames an item takes to fly into its slot
-const ITEM_NAMES := {"jar": "DRIED MUSHROOMS", "papers": "ROLLING PAPERS", "cig": "SHROOM CIGARETTE",
-		"speaker": "PA SPEAKER"}
-const ICONS := {
-	"jar": preload("res://ui/icon_jar.png"), "papers": preload("res://ui/icon_papers.png"),
-	"cig": preload("res://ui/icon_cig.png"), "speaker": preload("res://ui/icon_speaker.png"),
-}
 
 var panel := ""
 var panel_at := -1e9
@@ -30,8 +24,8 @@ var ripples: Array = []                  # [pos, clock]
 var map_meta: Dictionary
 var map_pos: Vector2i
 var hotspots: Dictionary
-var flights: Array = []                  # [item, from (screen px), launched at]
-var held := ""                           # item riding on the cursor
+var flights: Array = []                  # [ItemData, from (screen px), launched at]
+var held: ItemData = null                # item riding on the cursor
 var panel_col: Color                     # palette-snapped panel colours
 var panel_hi: Color
 var panel_lo: Color
@@ -63,12 +57,17 @@ static func _pal(pal: Array, c: Color) -> Color:
 
 
 # ---------------------------------------------------------------- inventory
-func fly(item: String, from: Vector2, now: float) -> void:
+func fly(item: ItemData, from: Vector2, now: float) -> void:
 	flights.append([item, from, now])
 
 
 func flying() -> bool:
 	return not flights.is_empty()
+
+
+## room for one more item, counting the ones still flying into the bar
+func has_room() -> bool:
+	return InventoryManager.inventory.items.size() + flights.size() < SLOTS
 
 
 func _slot_rect(i: int) -> Rect2:
@@ -83,11 +82,20 @@ func _slot_at(p: Vector2) -> int:
 
 
 ## what a slot shows: the inventory item, unless it is riding on the cursor
-func _slot_item(i: int) -> String:
-	var inv: Array = GameState.inventory
+func _slot_item(i: int) -> ItemData:
+	var inv: Array[ItemData] = InventoryManager.inventory.items
 	if i >= inv.size() or inv[i] == held:
-		return ""
+		return null
 	return inv[i]
+
+
+## an item's 12x12 icon at pos; items without art yet get a "?" box
+func _draw_icon(item: ItemData, pos: Vector2) -> void:
+	if item.icon != null:
+		draw_texture(item.icon, pos)
+	else:
+		_frame(Rect2(pos, Vector2(12, 12)), panel_hi)
+		text("?", pos + Vector2(3, 2), WHITE, INK)
 
 
 # ---------------------------------------------------------------- panels
@@ -142,9 +150,9 @@ func handle_click(p: Vector2) -> bool:
 	var slot := _slot_at(p)
 	if slot >= 0:
 		var item := _slot_item(slot)
-		if held != "" and (item == "" or item != held):
-			held = ""                    # put back whatever was in hand
-		elif item != "":
+		if held != null and item != held:
+			held = null                  # put back whatever was in hand
+		elif item != null:
 			held = item
 		return true
 	return false
@@ -170,13 +178,13 @@ func _draw() -> void:
 	for i in SLOTS:
 		var r := _slot_rect(i)
 		var item := _slot_item(i)
-		var hov := item != "" and r.has_point(cur) and panel == ""
+		var hov := item != null and r.has_point(cur) and panel == ""
 		draw_rect(r, panel_col)
 		_frame(r, WHITE if hov else panel_hi)
-		if item != "":
-			draw_texture(ICONS[item], r.position + Vector2(4, 4))
+		if item != null:
+			_draw_icon(item, r.position + Vector2(4, 4))
 		if hov:
-			label = ITEM_NAMES[item]
+			label = item.name
 			ui_hover = true
 
 	if panel == "map":
@@ -211,14 +219,14 @@ func _draw() -> void:
 		if k >= 1.0:
 			landed.append(fl)
 			continue
-		var slot: int = GameState.inventory.size() + flights.find(fl)
+		var slot: int = InventoryManager.inventory.items.size() + flights.find(fl)
 		var to := _slot_rect(slot).get_center()
 		var t := smoothstep(0.0, 1.0, k)
 		var at: Vector2 = fl[1].lerp(to, t) - Vector2(0, 30.0 * sin(PI * t))
-		draw_texture(ICONS[fl[0]], at.floor() - Vector2(6, 6))
+		_draw_icon(fl[0], at.floor() - Vector2(6, 6))
 	for fl in landed:
 		flights.erase(fl)
-		GameState.add_item(fl[0])
+		InventoryManager.add_item(fl[0])
 
 	for r in ripples:
 		var k: float = now - r[1]
@@ -226,14 +234,14 @@ func _draw() -> void:
 			_ring(r[0], 3.0 + k * 1.6, WHITE)
 	ripples = ripples.filter(func(r): return now - r[1] < 7.0)
 
-	var hand: bool = game.hover != "" or ui_hover or held != ""
+	var hand: bool = game.hover != "" or ui_hover or held != null
 	var name := "hand" if hand else "arrow"
 	var hs: Array = hotspots[name]
 	var pressed: bool = game.clicking()
 	var at := cur - Vector2(hs[0], hs[1]) + Vector2(0, 1 if pressed else 0)
 	draw_texture(HAND if hand else ARROW, at, Color(0.78, 0.78, 0.80) if pressed else WHITE)
-	if held != "":
-		draw_texture(ICONS[held], cur + Vector2(5, 8))
+	if held != null:
+		_draw_icon(held, cur + Vector2(5, 8))
 
 
 # ---------------------------------------------------------------- pixel helpers
