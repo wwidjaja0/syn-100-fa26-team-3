@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://nn43ykjbb247"]
+
+[ext_resource type="PackedScene" uid="uid://6wvc4trkhcbf" path="res://SlotUI.tscn" id="1_aoyw2"]
+
+[node name="InventoryBar" type="HBoxContainer" unique_id=919282392]
+
+[node name="SlotUi" parent="." unique_id=430031555 instance=ExtResource("1_aoyw2")]
+layout_mode = 2
+
+[node name="SlotUi2" parent="." unique_id=2032296474 instance=ExtResource("1_aoyw2")]
+layout_mode = 2
+
+[node name="SlotUi3" parent="." unique_id=1652768462 instance=ExtResource("1_aoyw2")]
+layout_mode = 2
+
+[node name="SlotUi4" parent="." unique_id=1417382703 instance=ExtResource("1_aoyw2")]
+layout_mode = 2
+
+[node name="SlotUi5" parent="." unique_id=311741485 instance=ExtResource("1_aoyw2")]
+layout_mode = 2

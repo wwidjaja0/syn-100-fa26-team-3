@@ -11,8 +11,13 @@ config_version=5
 [application]
 
 config/name="syn-100-fa26-team-3"
+run/main_scene="uid://nn43ykjbb247"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
+
+[autoload]
+
+InventoryManager="*uid://2u0en41cmvdy"
 
 [display]
 
