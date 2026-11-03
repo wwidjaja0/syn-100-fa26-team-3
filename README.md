@@ -1,7 +1,7 @@
 # Before the Surge
 
 First-person point-and-click in a climate shelter cabin, rendered as low-res toon pixel art.
-Godot 4.7. Hosted on itch.io as a web build.
+Godot 4.7. Desktop game for Windows and macOS.
 
 **Making art or props? Read [`ASSET_GUIDE.md`](ASSET_GUIDE.md) first.**
 
@@ -15,13 +15,16 @@ Open `project.godot` in Godot 4.7.x and press F5.
 
 ## Renderers
 
-| Build | Renderer | Why |
+| Platform | Renderer | Setting |
 |---|---|---|
-| Editor and desktop | Forward+ on Vulkan | `renderer/rendering_method`, `rendering_device/driver.windows` |
-| Web (itch.io) | Compatibility (WebGL 2) | Browsers only support Compatibility, set by `renderer/rendering_method.web` |
+| Windows | Forward+ on Vulkan | `rendering_device/driver.windows` |
+| macOS | Forward+ on Metal | `rendering_device/driver.macos` |
+| Fallback | Compatibility (OpenGL) | Used automatically when a machine can't run Vulkan or Metal |
 
-The two renderers treat colour differently. The shaders and `scripts/main.gd` (`compat`) compensate,
-so both builds look the same. See "Rendering rules" in the asset guide before touching
+On Macs that can't use Metal, Godot tries Vulkan (MoltenVK) first, then OpenGL.
+
+Compatibility treats colour differently from Forward+. The shaders and `scripts/main.gd` (`compat`)
+compensate, so the fallback looks the same. See "Rendering rules" in the asset guide before touching
 shaders or lights.
 
 ## Layout
@@ -57,13 +60,22 @@ python3 pipeline/godot/make_ui_assets.py                   # font, cursors, icon
 
 `.blend` files are build outputs and are not committed.
 
-## Exporting for itch.io
+## Exporting
 
-Project > Export > **Web** writes `build/web/`. Zip the contents of that folder and upload it to itch.io as an
-HTML game, with "This file will be played in the browser" checked. The preset is single-threaded, so
-itch's SharedArrayBuffer option isn't needed. The **Windows Desktop** preset is there for a downloadable build.
+Use Project > Export, or the command line. You need the Godot 4.7.2 export templates
+(Editor > Manage Export Templates).
 
-From the command line: `godot --headless --path . --export-release "Web" build/web/index.html`.
+```sh
+godot --headless --path . --export-release "Windows Desktop" build/windows/BeforeTheSurge.exe
+godot --headless --path . --export-release "macOS" build/macos/BeforeTheSurge.zip
+```
+
+- **Windows:** one `.exe` with the game data embedded.
+- **macOS:** a zipped universal `.app` (Intel and Apple Silicon), ad-hoc signed and **not notarized**.
+  The first launch needs right-click > Open, or `xattr -cr "Before the Surge.app"` in Terminal.
+  `application/bundle_identifier` in `export_presets.cfg` is a placeholder.
+
+A **Web** preset is also in `export_presets.cfg`, but the web isn't a target.
 
 ## Dev screenshots
 
@@ -72,5 +84,5 @@ From the command line: `godot --headless --path . --export-release "Web" build/w
 ```sh
 godot --path . -- --demo screens            # walkthrough
 godot --path . -- --demo screens --raw      # unprocessed lit frame + object-id mask
-godot --path . --rendering-driver opengl3 -- --demo screens   # same through Compatibility (the web renderer)
+godot --path . --rendering-driver opengl3 -- --demo screens   # same through Compatibility (the OpenGL fallback)
 ```

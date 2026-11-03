@@ -116,8 +116,9 @@ change the source and re-export.
 
 ## 7. Rendering rules (shaders and lights)
 
-The web build runs Godot's **Compatibility** renderer, and desktop runs **Forward+**. They differ in ways
-that were measured and compensated for. Keep these intact:
+The game runs Godot's **Forward+** renderer: Vulkan on Windows, Metal on macOS. Machines that can't run
+either fall back to **Compatibility** (OpenGL). The two renderers differ in ways that were measured and
+compensated for. Keep these intact:
 - `toon.gdshader` hands colours to Compatibility **sRGB-encoded** (`srgb_io`) because it linearises
   `ALBEDO`/`EMISSION` itself, and decodes textures by hand. Don't add `source_color` hints.
 - **No instance uniforms.** Per-object values are separate material copies (`_toonify` in `main.gd`).
@@ -131,7 +132,7 @@ that were measured and compensated for. Keep these intact:
 
 ```sh
 godot --path . -- --demo screens                              # Forward+ walkthrough screenshots
-godot --path . --rendering-driver opengl3 -- --demo screens   # same through Compatibility (web)
+godot --path . --rendering-driver opengl3 -- --demo screens   # same through Compatibility (OpenGL fallback)
 godot --path . -- --demo screens --raw                        # raw lit frame + mask.png
 ```
 
@@ -140,5 +141,6 @@ Checklist:
 - [ ] Colours land on the palette without ugly dithering (compare with nearby props).
 - [ ] Hovering it outlines **only** it, and the label is right, in **both** renderers.
 - [ ] `mask.png` red values are exact multiples of 12 (ids are intact).
-- [ ] The web export works: `godot --headless --path . --export-release "Web" build/web/index.html`, served over
-      http (e.g. `python3 -m http.server` in `build/web`).
+- [ ] Textures are imported **lossless** (Import dock > Compress > Mode: Lossless), never VRAM compressed.
+      Compression smears pixel art and uses a different format on each platform.
+- [ ] The exports still build (commands in the README, "Exporting").
