@@ -86,3 +86,8 @@ godot --path . -- --demo screens            # walkthrough
 godot --path . -- --demo screens --raw      # unprocessed lit frame + object-id mask
 godot --path . --rendering-driver opengl3 -- --demo screens   # same through Compatibility (the OpenGL fallback)
 ```
+
+## Temporary developer notes
+
+In the FileSystem, you can (right-click) res:// -> Create New -> Resource -> (double-click) Resource and make
+placeholder items like `battery.tres` or `speaker.tres`.
