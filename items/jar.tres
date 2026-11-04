@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://dm2ptqvjow2a4"]
+
+[ext_resource type="Script" uid="uid://c26qkrdnm6xgu" path="res://inventory_data.gd" id="1_item"]
+[ext_resource type="Texture2D" uid="uid://hen2bhupfrjm" path="res://ui/icon_jar.png" id="2_icon"]
+
+[resource]
+script = ExtResource("1_item")
+id = "jar"
+name = "DRIED MUSHROOMS"
+icon = ExtResource("2_icon")

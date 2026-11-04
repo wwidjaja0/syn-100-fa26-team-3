@@ -1,0 +1,139 @@
+name: Build
+
+# Exports the game for Windows, macOS, Linux and the web with Godot's command-line exporter.
+# Every push builds all four; download them from the run's "Artifacts" section.
+# Pushing a tag such as v0.1 also publishes them as a GitHub release.
+#
+# The web build (WebGL 2) can go to GitHub Pages. Pushes to main deploy it. To put any
+# branch online on demand, use Actions > Build > Run workflow (or
+# `gh workflow run build.yml --ref <branch>`), which deploys by default.
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      deploy_pages:
+        description: Deploy the web build to GitHub Pages
+        type: boolean
+        default: true
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  GODOT_VERSION: 4.7.2      # keep in step with the editor version the team uses
+
+jobs:
+  export:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: write        # only used to publish releases for v* tags
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Cache Godot and export templates
+        id: cache
+        uses: actions/cache@v6
+        with:
+          path: ~/godot
+          key: godot-${{ env.GODOT_VERSION }}-v2
+
+      - name: Download Godot and export templates
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          set -euo pipefail
+          base="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable"
+          mkdir -p ~/godot/templates && cd ~/godot
+          curl -fsSL -o godot.zip "$base/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q godot.zip && mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" godot && rm godot.zip
+          # the template archive is ~1.2 GB; keep only what the four presets use
+          curl -fsSL -o templates.tpz "$base/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
+          unzip -joq templates.tpz templates/version.txt templates/macos.zip \
+            templates/linux_release.x86_64 templates/windows_release_x86_64.exe \
+            templates/web_nothreads_release.zip -d templates
+          rm templates.tpz
+
+      - name: Install export templates
+        run: |
+          dir=~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+          mkdir -p "$(dirname "$dir")" && ln -sfn ~/godot/templates "$dir"
+          echo "$HOME/godot" >> "$GITHUB_PATH"
+
+      - name: Import project
+        run: godot --headless --path . --import
+
+      - name: Export
+        run: |
+          set -euo pipefail
+          export_preset() {    # preset name, output path
+            mkdir -p "$(dirname "$2")"
+            godot --headless --path . --export-release "$1" "$2"
+            test -s "$2" || { echo "::error::Export preset '$1' produced no $2"; exit 1; }
+          }
+          export_preset "Windows Desktop" build/windows/OuroborosCabin.exe
+          export_preset "macOS"           build/macos/OuroborosCabin.zip
+          export_preset "Linux"           build/linux/OuroborosCabin.x86_64
+          export_preset "Web"             build/web/index.html
+          mkdir -p dist
+          (cd build/windows && zip -q ../../dist/OuroborosCabin-windows.zip OuroborosCabin.exe)
+          cp build/macos/OuroborosCabin.zip dist/OuroborosCabin-macos.zip
+          tar -czf dist/OuroborosCabin-linux-x86_64.tar.gz -C build/linux OuroborosCabin.x86_64   # tar keeps the executable bit
+          (cd build/web && zip -qr ../../dist/OuroborosCabin-web.zip .)                          # itch.io-ready HTML5 zip
+          ls -la dist
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: OuroborosCabin-windows
+          path: dist/OuroborosCabin-windows.zip
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v7
+        with:
+          name: OuroborosCabin-macos
+          path: dist/OuroborosCabin-macos.zip
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v7
+        with:
+          name: OuroborosCabin-linux-x86_64
+          path: dist/OuroborosCabin-linux-x86_64.tar.gz
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v7
+        with:
+          name: OuroborosCabin-web
+          path: dist/OuroborosCabin-web.zip
+          if-no-files-found: error
+
+      - name: Package the web build for GitHub Pages
+        if: (github.event_name == 'workflow_dispatch' && inputs.deploy_pages) || github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: build/web
+
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" dist/* --title "Ouroboros' Cabin $GITHUB_REF_NAME" --generate-notes
+
+  pages:
+    needs: export
+    if: (github.event_name == 'workflow_dispatch' && inputs.deploy_pages) || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v5

@@ -2,3 +2,16 @@
 .godot/
 /android/
 .DS_Store
+
+# dev screenshots from `-- --demo screens`
+/screens/
+
+# regenerable pipeline outputs (see README > Rebuilding assets)
+*.blend
+*.blend1
+/pipeline/scene/story/
+/pipeline/scene/render_*.png
+__pycache__/
+
+# exports (see README > Exporting; CI builds them in .github/workflows/build.yml)
+/build/

@@ -1,0 +1,95 @@
+{
+ "size": [
+  3628,
+  1448
+ ],
+ "origin_px": [
+  14,
+  14
+ ],
+ "px_per_deg": 10,
+ "lat_top": 80,
+ "lat_bottom": -62,
+ "lon_left": -180,
+ "thumb_scale": 50,
+ "home": [
+  47.35,
+  -121.35
+ ],
+ "levels": [
+  {
+   "px_per_deg": 2.5,
+   "blank": "fiche_blank_0.png",
+   "printed": "fiche_world_0.png",
+   "size": [
+    928,
+    383
+   ]
+  },
+  {
+   "px_per_deg": 5,
+   "blank": "fiche_blank_1.png",
+   "printed": "fiche_world_1.png",
+   "size": [
+    1828,
+    738
+   ]
+  },
+  {
+   "px_per_deg": 10,
+   "blank": "fiche_blank.png",
+   "printed": "fiche_world.png",
+   "size": [
+    3628,
+    1448
+   ]
+  }
+ ],
+ "details": {
+  "pnw": {
+   "px_per_deg": 40,
+   "lat_top": 57.25,
+   "lon_left": -131.25,
+   "size": [
+    820,
+    820
+   ]
+  },
+  "kl7_anchorage": {
+   "px_per_deg": 40,
+   "lat_top": 66.95,
+   "lon_left": -155.65,
+   "size": [
+    460,
+    460
+   ]
+  },
+  "du1_manila": {
+   "px_per_deg": 40,
+   "lat_top": 20.35,
+   "lon_left": 115.25,
+   "size": [
+    460,
+    460
+   ]
+  },
+  "5n_lagos": {
+   "px_per_deg": 40,
+   "lat_top": 12.25,
+   "lon_left": -2.35,
+   "size": [
+    460,
+    460
+   ]
+  },
+  "cx_montevideo": {
+   "px_per_deg": 40,
+   "lat_top": -29.15,
+   "lon_left": -61.95,
+   "size": [
+    460,
+    460
+   ]
+  }
+ }
+}

@@ -1,0 +1,64 @@
+{
+ "_note": "Radio stations the player can reach. PLACEHOLDERS until the radio story is written: replace freely. A station is marked on the microfiche once GameState.contact_station(id) is called, and the map is printed in a circle of reveal_deg degrees around it. 'revealed' lists the areas printed from the start. Every id gets a zoomed detail map from pipeline/scene/make_fiche.py, so re-run it (and make_ui_assets.py) after changing this file. lat/lon in degrees, north and east positive. Text must use the pixel font: A-Z 0-9 . , ' - : ? ! ( ) / + = %",
+ "revealed": [
+  {
+   "id": "pnw",
+   "name": "PACIFIC NORTHWEST",
+   "lat": 47.0,
+   "lon": -121.0,
+   "radius_deg": 9.5
+  }
+ ],
+ "stations": [
+  {
+   "id": "kl7_anchorage",
+   "callsign": "KL7RF",
+   "name": "ANCHORAGE RELIEF NET",
+   "lat": 61.2,
+   "lon": -149.9,
+   "problems": [
+    "FUEL FOR 3 DAYS",
+    "PORT ROAD WASHED OUT",
+    "NO INSULIN LEFT"
+   ],
+   "reveal_deg": 5
+  },
+  {
+   "id": "du1_manila",
+   "callsign": "DU1HQ",
+   "name": "MANILA FLOOD DESK",
+   "lat": 14.6,
+   "lon": 121.0,
+   "problems": [
+    "DISTRICTS 4-9 UNDERWATER",
+    "PUMPS NEED DIESEL"
+   ],
+   "reveal_deg": 5
+  },
+  {
+   "id": "5n_lagos",
+   "callsign": "5N0WX",
+   "name": "LAGOS COOLING SHELTER",
+   "lat": 6.5,
+   "lon": 3.4,
+   "problems": [
+    "WET BULB 35C",
+    "GRID DOWN SINCE MONDAY",
+    "WATER TRUCKS LATE"
+   ],
+   "reveal_deg": 5
+  },
+  {
+   "id": "cx_montevideo",
+   "callsign": "CX4AA",
+   "name": "MONTEVIDEO WATER BOARD",
+   "lat": -34.9,
+   "lon": -56.2,
+   "problems": [
+    "RESERVOIR AT 8%",
+    "SALT IN THE RIVER INTAKE"
+   ],
+   "reveal_deg": 5
+  }
+ ]
+}
