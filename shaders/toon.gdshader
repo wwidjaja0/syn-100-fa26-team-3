@@ -9,7 +9,7 @@ render_mode specular_disabled, cull_back;
 const uint MASK_LAYER = 524288u;      // 1 << 19, render layer 20
 const int ID_OFFSET = 4;              // keep in step with post.gdshader and main.gd
 
-// 0 toon (lit), 1 emissive, 2 outline hull, 3 storm sky
+// 0 toon (lit), 1 emissive, 2 outline hull, 3 storm sky, 4 spinning globe screen (microfiche idle)
 uniform int kind = 0;
 uniform vec3 albedo = vec3(0.8);      // linear, straight from Blender
 uniform bool use_tex = false;
@@ -23,6 +23,12 @@ uniform float sky_w = 0.0;            // animated 4th noise dimension
 uniform float sky_day2 = 0.0;
 uniform float sky_energy = 2.5;
 
+// globe screen: albedo_tex is a full equirectangular world map (lat 90..-90); the screen's
+// world-space centre and size map each fragment to a point on it (see main.gd _make_material)
+uniform vec3 screen_center = vec3(0.0);
+uniform vec2 screen_size = vec2(1.0);
+uniform float globe_spin = 0.12;      // radians per second
+
 uniform int group_id = 0;                // object group, written by the mask pass
 uniform float direct_light = 1.0;        // < 1 on outlined props (see main.gd)
 // Compatibility (the web renderer) reads ALBEDO/EMISSION as sRGB and linearises them itself,
@@ -31,9 +37,11 @@ uniform float direct_light = 1.0;        // < 1 on outlined props (see main.gd)
 uniform bool srgb_io = false;
 
 varying vec3 local_pos;
+varying vec3 world_pos;
 
 void vertex() {
 	local_pos = VERTEX;
+	world_pos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 }
 
 vec3 linear_to_srgb(vec3 c) {
@@ -96,6 +104,26 @@ vec3 storm_sky() {
 	return mix(day1, day2, sky_day2) * sky_energy;
 }
 
+// an orthographic globe filling 84% of the screen's height, tilted 20 degrees, slowly turning
+vec3 globe_screen(float t) {
+	vec2 uv = vec2((world_pos.x - screen_center.x) / screen_size.x, (screen_center.y - world_pos.y) / screen_size.y);
+	vec2 p = uv * vec2(screen_size.x / screen_size.y, 1.0) * 2.0 / 0.84;
+	float r2 = dot(p, p);
+	float scan = 0.85 + 0.15 * step(0.5, fract(uv.y * 40.0));
+	vec3 col = vec3(0.010, 0.035, 0.045) * scan;
+	if (r2 < 1.0) {
+		vec3 n = vec3(p.x, -p.y, sqrt(1.0 - r2));
+		float tilt = 0.35;
+		n = vec3(n.x, n.y * cos(tilt) - n.z * sin(tilt), n.y * sin(tilt) + n.z * cos(tilt));
+		float lon = atan(n.x, n.z) + t * globe_spin;
+		float lat = asin(clamp(n.y, -1.0, 1.0));
+		vec3 c = srgb_to_linear(texture(albedo_tex, vec2(fract(lon / TAU + 0.5), 0.5 - lat / PI)).rgb);
+		col = c * (0.35 + 0.65 * sqrt(1.0 - r2)) * scan;
+	}
+	col += vec3(0.05, 0.25, 0.30) * smoothstep(0.06, 0.0, abs(sqrt(r2) - 1.0));   // atmosphere rim
+	return col;
+}
+
 void fragment() {
 	if ((CAMERA_VISIBLE_LAYERS & MASK_LAYER) != 0u) {
 		// id in red: steps of 12 so rounding never confuses neighbours, offset by 4 steps because
@@ -109,6 +137,9 @@ void fragment() {
 	} else if (kind == 3) {
 		ALBEDO = vec3(0.0);
 		EMISSION = io(storm_sky());
+	} else if (kind == 4) {
+		ALBEDO = vec3(0.0);
+		EMISSION = io(globe_screen(TIME) * emission_energy);
 	} else {
 		ALBEDO = vec3(0.0);
 		EMISSION = io(emission * emission_energy);

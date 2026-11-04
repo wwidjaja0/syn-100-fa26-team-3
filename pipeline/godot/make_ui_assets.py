@@ -5,7 +5,8 @@ python3 pipeline/godot/make_ui_assets.py      (reads pipeline/scene)
   ui/pixel_font.png + .fnt   the 5x7 font from pixui.py as a BMFont
   ui/cursor_arrow.png, ui/cursor_hand.png
   ui/icon_<item>.png         12x12 item icons
-  ui/map_panel.png + map_meta.json, assets/palette.json
+  ui/fiche_*.png, fiche_meta.json, globe_equirect.png   the microfiche and its idle globe (make_fiche.py)
+  assets/palette.json
 """
 import json, shutil, sys
 from pathlib import Path
@@ -62,8 +63,12 @@ for name, rows_ in pixui.ICONS.items():
                 im[r, c] = (*(int(v * 255 + 0.5) for v in pixui.ICON_COLORS[ch]), 255)
     Image.fromarray(im, 'RGBA').save(UI / f'icon_{name}.png')
 
-shutil.copy(PIXEL / 'map_panel.png', UI / 'map_panel.png')
-shutil.copy(PIXEL / 'map_meta.json', UI / 'map_meta.json')
+for old in UI.glob('fiche_*.png'):                 # e.g. areas removed from data/stations.json
+    if not (PIXEL / old.name).exists():
+        old.unlink()
+        old.with_suffix('.png.import').unlink(missing_ok=True)
+for f in ['fiche_meta.json', 'globe_equirect.png', *(p.name for p in PIXEL.glob('fiche_*.png'))]:
+    shutil.copy(PIXEL / f, UI / f)
 shutil.copy(PIXEL / 'palette.json', GODOT / 'assets' / 'palette.json')
 (UI / 'cursor_hotspots.json').write_text(json.dumps({k: v[1] for k, v in SPRITES.items()}))
 print('ui assets ->', UI)

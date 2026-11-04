@@ -217,6 +217,30 @@ def radio():
  for z in [.8,1.4]:m.box('coax_clip',(cx,cy+.004,z),(.03,.012,.02),'steel_light')
  return m
 
+def microfiche_reader():
+ # wall-mounted microfiche display, hung where the paper map was: a map-sized rear-projection
+ # screen in a wooden map frame on a shallow steel housing, with a control strip below (fiche card
+ # pocket, focus and scan knobs). Heights are absolute (screen centre at Z0) and the back sits on
+ # the wall, so the scene places it with y_back and no surface. The game draws a turning globe on
+ # 'fiche_screen' while it is idle; nothing else may use an emissive keyword (screen, lcd, display,
+ # lens, flame).
+ m=Model('Wall-mounted microfiche display')
+ Z0=2.02
+ W,H=.78,.54                                  # screen
+ m.box('viewer_housing',(0,.16,Z0),(W+.04,.08,H+.04),'steel_dark')
+ m.frame('map_frame',W+.10,H+.10,(0,.11,Z0),.05,.035,'walnut')
+ m.box('fiche_screen',(0,.118,Z0),(W,.008,H),'screen')
+ m.box('frame_label_plate',(0,.091,Z0-H/2-.025),(.14,.006,.022),'brass')
+ for x in [-.30,.30]:m.box('hanging_bracket',(x,.18,Z0+H/2+.07),(.04,.04,.06),'steel')
+ zc=Z0-H/2-.05-.07                            # control strip, just under the frame
+ m.box('control_strip',(0,.16,zc),(.50,.08,.12),'steel')
+ m.box('fiche_card',(.13,.118,zc),(.13,.004,.085),'navy')
+ m.box('fiche_card_header',(.13,.115,zc+.03),(.13,.005,.014),'off_white')
+ for x in [-.18,-.10]:m.cyl('focus_knob',(x,.11,zc),.022,.02,'black','y',12)
+ m.box('power_switch',(-.02,.116,zc+.02),(.03,.015,.02),'red')
+ m.box('status_light',(-.02,.116,zc-.025),(.012,.012,.012),'aqua')
+ return m
+
 def cabinet(open_state=False):
  m=Model('Supply cabinet '+('open' if open_state else 'closed'))
  m.box('cabinet_shell',(0,.0,1.02),(1.17,.54,1.83),'cream_shadow')
@@ -477,6 +501,7 @@ BUILDERS = [
  ('11_flashlight',flashlight),
  ('12_supply_cabinet_open',lambda: cabinet(True)),
  ('13_storm_shutters_stowed',lambda: storm_shutters(True)),
+ ('14_microfiche_reader',microfiche_reader),
 ]
 
 if __name__=='__main__':

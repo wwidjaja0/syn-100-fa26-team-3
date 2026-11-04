@@ -47,13 +47,12 @@ back faces are culled, and the outline hull relies on them.
   emissive (`EMISSIVE` in `pipeline/scene/build_pixel_scene.py`). Don't use those words in the names
   of parts that shouldn't glow.
 
-**Textures (rare).** Only use a texture when the art can't be flat colour. The wall map and the cutting mat are
-the two examples.
+**Textures (rare).** Only use a texture when the art can't be flat colour. The cutting mat is the example.
 - Make it pixel art at screen resolution: 1 texel should be at least 1 screen pixel.
-- Upscale it 4x with nearest-neighbour before use, and save it as sRGB PNG (see `pipeline/scene/make_map.py`).
+- Upscale it 4x with nearest-neighbour before use, and save it as sRGB PNG (see `pipeline/scene/make_mat.py`).
 - The shader decodes sRGB by hand, so don't change texture hints in `toon.gdshader`.
 - Godot extracts textures from `shelter.glb` as `assets/shelter_<image>.png`. Set a new one's import to
-  Lossless with `detect_3d/compress_to=0`, copying `shelter_map_texture.png.import`.
+  Lossless with `detect_3d/compress_to=0`, copying `shelter_mat_texture.png.import`.
 - Colours are multiplied by the warm pendant light (1.0, 0.70, 0.38). A blue needs to be far bluer than it
   should look; the mat uses (24, 86, 214).
 
@@ -69,6 +68,18 @@ Godot reads the size, centre and grid from the `craft` block in `scene_meta.json
   behind it, and it stays under 30 cm because the weather-gauge board hangs above it.
 - Pieces built on the mat should be about one cell (5 cm) across. Use `crafting.cell_world(cell)` to place them.
 - The mat has no outline hull, so it isn't dimmed like other props.
+
+**Close-up views.** The crafting table and the ham radio are close-ups: the camera eases from the room into
+a fixed pose and back (`scripts/close_view.gd`). To add another one (a shelf, a gauge), extend
+`close_view.gd`, set `_pose`, `_size` (ortho width in m) and `_focus` (the point it looks at) in a
+`setup()`, and add it to `views` in `main.gd`. Export the point you look at from `export_glb.py`
+(`points`), like `radio_front`, rather than hard-coding coordinates.
+
+**The microfiche display** hangs on the wall where the paper map used to be (`14_microfiche_reader`): a map-sized
+screen in a wooden map frame, with a control strip below. Its `fiche_screen` part is the only emissive one. The
+game swaps its material for a turning globe (`toon.gdshader` kind 4, drawn from `ui/globe_equirect.png` and the
+screen's centre and size, which `export_glb.py` writes to `points.fiche_screen`). The paper wall map is still built
+for the story video, but `export_glb.py` leaves it out of the game.
 
 **States.** For an object that changes (open/closed, broken/fixed), prefer **one model with hinged or
 hideable parts** over two models. Examples are the shutter and cabinet hinges, or the radio grill that's
@@ -99,7 +110,8 @@ Everything is drawn at 1x on the 480x270 canvas by `scripts/ui.gd`.
 | Font | `pipeline/scene/pixui.py` `_G` | 5x7 caps, 1 px spacing, 9 px line height |
 | Item icons | `pixui.ICONS` + `ICON_COLORS` | 12x12 character grids, `K` ink outline, drawn in 20x20 slots |
 | Cursors | `pixui.ARROW` / `HAND` | `X` ink, `W` fill, hotspot in `SPRITES` |
-| Map panel | `pipeline/scene/make_map.py` | 200x225 panel with frame, title strip and close box |
+| Microfiche sheet | `pipeline/scene/make_fiche.py` | Rendered at three zoom levels (`LEVELS`: 2.5, 5 and 10 px per degree; `fiche_*_0/1.png` are the zoomed-out ones, with fewer labels). Each level comes as two copies of one world map: `fiche_blank.png` (paper and faint coastlines) and `fiche_world.png` (printed: land, sea, borders, rivers, lakes, cities, the shelter). They're 10 px per degree, equirectangular 80N..62S, and `fiche_meta.json` maps lat/lon to pixels. The game shows the printed copy only inside revealed circles (`GameState.revealed`). Every area id in `data/stations.json` (the starting `revealed` list and every station) also gets `fiche_detail_<id>.png`, a 4x map at 40 px per degree with every river, towns and named peaks, shown when the player clicks that area. After editing `stations.json`, re-run `make_fiche.py` and `make_ui_assets.py`. Geography comes from Natural Earth via `fetch_geo.py` into `data/world_geo.json`. City labels are placed greedily without overlaps, and the PNW labels' sides are set by hand. |
+| Radio stations | `data/stations.json` | Callsign, name, lat/lon, problems (pixel-font characters only), and `reveal_deg`, the radius the map prints around the station once it's reached. `revealed` lists the areas printed from the start (the PNW). `GameState.contact_station(id)` marks a station and reveals its area; `GameState.reveal(lat, lon, deg)` reveals any area. |
 | Items | `items/<id>.tres` (`ItemData`: id, name, icon) | `name` is the in-game label; `icon` is a 12x12 PNG from `ui/`. No icon draws a `?` box |
 
 **Adding an item:** draw its icon in `pixui.ICONS` and regenerate (below), then create `items/<id>.tres`
@@ -111,7 +123,7 @@ Rules:
   up as-is and look wrong. Panel colours are snapped in code (`panel_col`, `panel_hi`, `panel_lo`).
 - No anti-aliasing, gradients, alpha blending or soft shadows. Text outlines are a 1 px ink ring
   (`ui.text(..., shadow)`).
-- After editing `pixui.py` or `make_map.py`, run `python3 pipeline/godot/make_ui_assets.py`. Never
+- After editing `pixui.py` or `make_fiche.py`, run `python3 pipeline/godot/make_ui_assets.py`. Never
   hand-edit the generated files in `ui/`.
 
 ## 6. Pipeline: from source to game

@@ -1,14 +1,16 @@
 extends Control
 ## Pixel UI drawn straight onto the 480x270 canvas, like pixui.py did in the video:
-## hover label, turn arrows, inventory bar, the map close-up, the crafting view's BACK
-## button and cell highlight, click ripple and the pixel cursor (carrying the held item).
+## hover label, turn arrows, inventory bar, the microfiche display's screen (scripts/fiche.gd),
+## the F9 debug menu,
+## the close-up views' BACK button and the crafting cell highlight, click ripple and the pixel
+## cursor (carrying the held item).
 
 const W := 480
 const H := 270
 const FONT := preload("res://ui/pixel_font.fnt")
 const ARROW := preload("res://ui/cursor_arrow.png")
 const HAND := preload("res://ui/cursor_hand.png")
-const MAP_PANEL := preload("res://ui/map_panel.png")
+const FICHE := preload("res://scripts/fiche.gd")
 const WHITE := Color(1, 1, 1)
 const INK := Color8(14, 5, 5)
 const SLOT := 20
@@ -16,14 +18,16 @@ const SLOT_STEP := 22
 const SLOTS: int = preload("res://InventoryManager.gd").MAX_ITEMS
 const INV_POS := Vector2i((W - SLOT_STEP * SLOTS + SLOT_STEP - SLOT) / 2, 245)   # first slot, top-left; bar centred
 const FLY := 16.0                        # frames an item takes to fly into its slot
-const BACK := Rect2(6, 6, 33, 15)        # crafting view: back to the room
+const BACK := Rect2(6, 6, 33, 15)        # close-up views: back to the room
 
 var panel := ""
 var panel_at := -1e9
 var closing_at := -1e9
 var ripples: Array = []                  # [pos, clock]
-var map_meta: Dictionary
-var map_pos: Vector2i
+var fiche                                # the microfiche display's screen (scripts/fiche.gd)
+var debug_open := false                  # F9 menu (commands come from main.gd debug_commands())
+var debug_msg := ""
+var debug_msg_at := -1e9
 var hotspots: Dictionary
 var flights: Array = []                  # [ItemData, from (screen px), launched at]
 var held: ItemData = null                # item riding on the cursor
@@ -35,14 +39,12 @@ var panel_lo: Color
 
 
 func _ready() -> void:
-	map_meta = JSON.parse_string(FileAccess.get_file_as_string("res://ui/map_meta.json"))
 	hotspots = JSON.parse_string(FileAccess.get_file_as_string("res://ui/cursor_hotspots.json"))
-	var size: Array = map_meta.size
-	map_pos = Vector2i((W - int(size[0])) / 2, (H - int(size[1])) / 2 - 6)
 	var pal: Array = JSON.parse_string(FileAccess.get_file_as_string("res://assets/palette.json"))
 	panel_col = _pal(pal, Color(0.09, 0.06, 0.08))
 	panel_hi = _pal(pal, Color(0.36, 0.24, 0.17))
 	panel_lo = _pal(pal, Color(0.03, 0.02, 0.03))
+	fiche = FICHE.new(self, pal)
 
 
 static func _pal(pal: Array, c: Color) -> Color:
@@ -109,6 +111,9 @@ func open_panel(name: String, now: float) -> void:
 func close_panel() -> void:
 	if panel != "" and closing_at < panel_at:
 		closing_at = game.clock
+		if panel == "fiche":
+			fiche.release(Vector2(-99, -99))
+			fiche.leave_detail()             # next time it opens on the world sheet
 
 
 ## 0..1 open amount: grows over 6 frames, shrinks over 4
@@ -125,35 +130,34 @@ func panel_scale() -> float:
 
 
 func close_box_center() -> Vector2:
-	return Vector2(map_pos) + Vector2(map_meta.close[0], map_meta.close[1])
-
-
-func _map_rect() -> Rect2:
-	return Rect2(Vector2(map_pos), Vector2(map_meta.size[0], map_meta.size[1]))
-
-
-func _over_close(p: Vector2) -> bool:
-	var c := close_box_center()
-	return absf(p.x - c.x) < 6 and absf(p.y - c.y) < 6
+	return FICHE.CLOSE
 
 
 # ---------------------------------------------------------------- hit tests
 func over_ui(p: Vector2) -> bool:
-	return _slot_at(p) >= 0 or _over_back(p)
+	return debug_open or _slot_at(p) >= 0 or _over_back(p)
 
 
 func _over_back(p: Vector2) -> bool:
-	return game.crafting.settled() and BACK.has_point(p)
+	var v = game.active_view()
+	return v != null and v.settled() and BACK.has_point(p)
 
 
 ## true when the click was for the UI and the room should ignore it
 func handle_click(p: Vector2) -> bool:
-	if panel == "map":
-		if _over_close(p) or not _map_rect().has_point(p):
+	if debug_open:
+		var row := _debug_row_at(p)
+		if row >= 0:
+			game.run_debug(row)
+		elif not _debug_rect().has_point(p):
+			debug_open = false
+		return true
+	if panel == "fiche":
+		if fiche.over_close(p) or not fiche.press(p):
 			close_panel()
 		return true
 	if _over_back(p):
-		game.crafting.exit(game.clock)
+		game.back()
 		return true
 	var slot := _slot_at(p)
 	if slot >= 0:
@@ -164,6 +168,57 @@ func handle_click(p: Vector2) -> bool:
 			held = item
 		return true
 	return false
+
+
+## the left button came up (ends a drag on the microfiche, or zooms if it was a click)
+func release_click(p: Vector2) -> void:
+	if panel == "fiche":
+		fiche.release(p)
+
+
+## mouse wheel over the microfiche: up zooms into a revealed area, down zooms out
+func wheel(up: bool, p: Vector2) -> void:
+	if panel == "fiche" and panel_scale() >= 1.0:
+		fiche.wheel(up, p)
+
+
+# ---------------------------------------------------------------- debug menu (F9)
+const DEBUG_ROW := 10
+
+func _debug_rect() -> Rect2:
+	var n: int = game.debug_commands().size()
+	return Rect2(124, 34, 232, 40 + n * DEBUG_ROW)
+
+
+func _debug_row_at(p: Vector2) -> int:
+	var r := _debug_rect()
+	var i := int((p.y - r.position.y - 26) / DEBUG_ROW)
+	if r.has_point(p) and p.y >= r.position.y + 26 and i < game.debug_commands().size():
+		return i
+	return -1
+
+
+func debug_say(msg: String) -> void:
+	debug_msg = msg
+	debug_msg_at = game.clock
+
+
+func _draw_debug(cur: Vector2) -> bool:
+	var cmds: Array = game.debug_commands()
+	var r := _debug_rect()
+	draw_rect(r, panel_lo)
+	_frame(r, WHITE)
+	text("DEBUG MENU  (F9 / ESC TO CLOSE)", r.position + Vector2(6, 5), WHITE)
+	text(game.debug_status(), r.position + Vector2(6, 14), panel_hi)
+	var hot := _debug_row_at(cur)
+	for i in cmds.size():
+		var y := r.position.y + 26 + i * DEBUG_ROW
+		if i == hot:
+			draw_rect(Rect2(r.position.x + 2, y - 1, r.size.x - 4, DEBUG_ROW), panel_col)
+		text("%s  %s" % [cmds[i][0], cmds[i][1]], Vector2(r.position.x + 8, y), WHITE if i == hot else Color8(170, 170, 178))
+	if debug_msg != "" and game.clock - debug_msg_at < 72.0:
+		text("> " + debug_msg, Vector2(r.position.x + 6, r.end.y - 11), Color8(239, 180, 94))
+	return hot >= 0
 
 
 func ripple(p: Vector2, now: float) -> void:
@@ -183,14 +238,15 @@ func _draw() -> void:
 	elif game.push > 0.0:
 		_chevron("right", game.push > 0.5, now)
 
-	# crafting view: the hovered grid cell and the way back
+	# close-up views: the crafting grid's hovered cell, and the way back
 	var craft = game.crafting
-	if craft.settled():
-		if craft.hover_cell != craft.NO_CELL:     # 2 px white on the cell's grid lines, inked outside
-			var cr := Rect2(craft.cell_rect(craft.hover_cell))
-			_frame(cr.grow(1), INK)
-			_frame(cr, WHITE)
-			_frame(cr.grow(-1), WHITE)
+	if craft.settled() and craft.hover_cell != craft.NO_CELL:     # 2 px white on the cell's grid lines, inked outside
+		var cr := Rect2(craft.cell_rect(craft.hover_cell))
+		_frame(cr.grow(1), INK)
+		_frame(cr, WHITE)
+		_frame(cr.grow(-1), WHITE)
+	var view = game.active_view()
+	if view != null and view.settled():
 		var hot := BACK.has_point(cur)
 		draw_rect(BACK, panel_col)
 		_frame(BACK, WHITE if hot else panel_hi)
@@ -209,26 +265,16 @@ func _draw() -> void:
 			label = item.name
 			ui_hover = true
 
-	if panel == "map":
+	if panel == "fiche":
 		var sc := panel_scale()
-		var tex_size := MAP_PANEL.get_size()
-		var rows := int(tex_size.y * sc)
-		if rows > 0:
-			var top := map_pos.y + (int(tex_size.y) - rows) / 2
-			draw_texture_rect(MAP_PANEL, Rect2(map_pos.x, top, tex_size.x, rows), false)
+		fiche.draw(sc)
 		if sc >= 1.0:
-			var pin := Vector2(map_pos) + Vector2(map_meta.pin[0], map_meta.pin[1])
-			if int(now / 8.0) % 2 == 0:
-				_ring(pin, 10.0 + fmod(now, 8.0) * 0.4, WHITE)
-			if _over_close(cur):
-				var c := close_box_center().floor()
-				_frame(Rect2(c - Vector2(6, 6), Vector2(12, 12)), WHITE)
-				label = "CLOSE"
-				ui_hover = true
+			label = fiche.hover_label(cur)
+			ui_hover = label != "" or fiche.hover_station != ""
 
 	if label == "" and game.hover != "":
 		label = game.label_for(game.hover)
-	if label != "":
+	if label != "" and not debug_open:
 		var tw := text_width(label)
 		var lx := mini(int(cur.x) + 10, W - tw - 3)
 		var ly := maxi(int(cur.y) - 13, 3)
@@ -256,6 +302,8 @@ func _draw() -> void:
 			_ring(r[0], 3.0 + k * 1.6, WHITE)
 	ripples = ripples.filter(func(r): return now - r[1] < 7.0)
 
+	if debug_open:
+		ui_hover = _draw_debug(cur)
 	var hand: bool = game.hover != "" or ui_hover or held != null or craft.hover_cell != craft.NO_CELL
 	var name := "hand" if hand else "arrow"
 	var hs: Array = hotspots[name]

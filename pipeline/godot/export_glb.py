@@ -63,12 +63,16 @@ def named(*prefixes):
     return [o for o in objs if o.type == 'MESH' and o.name.startswith(prefixes)]
 
 
+# the game reads the world map on the microfiche reader; the story video's paper wall map goes
+for o in named('pnw_map', 'map_pin_'):
+    objs.remove(o, do_unlink=True)
+
 story = bpy.data.collections['Story']
 radio = kids('02_emergency_weather_radio') + named('radio_speaker_hole', 'radio_wire_')
 GROUPS = {
     'shutters': [o for o in bpy.data.collections['Shutters_Closed'].all_objects if o.type == 'MESH'],
     'cabinet': [o for o in bpy.data.collections['Cabinet_Closed'].all_objects if o.type == 'MESH'],
-    'map': named('pnw_map', 'map_pin_'),
+    'microfiche': kids('14_microfiche_reader'),
     'speaker': [o for o in objs['speaker_rig'].children_recursive if o.type == 'MESH'],
     'radio': radio,
     'jar': named('jar_'),
@@ -159,6 +163,19 @@ for o in [o for o in objs if o.type == 'LIGHT']:
                    'size': getattr(d, 'size', 0.0), 'radius': getattr(d, 'shadow_soft_size', 0.0)})
     objs.remove(o)
 
+# the radio camera view looks at the middle of the transceiver + power-supply front
+rcase = [o for o in kids('02_emergency_weather_radio') if o.name.startswith(('transceiver_case', 'power_supply_case'))]
+rpts = [o.matrix_world @ Vector(c) for o in rcase for c in o.bound_box]
+radio_front = ((min(p.x for p in rpts) + max(p.x for p in rpts)) / 2, min(p.y for p in rpts),
+               (min(p.z for p in rpts) + max(p.z for p in rpts)) / 2)
+
+# the microfiche display's screen: the game draws its idle globe from the screen's centre and size
+fs = next(o for o in kids('14_microfiche_reader') if o.name.startswith('fiche_screen'))
+fpts = [fs.matrix_world @ v.co for v in fs.data.vertices]          # the mesh, not the outline hull
+flo = Vector([min(p[i] for p in fpts) for i in range(3)])
+fhi = Vector([max(p[i] for p in fpts) for i in range(3)])
+fiche_screen = {'center': to_godot((flo + fhi) / 2), 'size': [round(fhi.x - flo.x, 4), round(fhi.z - flo.z, 4)]}
+
 # the cutting mat: centre of its printed top (Godot coords) + the build grid it carries
 mat_obj = objs['cutting_mat']
 mat_top = max((mat_obj.matrix_world @ v.co for v in mat_obj.data.vertices), key=lambda v: v.z).z
@@ -178,7 +195,9 @@ meta = {
                'pos_y': LOOK_Z + DIST * math.sin(math.radians(TILT)),
                'pos_z': -(WALL_Y - DIST * math.cos(math.radians(TILT)))},
     'points': {'window': to_godot((WIN_X, WALL_Y, 1.53)),
-               'speaker_mount': to_godot(objs['speaker_rig'].matrix_world.translation)},
+               'speaker_mount': to_godot(objs['speaker_rig'].matrix_world.translation),
+               'radio_front': to_godot(radio_front),
+               'fiche_screen': fiche_screen},
     'craft': craft,
 }
 

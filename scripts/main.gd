@@ -1,8 +1,9 @@
 extends Node
 ## The cabin. Swaps the imported materials for the toon shader, pans the camera
 ## when the cursor pushes against the screen edges, reads the mask render to find
-## what is under the cursor, and runs the interactions (window, map, cabinet, the
-## workbench's crafting view in scripts/crafting.gd).
+## what is under the cursor, and runs the interactions (window, microfiche reader, cabinet,
+## and the close-up camera views: the workbench's crafting view in scripts/crafting.gd and the
+## ham radio's in scripts/radio_view.gd).
 ##
 ## Timings are in "frames" of the 24 fps clock the video used, so numbers port
 ## straight over from pipeline/scene/build_story.py.
@@ -26,9 +27,12 @@ const COMPAT_SHADOW_LIGHT_SCALE := 0.2      # fitted against Forward+, see _read
 const MASK_ID_OFFSET := 4                 # mask ids are stored 4 steps up (see toon.gdshader)
 const TOON := preload("res://shaders/toon.gdshader")
 const CRAFTING := preload("res://scripts/crafting.gd")
+const RADIO_VIEW := preload("res://scripts/radio_view.gd")
+const GLOBE := preload("res://ui/globe_equirect.png")
+const DEBUG_MENU := true                  # F9 developer menu; turn off for a release
 
 const LABELS := {
-	"shutters": "STORM SHUTTERS", "cabinet": "SUPPLY CABINET", "map": "MAP", "speaker": "PA SPEAKER",
+	"shutters": "STORM SHUTTERS", "cabinet": "SUPPLY CABINET", "microfiche": "MICROFICHE MAP", "speaker": "PA SPEAKER",
 	"radio": "HAM RADIO (BROKEN)", "jar": "DRIED MUSHROOMS", "papers": "ROLLING PAPERS", "bench": "WORKBENCH",
 	"lantern": "LANTERN", "instruments": "WEATHER GAUGES", "power": "POWER STATION", "filter": "WATER FILTER",
 	"crates": "SUPPLY CRATES", "sandbags": "SANDBAGS", "flashlight": "FLASHLIGHT",
@@ -69,15 +73,17 @@ var cam_v := 0.0
 var push := 0.0                           # -1..1, how hard the cursor (or A/D) pushes the view
 var mouse_inside := true
 var mouse_seen := false                   # no edge-push until the mouse has really moved (web starts at 0,0)
-var edge_hold := false                    # after the crafting view the cursor may sit in an edge band
+var edge_hold := false                    # after a close-up or panel the cursor may sit in an edge band
                                           # (BACK is top-left): no edge-push until it has left the band
 var room_basis: Basis                     # the room camera's fixed tilt, height, depth and zoom
 var room_y: float
 var room_z: float
 var room_size: float
 
-# crafting view (top-down over the workbench's cutting mat)
+# close-up camera views (scripts/close_view.gd): top-down over the cutting mat, the radio's front
 var crafting: Node
+var radio_view: Node
+var views: Array[Node] = []
 
 # window
 var shutter := 0.0
@@ -135,6 +141,11 @@ func _ready() -> void:
 	crafting.name = "Crafting"
 	add_child(crafting)
 	crafting.setup(meta, W, H)
+	radio_view = RADIO_VIEW.new()
+	radio_view.name = "RadioView"
+	add_child(radio_view)
+	radio_view.setup(meta, camera)
+	views = [crafting, radio_view]
 	get_window().mouse_entered.connect(func(): mouse_inside = true)
 	get_window().mouse_exited.connect(func(): mouse_inside = false)
 
@@ -211,6 +222,14 @@ func _make_material(name: String, src: Material) -> ShaderMaterial:
 			m.set_shader_parameter("emission", color)
 		"sky":
 			m.set_shader_parameter("kind", 3)
+	if name.begins_with("mat_fiche_screen"):
+		# the microfiche display idles on a turning globe (toon.gdshader kind 4)
+		var fs: Dictionary = meta.points.fiche_screen
+		m.set_shader_parameter("kind", 4)
+		m.set_shader_parameter("albedo_tex", GLOBE)
+		m.set_shader_parameter("screen_center", Vector3(fs.center[0], fs.center[1], fs.center[2]))
+		m.set_shader_parameter("screen_size", Vector2(fs.size[0], fs.size[1]))
+		m.set_shader_parameter("emission_energy", 1.4)
 	return m
 
 
@@ -237,9 +256,14 @@ func _process(delta: float) -> void:
 		cam_x = clampf(cam_x, CAM_MIN, CAM_MAX)
 		cam_v = 0.0
 	var cam_px := roundf((cam_x - cam_left) / PIX)
-	crafting.update(clock, cursor, not ui.over_ui(cursor))
 	var room := Transform3D(room_basis, Vector3(cam_left + cam_px * PIX, room_y, room_z))
-	var pose: Array = crafting.camera_pose(room, room_size)
+	var pose: Array = [room, room_size]
+	for v in views:
+		v.update(clock, cursor, not ui.over_ui(cursor))
+		if v.t > 0.0:
+			pose = v.camera_pose(room, room_size)
+	if ui.panel == "fiche":
+		ui.fiche.update(cursor, delta, _pan_keys(), _mouse_outside())
 	for cam: Camera3D in [camera, mask_cam]:
 		cam.transform = pose[0]
 		cam.size = pose[1]
@@ -271,7 +295,7 @@ func _process(delta: float) -> void:
 
 func _update_hover(step: float) -> void:
 	var target := ""
-	if ui.panel == "" and not ui.over_ui(cursor) and not ui.flying() and not crafting.active():
+	if ui.panel == "" and not ui.over_ui(cursor) and not ui.flying() and active_view() == null:
 		target = _group_at(cursor)
 	hover_t = hover_t + step if (target != "" and target == hover) else (1.0 if target != "" else 0.0)
 	hover = target
@@ -379,22 +403,158 @@ func _input(event: InputEvent) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		click()
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		if event.pressed:
+			click()
+		else:
+			ui.release_click(cursor)
 	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
-		if ui.held != null:
+		if ui.debug_open:
+			ui.debug_open = false
+		elif ui.held != null:
 			ui.held = null
 		else:
-			crafting.exit(clock)
+			back(false)
+	elif event is InputEventMouseButton and event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
+		ui.wheel(event.button_index == MOUSE_BUTTON_WHEEL_UP, cursor)
 	elif event is InputEventKey and event.pressed and not event.echo:
+		if ui.debug_open:
+			var n := _digit(event.keycode)
+			if n >= 0:
+				run_debug((n + 9) % 10)          # keys 1..9 then 0
+			elif event.keycode in [KEY_ESCAPE, KEY_F9]:
+				ui.debug_open = false
+			return
 		match event.keycode:
-			KEY_ESCAPE:
-				if ui.held != null:
-					ui.held = null
-				elif ui.panel != "":
-					ui.close_panel()
-				else:
-					crafting.exit(clock)
+			KEY_ESCAPE:                      # leave whatever is open, all the way back to the room
+				ui.held = null
+				back(true)
+			KEY_F9:
+				ui.debug_open = DEBUG_MENU
+			KEY_MINUS, KEY_KP_SUBTRACT:
+				if ui.panel == "fiche":
+					ui.fiche.zoom_by(-1, cursor)
+			KEY_EQUAL, KEY_PLUS, KEY_KP_ADD:
+				if ui.panel == "fiche":
+					ui.fiche.zoom_by(1, cursor)
+
+
+## Esc / right-click / BACK: close the panel, or leave the close-up view. Right-click (full = false)
+## only steps back one level, e.g. out of a zoomed microfiche; Esc always leaves it entirely.
+func back(full := true) -> void:
+	if ui.panel == "fiche" and not full and ui.fiche.zoomed():
+		ui.fiche.leave_detail()
+	elif ui.panel != "":
+		ui.close_panel()
+	else:
+		for v in views:
+			v.exit(clock)
+
+
+func _digit(code: int) -> int:
+	if code >= KEY_0 and code <= KEY_9:
+		return code - KEY_0
+	if code >= KEY_KP_0 and code <= KEY_KP_9:
+		return code - KEY_KP_0
+	return -1
+
+
+# ---------------------------------------------------------------- debug menu (F9)
+## [key, label, action]; the menu lists them in this order and keys 1..9, 0 run them
+func debug_commands() -> Array:
+	return [
+		["1", "CONTACT NEXT STATION", _dbg_contact_next],
+		["2", "CONTACT ALL STATIONS", _dbg_contact_all],
+		["3", "REVEAL THE WHOLE MAP", func(): GameState.reveal(0, 0, 400); ui.debug_say("WHOLE MAP REVEALED")],
+		["4", "RESET THE MAP", func(): GameState.reset_map(); ui.debug_say("MAP RESET")],
+		["5", "GIVE ALL ITEMS", _dbg_give_all],
+		["6", "CLEAR INVENTORY", _dbg_clear_inventory],
+		["7", "OPEN / CLOSE SHUTTERS", func(): toggle_shutters(); ui.debug_say("SHUTTERS")],
+		["8", "OPEN / CLOSE CABINET", func(): toggle_cabinet(); ui.debug_say("CABINET")],
+		["9", "NEXT DAY", func(): GameState.day += 1; ui.debug_say("DAY %d" % GameState.day)],
+		["0", "CLOSE THIS MENU", func(): ui.debug_open = false],
+	]
+
+
+func debug_status() -> String:
+	return "DAY %d   STATIONS %d/%d   ITEMS %d/%d" % [GameState.day, GameState.contacted.size(),
+			GameState.stations.size(), InventoryManager.inventory.items.size(), InventoryManager.MAX_ITEMS]
+
+
+func run_debug(i: int) -> void:
+	var cmds := debug_commands()
+	if i >= 0 and i < cmds.size():
+		cmds[i][2].call()
+
+
+func _dbg_contact_next() -> void:
+	for id in GameState.stations:
+		if not GameState.is_contacted(id):
+			GameState.contact_station(id)
+			ui.debug_say("CONTACTED " + GameState.stations[id].callsign)
+			return
+	ui.debug_say("EVERY STATION IS CONTACTED")
+
+
+func _dbg_contact_all() -> void:
+	for id in GameState.stations:
+		GameState.contact_station(id)
+	ui.debug_say("ALL %d STATIONS CONTACTED" % GameState.stations.size())
+
+
+func _dbg_give_all() -> void:
+	for f in DirAccess.get_files_at(InventoryManager.ITEM_DIR):
+		if f.ends_with(".tres") or f.ends_with(".tres.remap"):
+			var item := InventoryManager.get_item(f.get_basename().trim_suffix(".tres"))
+			if item and not InventoryManager.has_item(item):
+				InventoryManager.add_item(item)
+	ui.debug_say("INVENTORY FULL")
+
+
+func _dbg_clear_inventory() -> void:
+	ui.held = null
+	for item in InventoryManager.inventory.items.duplicate():
+		InventoryManager.remove_item(item)
+	ui.debug_say("INVENTORY EMPTY")
+
+
+## the close-up view that owns the screen (moving or settled), or null for the room
+func active_view() -> Node:
+	for v in views:                      # one being opened wins over one still easing out
+		if v.open:
+			return v
+	for v in views:
+		if v.active():
+			return v
+	return null
+
+
+## which way the real mouse has left the game window (-1 / 0 / +1 per axis). The game cursor is
+## clamped to the screen, so this is how pans keep going at full speed past the window's edge.
+## Browsers stop reporting the mouse outside the page, so the web build relies on the edge band.
+func _mouse_outside() -> Vector2:
+	if cursor_override != null or OS.has_feature("web") or not mouse_seen or not get_window().has_focus():
+		return Vector2.ZERO
+	var w := get_window()
+	var p := Vector2(DisplayServer.mouse_get_position() - w.position)
+	var out := Vector2.ZERO
+	out.x = -1.0 if p.x < 0 else (1.0 if p.x >= w.size.x else 0.0)
+	out.y = -1.0 if p.y < 0 else (1.0 if p.y >= w.size.y else 0.0)
+	return out
+
+
+## WASD / arrows as a direction, for panning inside panels
+func _pan_keys() -> Vector2:
+	var k := Vector2.ZERO
+	if Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_LEFT):
+		k.x -= 1
+	if Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT):
+		k.x += 1
+	if Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_UP):
+		k.y -= 1
+	if Input.is_key_pressed(KEY_S) or Input.is_key_pressed(KEY_DOWN):
+		k.y += 1
+	return k
 
 
 func click() -> void:
@@ -402,8 +562,8 @@ func click() -> void:
 	ui.ripple(cursor, clock)
 	if ui.handle_click(cursor):
 		return
-	if crafting.active():
-		crafting.click(cursor, ui.held)   # the grid's listeners decide what a click does
+	if active_view() != null:
+		active_view().click(cursor, ui.held)   # the view's listeners decide what a click does
 		return
 	if ui.held != null:
 		var item: ItemData = ui.held
@@ -414,9 +574,11 @@ func click() -> void:
 	match hover:
 		"shutters", "sky":
 			toggle_shutters()
-		"map":
-			ui.open_panel("map", clock)
-			GameState.set_flag("map_seen")
+		"microfiche":
+			ui.open_panel("fiche", clock)
+			GameState.set_flag("fiche_seen")
+		"radio":
+			radio_view.enter(clock)
 		"cabinet":
 			toggle_cabinet()
 		"jar":
@@ -430,13 +592,16 @@ func click() -> void:
 ## cursor inside the edge band pushes the view, harder the closer it gets; A/D push fully
 func _update_push() -> void:
 	push = 0.0
-	if crafting.active():
+	if active_view() != null or ui.panel != "":
 		edge_hold = true
 		return
 	if edge_hold and cursor.x >= EDGE and cursor.x <= W - 1 - EDGE:
 		edge_hold = false
-	var live: bool = cursor_override != null or (mouse_seen and mouse_inside and get_window().has_focus())
-	if live and ui.panel == "" and not edge_hold:
+	var live: bool = cursor_override != null or (mouse_seen and get_window().has_focus())
+	var out := _mouse_outside()
+	if live and ui.panel == "" and not edge_hold and out.x != 0.0:
+		push = out.x                     # the mouse has left the window on that side: full speed
+	elif live and ui.panel == "" and not edge_hold and mouse_inside:
 		if cursor.x < EDGE:
 			push = -pow((EDGE - cursor.x) / EDGE, 1.5)
 		elif cursor.x > W - 1 - EDGE:
@@ -518,9 +683,14 @@ func _demo(out: String) -> void:
 		[151, "hover", "shutters"], [175, "shot", "05_hover_shutters"],
 		[176, "click"], [200, "shot", "06_shutters_opening"], [320, "shot", "07_heat"],
 		[321, "hover", "sky", Vector2(40, -14)], [330, "shot", "07b_hover_open_window"], [331, "click"], [460, "shot", "08_closed_again"],
-		[461, "pan", "right"], [485, "shot", "08b_pushing_right"], [540, "hover", "map"], [560, "shot", "09_hover_map"],
-		[561, "click"], [590, "shot", "10_map_panel"],
-		[591, "close_box"], [600, "shot", "11_map_close_hover"], [601, "click"], [620, "shot", "12_back"],
+		[461, "pan", "right"], [485, "shot", "08b_pushing_right"], [540, "hover", "microfiche"], [560, "shot", "09_hover_fiche"],
+		[561, "click"], [575, "shot", "10_fiche_blank"],
+		[576, "contact", ["kl7_anchorage", "du1_manila", "5n_lagos", "cx_montevideo"]],
+		[577, "fiche_center", Vector2(57.0, -142.0)], [580, "shot", "10b_fiche_marks"],
+		[581, "fiche_mark", "kl7_anchorage"], [590, "shot", "10c_fiche_note"],
+		[591, "fiche_click", "kl7_anchorage"], [594, "shot", "10d_fiche_zoomed"],
+		[595, "point", Vector2(447, 130)], [603, "shot", "10e_fiche_zoomed_panning"],
+		[604, "close_box"], [608, "shot", "11_fiche_close_hover"], [609, "click"], [620, "shot", "12_back"],
 		[621, "hover", "cabinet", Vector2(0, -20)], [640, "shot", "13_hover_cabinet"], [641, "click"],
 		[700, "shot", "14_cabinet_open"],
 		[701, "hover", "jar"], [720, "shot", "15_hover_jar"], [721, "click"], [728, "shot", "16_jar_flying"],
@@ -533,7 +703,11 @@ func _demo(out: String) -> void:
 		[921, "cell", Vector2i(4, 2)], [935, "shot", "24_craft_hover_cell"],
 		[936, "point", Vector2(20, 12)], [945, "shot", "25_craft_hover_back"], [946, "click"],
 		[960, "shot", "26_craft_leaving"], [985, "shot", "27_back_in_room"],
-		[986, "quit"],
+		[986, "radio"], [995, "shot", "28_hover_radio"], [996, "click"],
+		[1010, "shot", "29_radio_swing"], [1035, "shot", "30_radio_view"],
+		[1036, "point", Vector2(20, 12)], [1040, "click"], [1075, "shot", "31_back_from_radio"],
+		[1076, "debug"], [1085, "shot", "32_debug_menu"],
+		[1086, "quit"],
 	]
 	for s in steps:
 		while clock < s[0]:
@@ -548,6 +722,26 @@ func _demo(out: String) -> void:
 				cursor_override = s[2]
 			"close_box":
 				cursor_override = ui.close_box_center()
+			"radio":                     # the radio's front panel (its group centre is up the coax)
+				var f: Array = meta.points.radio_front
+				cursor_override = camera.unproject_position(Vector3(f[0], f[1], f[2]))
+			"contact":
+				for id in s[2]:
+					GameState.contact_station(id)
+			"fiche_center":
+				ui.fiche.center_on(s[2].x, s[2].y)
+			"fiche_click":               # click (press + release) inside a station's revealed patch
+				var sc: Dictionary = GameState.stations[s[2]]
+				cursor_override = ui.fiche.screen_px(sc.lat - 1.5, sc.lon + 1.5)
+				cursor = cursor_override
+				click()
+				ui.release_click(cursor_override)
+			"debug":
+				ui.debug_open = true
+				cursor_override = Vector2(240, 80)
+			"fiche_mark":
+				var st: Dictionary = GameState.stations[s[2]]
+				cursor_override = ui.fiche.screen_px(st.lat, st.lon)
 			"cell":                      # middle of a crafting grid cell
 				cursor_override = Vector2(crafting.cell_rect(s[2]).get_center())
 			"pan":                       # park the cursor on that edge and let it push

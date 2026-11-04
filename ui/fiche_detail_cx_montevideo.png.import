@@ -2,19 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bffyvtoify0np"
-path="res://.godot/imported/shelter_map_texture.png-b306789e19449cf30cc863e6794cee9a.ctex"
+uid="uid://dxssn0010y4ho"
+path="res://.godot/imported/fiche_detail_cx_montevideo.png-d7d7e029fcebb7ec05c3c27b7d3b0693.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "d518188177c8cf1b5186b61dad225a17"
 }
 
 [deps]
 
-source_file="res://assets/shelter_map_texture.png"
-dest_files=["res://.godot/imported/shelter_map_texture.png-b306789e19449cf30cc863e6794cee9a.ctex"]
+source_file="res://ui/fiche_detail_cx_montevideo.png"
+dest_files=["res://.godot/imported/fiche_detail_cx_montevideo.png-d7d7e029fcebb7ec05c3c27b7d3b0693.ctex"]
 
 [params]
 
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""
@@ -40,4 +37,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=0
+detect_3d/compress_to=1
