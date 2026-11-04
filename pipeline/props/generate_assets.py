@@ -141,32 +141,80 @@ def workbench():
  return m
 
 def radio():
- m=Model('Emergency weather radio')
- m.box('rubberized_radio_case',(0,0,.18),(.63,.24,.34),'charcoal')
- m.box('beveled_outer_front',(0,-.127,.19),(.58,.024,.294),'walnut_dark' if 'walnut_dark' in PAL else 'wood_dark')
- m.box('control_face',(0,-.143,.19),(.53,.012,.265),'olive_dark')
- for x in [-.245,.245]:
-  for z in [.048,.325]:m.cyl('front_case_screw',(x,-.153,z),.008,.01,'brass','y',8)
- # speaker grill with small slats
- m.box('speaker_panel',(-.145,-.157,.188),(.25,.018,.208),'graphite')
- for i in range(10):
-  m.box('speaker_grill_bar',(-.252+i*.023,-.170,.19),(.008,.014,.178),'steel')
- # LCD, frequency dial, knobs
- m.box('lcd_border',(.112,-.16,.246),(.217,.016,.104),'steel_dark')
- m.box('lcd_glass',(.112,-.172,.247),(.18,.009,.074),'screen')
- for k in range(4):m.box('lcd_level_segment',(.047+k*.037,-.18,.235),(.018,.005,.019),'screen_dark')
- for x in [.072,.205]:
-  m.cyl('control_knob_outer',(x,-.19,.123),.035,.055,'steel_dark','y',16)
-  m.cyl('control_knob_center',(x,-.222,.123),.017,.01,'brass','y',12)
- m.box('power_switch',(.19,-.188,.063),(.037,.022,.016),'red')
- # handle and extending antenna
- m.box('handle_top',(0,0,.41),(.34,.055,.055),'steel_dark')
- for x in [-.158,.158]:m.rod('handle_post',(x,0,.345),(x,0,.41),.027,'steel_dark')
- m.rod('antenna_lower',(-.25,.085,.33),(-.28,.085,.73),.013,'steel_light')
- m.rod('antenna_upper',(-.28,.085,.73),(-.30,.085,.95),.008,'silver')
- m.sphere('antenna_tip',(-.30,.085,.953),(.019,.019,.019),'red',1)
- for x in [-.23,.23]:
-  m.box('rubber_foot',(x,.09,.009),(.09,.075,.018),'black')
+ # industrial HF base station (ham radio): a steel transceiver with rack handles, big tuning
+ # knob, frequency readout and signal meter, stacked on a bench power supply with two analog
+ # meters; hand mic on the side, coax up the wall to the roof antenna.
+ # The story needs one 'speaker_panel' with 'speaker_grill_bar's (pulled out until the PA
+ # speaker fixes it) and 'lcd_*' parts (they light up once it works).
+ m=Model('HF base station (ham radio)')
+ F=.015                                       # foot height
+ PW,PD,PH=.44,.28,.10                         # power supply
+ W,D,H=.50,.32,.17                            # transceiver, sitting on the supply
+ back=D/2                                     # both units' backs line up
+ # ---- power supply
+ py=back-PD/2
+ for x in [-.17,.17]:
+  for y in [py-.10,py+.10]:m.box('rubber_foot',(x,y,F/2),(.05,.05,F),'black')
+ pz=F+PH/2
+ m.box('power_supply_case',(0,py,pz),(PW,PD,PH),'steel_dark')
+ pf=py-PD/2-.005
+ m.box('psu_front_panel',(0,pf,pz),(PW-.02,.01,PH-.016),'steel')
+ for x in [-.13,-.03]:
+  m.box('psu_meter_bezel',(x,pf-.008,pz+.005),(.085,.01,.065),'black')
+  m.box('psu_meter_face',(x,pf-.014,pz+.005),(.07,.006,.048),'off_white')
+  m.rod('psu_meter_needle',(x-.012,pf-.019,pz-.012),(x+.012,pf-.019,pz+.02),.003,'red')
+ m.box('psu_power_switch',(.08,pf-.01,pz+.01),(.035,.016,.03),'red')
+ m.cyl('psu_binding_post',(.14,pf-.012,pz-.015),.012,.02,'red','y',10)
+ m.cyl('psu_binding_post',(.18,pf-.012,pz-.015),.012,.02,'black','y',10)
+ # ---- transceiver
+ z0=F+PH
+ zc=z0+H/2
+ m.box('transceiver_case',(0,0,zc),(W,D,H),'steel')
+ for i in range(6):m.box('case_top_vent',(0,-.08+i*.035,z0+H+.002),(.30,.014,.004),'charcoal')
+ for i in range(8):m.box('heatsink_fin',(-.175+i*.05,back+.012,zc),(.008,.024,H*.8),'steel_dark')
+ yf=-D/2-.006                                  # front panel, and the parts mounted on it
+ m.box('front_panel',(0,yf,zc),(W-.02,.012,H-.02),'steel_light')
+ y1=yf-.009
+ # speaker grill on the left
+ m.box('speaker_panel',(-.165,y1,zc),(.13,.008,.13),'charcoal')
+ for i in range(5):m.box('speaker_grill_bar',(-.165,y1-.006,zc-.05+i*.025),(.11,.008,.011),'steel_dark')
+ # frequency readout and signal meter along the top
+ m.box('readout_bezel',(.03,y1,zc+.04),(.19,.01,.055),'black')
+ m.box('lcd_glass',(.03,y1-.006,zc+.04),(.16,.006,.032),'screen')
+ for k in range(6):m.box('lcd_digit',(-.03+k*.024,y1-.01,zc+.04),(.014,.004,.02),'screen_dark')
+ m.box('meter_bezel',(.185,y1,zc+.04),(.09,.01,.06),'black')
+ m.box('meter_face',(.185,y1-.006,zc+.04),(.07,.006,.042),'off_white')
+ m.rod('meter_needle',(.17,y1-.011,zc+.024),(.195,y1-.011,zc+.054),.003,'red')
+ # big tuning knob, small knobs, switches
+ m.cyl('vfo_knob_skirt',(.03,y1-.004,zc-.035),.048,.012,'silver','y',20)
+ m.cyl('vfo_knob',(.03,y1-.025,zc-.035),.04,.035,'charcoal','y',20)
+ m.cyl('vfo_finger_dimple',(.052,y1-.044,zc-.022),.008,.006,'steel','y',10)
+ for x in [.15,.205]:
+  m.cyl('control_knob_outer',(x,y1-.012,zc-.02),.019,.022,'charcoal','y',12)
+  m.cyl('control_knob_center',(x,y1-.025,zc-.02),.008,.006,'brass','y',8)
+ for k in range(3):m.rod('toggle_switch',(.135+k*.035,y1,zc-.062),(.135+k*.035,y1-.025,zc-.055),.005,'silver')
+ m.box('power_switch',(-.065,y1-.006,zc+.04),(.03,.014,.028),'red')
+ m.box('band_selector',(-.065,y1-.008,zc-.025),(.03,.016,.042),'orange')
+ # rack handles on the front corners
+ hy=yf-.045
+ for x in [-W/2+.012,W/2-.012]:
+  m.rod('front_handle',(x,yf,zc-.06),(x,hy,zc-.06),.009,'silver')
+  m.rod('front_handle',(x,hy,zc-.06),(x,hy,zc+.06),.009,'silver')
+  m.rod('front_handle',(x,hy,zc+.06),(x,yf,zc+.06),.009,'silver')
+ # hand mic on a clip on the right side, its coiled cord down to the bench and into a side jack
+ xs=W/2
+ m.box('mic_hanger_clip',(xs+.006,-.06,zc+.045),(.012,.025,.03),'steel_dark')
+ m.box('hand_mic',(xs+.025,-.06,zc-.005),(.035,.05,.085),'black')
+ m.box('mic_ptt_button',(xs+.044,-.06,zc+.005),(.006,.018,.03),'steel_light')
+ m.cyl('mic_jack',(xs+.004,-.12,zc-.05),.01,.012,'brass','x',8)
+ cord=[(xs+.025,-.06,zc-.05),(xs+.035,-.08,F+.04),(xs+.02,-.10,F+.02),(xs+.035,-.115,F+.05),(xs+.006,-.12,zc-.05)]
+ for a,b in zip(cord,cord[1:]):m.rod('mic_cord',a,b,.006,'black')
+ # coax from the rear connector up the wall into the ceiling beam (roof antenna), clipped on the way
+ cx,cy=-.23,back+.034
+ m.cyl('coax_connector',(cx,back+.012,zc+.03),.012,.024,'brass','y',10)
+ m.rod('coax_cable',(cx,back+.024,zc+.03),(cx,cy,zc+.07),.007,'black')
+ m.rod('coax_cable',(cx,cy,zc+.07),(cx,cy,2.0),.007,'black')
+ for z in [.8,1.4]:m.box('coax_clip',(cx,cy+.004,z),(.03,.012,.02),'steel_light')
  return m
 
 def cabinet(open_state=False):

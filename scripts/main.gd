@@ -1,7 +1,8 @@
 extends Node
 ## The cabin. Swaps the imported materials for the toon shader, pans the camera
 ## when the cursor pushes against the screen edges, reads the mask render to find
-## what is under the cursor, and runs the interactions (window, map so far).
+## what is under the cursor, and runs the interactions (window, map, cabinet, the
+## workbench's crafting view in scripts/crafting.gd).
 ##
 ## Timings are in "frames" of the 24 fps clock the video used, so numbers port
 ## straight over from pipeline/scene/build_story.py.
@@ -24,10 +25,11 @@ const PROP_DIRECT_LIGHT := 0.12
 const COMPAT_SHADOW_LIGHT_SCALE := 0.2      # fitted against Forward+, see _ready()
 const MASK_ID_OFFSET := 4                 # mask ids are stored 4 steps up (see toon.gdshader)
 const TOON := preload("res://shaders/toon.gdshader")
+const CRAFTING := preload("res://scripts/crafting.gd")
 
 const LABELS := {
 	"shutters": "STORM SHUTTERS", "cabinet": "SUPPLY CABINET", "map": "MAP", "speaker": "PA SPEAKER",
-	"radio": "RADIO (BROKEN)", "jar": "DRIED MUSHROOMS", "papers": "ROLLING PAPERS", "bench": "WORKBENCH",
+	"radio": "HAM RADIO (BROKEN)", "jar": "DRIED MUSHROOMS", "papers": "ROLLING PAPERS", "bench": "WORKBENCH",
 	"lantern": "LANTERN", "instruments": "WEATHER GAUGES", "power": "POWER STATION", "filter": "WATER FILTER",
 	"crates": "SUPPLY CRATES", "sandbags": "SANDBAGS", "flashlight": "FLASHLIGHT",
 }
@@ -67,6 +69,15 @@ var cam_v := 0.0
 var push := 0.0                           # -1..1, how hard the cursor (or A/D) pushes the view
 var mouse_inside := true
 var mouse_seen := false                   # no edge-push until the mouse has really moved (web starts at 0,0)
+var edge_hold := false                    # after the crafting view the cursor may sit in an edge band
+                                          # (BACK is top-left): no edge-push until it has left the band
+var room_basis: Basis                     # the room camera's fixed tilt, height, depth and zoom
+var room_y: float
+var room_z: float
+var room_size: float
+
+# crafting view (top-down over the workbench's cutting mat)
+var crafting: Node
 
 # window
 var shutter := 0.0
@@ -116,6 +127,14 @@ func _ready() -> void:
 	cam_left = meta.camera.x_left
 	cam_right = meta.camera.x_right
 	cam_x = cam_right
+	room_basis = camera.basis
+	room_y = camera.position.y
+	room_z = camera.position.z
+	room_size = camera.size
+	crafting = CRAFTING.new()
+	crafting.name = "Crafting"
+	add_child(crafting)
+	crafting.setup(meta, W, H)
 	get_window().mouse_entered.connect(func(): mouse_inside = true)
 	get_window().mouse_exited.connect(func(): mouse_inside = false)
 
@@ -218,8 +237,12 @@ func _process(delta: float) -> void:
 		cam_x = clampf(cam_x, CAM_MIN, CAM_MAX)
 		cam_v = 0.0
 	var cam_px := roundf((cam_x - cam_left) / PIX)
-	for cam in [camera, mask_cam]:
-		cam.position.x = cam_left + cam_px * PIX
+	crafting.update(clock, cursor, not ui.over_ui(cursor))
+	var room := Transform3D(room_basis, Vector3(cam_left + cam_px * PIX, room_y, room_z))
+	var pose: Array = crafting.camera_pose(room, room_size)
+	for cam: Camera3D in [camera, mask_cam]:
+		cam.transform = pose[0]
+		cam.size = pose[1]
 
 	_update_window()
 	_update_cabinet()
@@ -248,7 +271,7 @@ func _process(delta: float) -> void:
 
 func _update_hover(step: float) -> void:
 	var target := ""
-	if ui.panel == "" and not ui.over_ui(cursor) and not ui.flying():
+	if ui.panel == "" and not ui.over_ui(cursor) and not ui.flying() and not crafting.active():
 		target = _group_at(cursor)
 	hover_t = hover_t + step if (target != "" and target == hover) else (1.0 if target != "" else 0.0)
 	hover = target
@@ -359,20 +382,28 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		click()
 	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
-		ui.held = null
+		if ui.held != null:
+			ui.held = null
+		else:
+			crafting.exit(clock)
 	elif event is InputEventKey and event.pressed and not event.echo:
 		match event.keycode:
 			KEY_ESCAPE:
 				if ui.held != null:
 					ui.held = null
-				else:
+				elif ui.panel != "":
 					ui.close_panel()
+				else:
+					crafting.exit(clock)
 
 
 func click() -> void:
 	click_at = clock
 	ui.ripple(cursor, clock)
 	if ui.handle_click(cursor):
+		return
+	if crafting.active():
+		crafting.click(cursor, ui.held)   # the grid's listeners decide what a click does
 		return
 	if ui.held != null:
 		var item: ItemData = ui.held
@@ -392,13 +423,20 @@ func click() -> void:
 			pick_up("jar", "jar")
 		"papers":
 			pick_up("papers", "papers")
+		"bench":
+			crafting.enter(clock)
 
 
 ## cursor inside the edge band pushes the view, harder the closer it gets; A/D push fully
 func _update_push() -> void:
 	push = 0.0
+	if crafting.active():
+		edge_hold = true
+		return
+	if edge_hold and cursor.x >= EDGE and cursor.x <= W - 1 - EDGE:
+		edge_hold = false
 	var live: bool = cursor_override != null or (mouse_seen and mouse_inside and get_window().has_focus())
-	if live and ui.panel == "":
+	if live and ui.panel == "" and not edge_hold:
 		if cursor.x < EDGE:
 			push = -pow((EDGE - cursor.x) / EDGE, 1.5)
 		elif cursor.x > W - 1 - EDGE:
@@ -490,7 +528,12 @@ func _demo(out: String) -> void:
 		[800, "point", Vector2(196, 255)], [815, "shot", "18_hover_slot"], [816, "click"],
 		[817, "hover", "bench", Vector2(0, 20)], [840, "shot", "19_holding_over_bench"], [841, "click"],
 		[860, "point", Vector2(218, 255)], [870, "shot", "20_back_in_inventory"],
-		[871, "quit"],
+		[871, "hover", "bench", Vector2(0, 20)], [880, "shot", "21_hover_bench"], [881, "click"],
+		[895, "shot", "22_craft_swing"], [920, "shot", "23_craft_view"],
+		[921, "cell", Vector2i(4, 2)], [935, "shot", "24_craft_hover_cell"],
+		[936, "point", Vector2(20, 12)], [945, "shot", "25_craft_hover_back"], [946, "click"],
+		[960, "shot", "26_craft_leaving"], [985, "shot", "27_back_in_room"],
+		[986, "quit"],
 	]
 	for s in steps:
 		while clock < s[0]:
@@ -505,6 +548,8 @@ func _demo(out: String) -> void:
 				cursor_override = s[2]
 			"close_box":
 				cursor_override = ui.close_box_center()
+			"cell":                      # middle of a crafting grid cell
+				cursor_override = Vector2(crafting.cell_rect(s[2]).get_center())
 			"pan":                       # park the cursor on that edge and let it push
 				cursor_override = Vector2(1.0 if s[2] == "left" else W - 2.0, H / 2.0)
 			"click":

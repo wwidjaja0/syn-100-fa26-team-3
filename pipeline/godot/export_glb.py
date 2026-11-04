@@ -9,13 +9,15 @@ materials (Godot swaps in its own toon shader by material name/colour), bakes
 the inverted-hull outlines into the meshes, and writes:
 
   assets/shelter.glb       the room
-  assets/scene_meta.json   lights, camera rig, start-hidden nodes, group list
+  assets/scene_meta.json   lights, camera rig, start-hidden nodes, group list,
+                           crafting mat + build grid (from pipeline/scene/mat_meta.json)
 """
 import bpy, json, math
 from pathlib import Path
 from mathutils import Vector
 
 GODOT = Path(__file__).resolve().parents[2]   # repo root = the Godot project
+PIPE_SCENE = GODOT / 'pipeline' / 'scene'
 OUT = GODOT / 'assets'
 scene = bpy.context.scene
 scene.frame_set(1)
@@ -71,7 +73,7 @@ GROUPS = {
     'radio': radio,
     'jar': named('jar_'),
     'papers': named('papers_'),
-    'bench': kids('01_wooden_workbench'),
+    'bench': kids('01_wooden_workbench') + named('cutting_mat'),
     'sky': named('storm_window_emit'),
     'lantern': kids('10_emergency_lantern'),
     'instruments': kids('08_wall_weather_instruments'),
@@ -157,6 +159,12 @@ for o in [o for o in objs if o.type == 'LIGHT']:
                    'size': getattr(d, 'size', 0.0), 'radius': getattr(d, 'shadow_soft_size', 0.0)})
     objs.remove(o)
 
+# the cutting mat: centre of its printed top (Godot coords) + the build grid it carries
+mat_obj = objs['cutting_mat']
+mat_top = max((mat_obj.matrix_world @ v.co for v in mat_obj.data.vertices), key=lambda v: v.z).z
+craft = json.loads((PIPE_SCENE / 'mat_meta.json').read_text())
+craft['mat_center'] = to_godot((mat_obj.matrix_world.translation.x, mat_obj.matrix_world.translation.y, mat_top))
+
 world = scene.world.node_tree.nodes.get('Background') if scene.world and scene.world.use_nodes else None
 TILT, DIST, LOOK_Z = 8.0, 12.0, 1.55
 meta = {
@@ -171,6 +179,7 @@ meta = {
                'pos_z': -(WALL_Y - DIST * math.cos(math.radians(TILT)))},
     'points': {'window': to_godot((WIN_X, WALL_Y, 1.53)),
                'speaker_mount': to_godot(objs['speaker_rig'].matrix_world.translation)},
+    'craft': craft,
 }
 
 OUT.mkdir(exist_ok=True)

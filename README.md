@@ -1,7 +1,8 @@
 # Ouroboros' Cabin
 
 First-person point-and-click in a climate shelter cabin, rendered as low-res toon pixel art.
-Godot 4.7. Desktop game for Windows, macOS and Linux (Ubuntu).
+Godot 4.7. Desktop game for Windows, macOS and Linux (Ubuntu), plus a WebGL build that runs in the browser
+(GitHub Pages, see "Play in the browser").
 
 **Making art or props? Read [`ASSET_GUIDE.md`](ASSET_GUIDE.md) first.**
 
@@ -12,6 +13,8 @@ Open `project.godot` in Godot 4.7.x and press F5.
 - Mouse to point and click. Push the cursor against the left or right edge (or hold A/D) to look around.
 - Click an inventory slot to hold the item, then click something in the room to use it on that.
   Right-click or Esc puts it back. Esc also closes panels.
+- Click the workbench for the crafting view, which looks straight down on the cutting mat's build grid. BACK, Esc or
+  right-click returns to the room. (The crafting itself isn't built yet.)
 
 ## Renderers
 
@@ -20,12 +23,13 @@ Open `project.godot` in Godot 4.7.x and press F5.
 | Windows | Forward+ on Vulkan | `rendering_device/driver.windows` |
 | macOS | Forward+ on Metal | `rendering_device/driver.macos` |
 | Linux | Forward+ on Vulkan | Godot default |
+| Web | Compatibility (WebGL 2) | `renderer/rendering_method.web`; browsers only support Compatibility |
 | Fallback | Compatibility (OpenGL) | Used automatically when a machine can't run Vulkan or Metal |
 
 On Macs that can't use Metal, Godot tries Vulkan (MoltenVK) first, then OpenGL.
 
 Compatibility treats colour differently from Forward+. The shaders and `scripts/main.gd` (`compat`)
-compensate, so the fallback looks the same. See "Rendering rules" in the asset guide before touching
+compensate, so the web build and the fallback look the same. See "Rendering rules" in the asset guide before touching
 shaders or lights.
 
 ## Layout
@@ -34,7 +38,8 @@ shaders or lights.
 project.godot, export_presets.cfg   Godot project (repo root)
 scenes/main.tscn                    the cabin: viewports, camera, lights, UI layer
 scripts/main.gd                     room setup, camera pan, hover/click, interactions
-scripts/ui.gd                       pixel UI: labels, inventory, map panel, cursor
+scripts/crafting.gd                 crafting view: top-down camera onto the bench's cutting mat, build-grid maths
+scripts/ui.gd                       pixel UI: labels, inventory, map panel, crafting BACK/cell highlight, cursor
 scripts/game_state.gd               autoload: day, story flags
 InventoryManager.gd                 autoload: what the player carries (ItemData list, 5 slots)
 inventory_data.gd, item_data.gd     ItemData (id, name, icon) and InventoryData resource classes
@@ -55,8 +60,10 @@ pipeline/                           sources and build scripts for everything abo
 You only need this when changing props, the room layout or UI art. See `ASSET_GUIDE.md` for the full flow.
 
 ```sh
+pip install -r pipeline/props/requirements.txt            # once: trimesh is pinned (4.5.3)
 python3 pipeline/props/generate_assets.py                  # props -> pipeline/props/assets/*.glb
 python3 pipeline/scene/make_map.py                         # PNW map texture + panel
+python3 pipeline/scene/make_mat.py                         # cutting mat texture + build grid
 blender -b --factory-startup --python pipeline/scene/build_pixel_scene.py -- --no-render
 blender -b --factory-startup pipeline/scene/climate_shelter_pixel.blend --python pipeline/scene/build_story.py
 blender -b --factory-startup pipeline/scene/climate_shelter_story.blend --python pipeline/godot/export_glb.py
@@ -74,24 +81,40 @@ Use Project > Export, or the command line. You need the Godot 4.7.2 export templ
 godot --headless --path . --export-release "Windows Desktop" build/windows/OuroborosCabin.exe
 godot --headless --path . --export-release "macOS" build/macos/OuroborosCabin.zip
 godot --headless --path . --export-release "Linux" build/linux/OuroborosCabin.x86_64
+godot --headless --path . --export-release "Web" build/web/index.html
 ```
 
 - **Windows:** one `.exe` with the game data embedded.
 - **macOS:** a zipped universal `.app` (Intel and Apple Silicon), ad-hoc signed and **not notarized**.
-  The first launch needs right-click > Open, or `xattr -cr "Ouroboros' Cabin.app"` in Terminal.
+  macOS warns that "Apple cannot check it for malicious software". To open it the first time, run
+  `xattr -cr "Ouroboros' Cabin.app"` in Terminal, or click Open Anyway in System Settings > Privacy & Security.
+  Control-click > Open also works on macOS 14 and earlier, but not on 15.
   `application/bundle_identifier` in `export_presets.cfg` is a placeholder.
 - **Linux:** one x86_64 executable with the game data embedded, built for Ubuntu (any distro from the last
   few years works). Run it with `chmod +x OuroborosCabin.x86_64 && ./OuroborosCabin.x86_64`. It needs Vulkan
   drivers (Mesa, or NVIDIA's own driver). On Wayland desktops such as Ubuntu's it runs through XWayland.
 
-A **Web** preset is also in `export_presets.cfg`, but the web isn't a target.
+- **Web:** `build/web/` (~40 MB, WebGL 2, single-threaded, so no special server headers are needed). Serve it over
+  http, for example `python3 -m http.server` in `build/web`; opening `index.html` as a file won't work. Zipped, it's
+  an HTML5 upload for itch.io.
 
 ### CI builds
 
-`.github/workflows/build.yml` runs on every push to any branch. It exports all three platforms with Godot
+`.github/workflows/build.yml` runs on every push to any branch. It exports all four platforms with Godot
 4.7.2, and you can download them from the run's page under **Artifacts**
-(`OuroborosCabin-windows`, `-macos`, `-linux-x86_64`). Pushing a tag such as `v0.1` also attaches them to a
+(`OuroborosCabin-windows`, `-macos`, `-linux-x86_64`, `-web`). Pushing a tag such as `v0.1` also attaches them to a
 GitHub release. When the team moves to a new Godot version, change `GODOT_VERSION` in the workflow.
+
+### Play in the browser (GitHub Pages)
+
+The workflow can put the web build on **https://wwidjaja0.github.io/syn-100-fa26-team-3/**.
+- Pushes to `main` deploy automatically.
+- To put **any branch** online, go to Actions > Build > **Run workflow**, pick the branch, and leave "Deploy the web build
+  to GitHub Pages" ticked. From a terminal: `gh workflow run build.yml --ref <branch>`. The site always shows the last
+  build deployed.
+
+One-time setup by a repo admin: Settings > Pages > Source: **GitHub Actions**. Then, under Settings > Environments >
+`github-pages` > Deployment branches, allow the branches you want to deploy from. By default only `main` may deploy.
 
 ## Dev screenshots
 

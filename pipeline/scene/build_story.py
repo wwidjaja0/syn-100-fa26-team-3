@@ -279,6 +279,30 @@ papers_parts = [
 for o in papers_parts:
     o.rotation_euler.z = math.radians(-12)
 
+# --- cutting mat on the bench: the crafting view's build grid (pixel art + sizes from make_mat.py)
+MAT_META = json.loads((HERE / 'mat_meta.json').read_text())
+MAT_W, MAT_D = MAT_META['size_m']
+MAT_T = 0.004
+MAT_C = Vector((3.08, 1.35, BENCH_TOP + MAT_T / 2))   # between the radio and the papers, clear of the lantern
+mat_mat = toon('cutting_mat', (1, 1, 1))
+tex = mat_mat.node_tree.nodes.new('ShaderNodeTexImage')
+tex.image = bpy.data.images.load(str(HERE / 'mat_texture.png'))
+tex.image.pack()
+tex.interpolation = 'Closest'
+mat_mat.node_tree.links.new(tex.outputs['Color'], mat_mat.node_tree.nodes['Diffuse BSDF'].inputs['Color'])
+bm = bmesh.new()
+bmesh.ops.create_cube(bm, size=1)
+bmesh.ops.scale(bm, vec=(MAT_W, MAT_D, MAT_T), verts=bm.verts)
+uv = bm.loops.layers.uv.new()
+for face in bm.faces:
+    for loop in face.loops:
+        if face.normal.z > 0.5:          # the printed top: u left->right, v front->back (image top = wall side)
+            loop[uv].uv = (loop.vert.co.x / MAT_W + 0.5, loop.vert.co.y / MAT_D + 0.5)
+        else:                            # edges take the rim colour
+            loop[uv].uv = (0.5 / MAT_META['px'][0], 0.5 / MAT_META['px'][1])
+# no outline hull: outlined props are dimmed in Godot (PROP_DIRECT_LIGHT), and the texture has its own rim
+mat_obj = mesh_obj('cutting_mat', bm, mat_mat, MAT_C, outline=False)
+
 # --- broken radio: speaker pulled out, wires hanging, dead display
 radio_root = bpy.data.objects['02_emergency_weather_radio']
 radio_meshes = [o for o in radio_root.children_recursive if o.type == 'MESH']

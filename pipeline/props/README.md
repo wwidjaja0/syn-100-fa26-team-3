@@ -41,4 +41,4 @@ File > Import > glTF 2.0, select a `.glb`. Separate named mesh objects can be mo
 
 ## Rebuild
 
-`generate_assets.py` builds every model (needs `trimesh`, `numpy`, `Pillow`): `python3 generate_assets.py` rewrites `assets/*.glb`.
+`generate_assets.py` builds every model (`pip install -r requirements.txt`: trimesh **4.5.3**, numpy, Pillow): `python3 generate_assets.py` rewrites `assets/*.glb`. Newer trimesh exports without the single `world` root node that the Blender importer (`build_pixel_scene.import_asset`) needs.

@@ -78,7 +78,7 @@ spot_angle = 80.0
 spot_angle_attenuation = 1.0
 
 [node name="lantern_glow" type="OmniLight3D" parent="WorldVP/Lights"]
-transform = Transform3D(1.00000, 0.00000, 0.00000, 0.00000, 1.00000, 0.00000, 0.00000, 0.00000, 1.00000, 3.34750, 1.33510, -1.45000)
+transform = Transform3D(1.00000, 0.00000, 0.00000, 0.00000, 1.00000, 0.00000, 0.00000, 0.00000, 1.00000, 3.52750, 1.33510, -1.78000)
 light_color = Color(1.0000, 0.7674, 0.5064, 1)
 light_energy = 2.3073
 light_size = 0.050
@@ -95,7 +95,7 @@ omni_attenuation = 2.0
 shadow_enabled = true
 
 [node name="radio_glow" type="OmniLight3D" parent="WorldVP/Lights"]
-transform = Transform3D(1.00000, 0.00000, 0.00000, 0.00000, 1.00000, 0.00000, 0.00000, 0.00000, 1.00000, 2.37990, 1.45300, -1.06500)
+transform = Transform3D(1.00000, 0.00000, 0.00000, 0.00000, 1.00000, 0.00000, 0.00000, 0.00000, 1.00000, 2.53150, 1.20500, -1.22100)
 light_color = Color(0.7014, 1.0000, 0.8543, 1)
 light_energy = 0.0000
 light_size = 0.150

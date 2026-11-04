@@ -1,7 +1,7 @@
 extends Control
 ## Pixel UI drawn straight onto the 480x270 canvas, like pixui.py did in the video:
-## hover label, turn arrows, inventory bar, the map close-up, click ripple and the
-## pixel cursor (carrying the held item).
+## hover label, turn arrows, inventory bar, the map close-up, the crafting view's BACK
+## button and cell highlight, click ripple and the pixel cursor (carrying the held item).
 
 const W := 480
 const H := 270
@@ -16,6 +16,7 @@ const SLOT_STEP := 22
 const SLOTS: int = preload("res://InventoryManager.gd").MAX_ITEMS
 const INV_POS := Vector2i((W - SLOT_STEP * SLOTS + SLOT_STEP - SLOT) / 2, 245)   # first slot, top-left; bar centred
 const FLY := 16.0                        # frames an item takes to fly into its slot
+const BACK := Rect2(6, 6, 33, 15)        # crafting view: back to the room
 
 var panel := ""
 var panel_at := -1e9
@@ -138,7 +139,11 @@ func _over_close(p: Vector2) -> bool:
 
 # ---------------------------------------------------------------- hit tests
 func over_ui(p: Vector2) -> bool:
-	return _slot_at(p) >= 0
+	return _slot_at(p) >= 0 or _over_back(p)
+
+
+func _over_back(p: Vector2) -> bool:
+	return game.crafting.settled() and BACK.has_point(p)
 
 
 ## true when the click was for the UI and the room should ignore it
@@ -146,6 +151,9 @@ func handle_click(p: Vector2) -> bool:
 	if panel == "map":
 		if _over_close(p) or not _map_rect().has_point(p):
 			close_panel()
+		return true
+	if _over_back(p):
+		game.crafting.exit(game.clock)
 		return true
 	var slot := _slot_at(p)
 	if slot >= 0:
@@ -174,6 +182,20 @@ func _draw() -> void:
 		_chevron("left", game.push < -0.5, now)
 	elif game.push > 0.0:
 		_chevron("right", game.push > 0.5, now)
+
+	# crafting view: the hovered grid cell and the way back
+	var craft = game.crafting
+	if craft.settled():
+		if craft.hover_cell != craft.NO_CELL:     # 2 px white on the cell's grid lines, inked outside
+			var cr := Rect2(craft.cell_rect(craft.hover_cell))
+			_frame(cr.grow(1), INK)
+			_frame(cr, WHITE)
+			_frame(cr.grow(-1), WHITE)
+		var hot := BACK.has_point(cur)
+		draw_rect(BACK, panel_col)
+		_frame(BACK, WHITE if hot else panel_hi)
+		text("BACK", BACK.position + Vector2(5, 4), WHITE, INK)
+		ui_hover = ui_hover or hot
 
 	for i in SLOTS:
 		var r := _slot_rect(i)
@@ -234,7 +256,7 @@ func _draw() -> void:
 			_ring(r[0], 3.0 + k * 1.6, WHITE)
 	ripples = ripples.filter(func(r): return now - r[1] < 7.0)
 
-	var hand: bool = game.hover != "" or ui_hover or held != null
+	var hand: bool = game.hover != "" or ui_hover or held != null or craft.hover_cell != craft.NO_CELL
 	var name := "hand" if hand else "arrow"
 	var hs: Array = hotspots[name]
 	var pressed: bool = game.clicking()

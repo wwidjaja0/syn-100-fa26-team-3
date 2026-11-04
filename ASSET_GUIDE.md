@@ -47,10 +47,28 @@ back faces are culled, and the outline hull relies on them.
   emissive (`EMISSIVE` in `pipeline/scene/build_pixel_scene.py`). Don't use those words in the names
   of parts that shouldn't glow.
 
-**Textures (rare).** Only use a texture when the art can't be flat colour; the wall map is the one example.
+**Textures (rare).** Only use a texture when the art can't be flat colour. The wall map and the cutting mat are
+the two examples.
 - Make it pixel art at screen resolution: 1 texel should be at least 1 screen pixel.
 - Upscale it 4x with nearest-neighbour before use, and save it as sRGB PNG (see `pipeline/scene/make_map.py`).
 - The shader decodes sRGB by hand, so don't change texture hints in `toon.gdshader`.
+- Godot extracts textures from `shelter.glb` as `assets/shelter_<image>.png`. Set a new one's import to
+  Lossless with `detect_3d/compress_to=0`, copying `shelter_map_texture.png.import`.
+- Colours are multiplied by the warm pendant light (1.0, 0.70, 0.38). A blue needs to be far bluer than it
+  should look; the mat uses (24, 86, 214).
+
+**The crafting table.** Clicking the workbench swings the camera straight down onto the blue cutting mat
+(`scripts/crafting.gd`). That view is **4 px per cm** (480 px = 1.2 m), and the mat texture
+(`pipeline/scene/make_mat.py`) is drawn one texel per screen pixel, so its 5 cm grid cells are exact 20 px squares,
+the size of an inventory slot. The grid is 12x7 cells. To change it, edit `make_mat.py` and re-export;
+Godot reads the size, centre and grid from the `craft` block in `scene_meta.json`.
+- Keep the bench's middle clear: the mat sits between the ham radio and the papers, the lantern is in the back-right
+  corner, and the flashlight rides on the power station.
+- Nothing tall goes in front of something you need to see: the camera looks almost level, so a prop at the front
+  of the bench hides whatever is behind it up to its own height. That's why the radio sits right of the vice, not
+  behind it, and it stays under 30 cm because the weather-gauge board hangs above it.
+- Pieces built on the mat should be about one cell (5 cm) across. Use `crafting.cell_world(cell)` to place them.
+- The mat has no outline hull, so it isn't dimmed like other props.
 
 **States.** For an object that changes (open/closed, broken/fixed), prefer **one model with hinged or
 hideable parts** over two models. Examples are the shutter and cabinet hinges, or the radio grill that's
@@ -99,9 +117,10 @@ Rules:
 ## 6. Pipeline: from source to game
 
 ```
-pipeline/props/generate_assets.py  --> pipeline/props/assets/NN_name.glb        (python + trimesh)
+pipeline/props/generate_assets.py  --> pipeline/props/assets/NN_name.glb        (python + trimesh 4.5.3, see requirements.txt)
 pipeline/scene/build_pixel_scene.py --> climate_shelter_pixel.blend             (Blender: room, layout, toon, lights)
-pipeline/scene/build_story.py       --> climate_shelter_story.blend             (Blender: story props, hinges, groups)
+pipeline/scene/make_mat.py          --> mat_texture.png + mat_meta.json          (cutting mat art + build grid)
+pipeline/scene/build_story.py       --> climate_shelter_story.blend             (Blender: story props, mat, hinges, groups)
 pipeline/godot/export_glb.py        --> assets/shelter.glb + scene_meta.json    (Blender -> Godot)
 pipeline/godot/make_ui_assets.py    --> ui/*, assets/palette.json
 pipeline/godot/make_main_scene.py   --> scenes/main.tscn  (lights + camera; OVERWRITES hand edits, so rarely needed)
@@ -120,8 +139,8 @@ change the source and re-export.
 
 ## 7. Rendering rules (shaders and lights)
 
-The game runs Godot's **Forward+** renderer: Vulkan on Windows, Metal on macOS. Machines that can't run
-either fall back to **Compatibility** (OpenGL). The two renderers differ in ways that were measured and
+The desktop game runs Godot's **Forward+** renderer: Vulkan on Windows and Linux, Metal on macOS. The web build
+runs **Compatibility** (WebGL 2), and so do machines that can't run Vulkan or Metal (OpenGL). The two renderers differ in ways that were measured and
 compensated for. Keep these intact:
 - `toon.gdshader` hands colours to Compatibility **sRGB-encoded** (`srgb_io`) because it linearises
   `ALBEDO`/`EMISSION` itself, and decodes textures by hand. Don't add `source_color` hints.

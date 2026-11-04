@@ -174,9 +174,13 @@ place('01_wooden_workbench', BENCH_X, y_back=WALL_Y - 0.05)
 place('08_wall_weather_instruments', BENCH_X, y_back=WALL_Y)
 place('12_supply_cabinet_open', 4.5, y_back=WALL_Y - 0.05, coll=cab_open)
 place('03_supply_cabinet_closed', 4.5, y_back=WALL_Y - 0.05, coll=cab_closed)
-place('02_emergency_weather_radio', BENCH_X - 0.45, y=1.5, on_surface='01_wooden_workbench', rot_z=-10)
-place('10_emergency_lantern', BENCH_X + 0.6, y=1.45, on_surface='01_wooden_workbench')
-place('11_flashlight', BENCH_X + 0.15, y=1.15, on_surface='01_wooden_workbench', rot_z=25)
+# ham radio against the wall, right of the vice (not in front of it, or the vice hides its face)
+# and under the left end of the weather-instrument board; its coax runs up beside the board
+place('02_emergency_weather_radio', BENCH_X - 0.28, y_back=WALL_Y - 0.05, on_surface='01_wooden_workbench')
+# the middle of the bench stays clear for the cutting mat (build_story.py), the crafting build grid:
+# the lantern sits in the back-right corner and the flashlight rides on the power station
+place('10_emergency_lantern', BENCH_X + 0.78, y=1.78, on_surface='01_wooden_workbench')
+place('11_flashlight', 0.9, y=1.0, on_surface='04_portable_power_station', rot_z=12)
 
 # pendant lamp over the workbench
 lamp_mat = base_mat('lamp_shade', (0.20, 0.24, 0.22))
