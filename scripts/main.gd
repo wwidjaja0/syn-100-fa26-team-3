@@ -71,8 +71,11 @@ var cam_right: float
 var cam_x := 0.0
 var cam_v := 0.0
 var push := 0.0                           # -1..1, how hard the cursor (or A/D) pushes the view
-var mouse_inside := true
+var beyond := Vector2.ZERO                # -1/0/+1 per axis: the pointer is past that edge of the game
+                                          # area (e.g. in the black borders around the scaled picture)
 var mouse_seen := false                   # no edge-push until the mouse has really moved (web starts at 0,0)
+var web_out := Vector2.ZERO               # web: which way the mouse left the page (see _watch_web_mouse)
+var _web_callbacks := []                  # keeps the JavaScript callbacks alive
 var edge_hold := false                    # after a close-up or panel the cursor may sit in an edge band
                                           # (BACK is top-left): no edge-push until it has left the band
 var room_basis: Basis                     # the room camera's fixed tilt, height, depth and zoom
@@ -146,8 +149,8 @@ func _ready() -> void:
 	add_child(radio_view)
 	radio_view.setup(meta, camera)
 	views = [crafting, radio_view]
-	get_window().mouse_entered.connect(func(): mouse_inside = true)
-	get_window().mouse_exited.connect(func(): mouse_inside = false)
+	if OS.has_feature("web"):
+		_watch_web_mouse()
 
 	post = screen.material
 	screen.texture = world_vp.get_texture()
@@ -245,8 +248,10 @@ func _group_of(n: Node) -> int:
 func _process(delta: float) -> void:
 	var step := delta * TICK
 	clock += step
-	cursor = cursor_override if cursor_override != null else ui.get_global_mouse_position()
-	cursor = cursor.clamp(Vector2.ZERO, Vector2(W - 1, H - 1))
+	var raw: Vector2 = cursor_override if cursor_override != null else ui.get_global_mouse_position()
+	beyond = Vector2(-1.0 if raw.x < 0.0 else (1.0 if raw.x >= W else 0.0),
+			-1.0 if raw.y < 0.0 else (1.0 if raw.y >= H else 0.0))
+	cursor = raw.clamp(Vector2.ZERO, Vector2(W - 1, H - 1))
 
 	# camera follows the cursor's push on the edges, snapped to whole pixels so the art never swims
 	_update_push()
@@ -531,9 +536,15 @@ func active_view() -> Node:
 
 ## which way the real mouse has left the game window (-1 / 0 / +1 per axis). The game cursor is
 ## clamped to the screen, so this is how pans keep going at full speed past the window's edge.
-## Browsers stop reporting the mouse outside the page, so the web build relies on the edge band.
+## The web build can't ask where the mouse is, so it uses the edge the pointer left the page by.
 func _mouse_outside() -> Vector2:
-	if cursor_override != null or OS.has_feature("web") or not mouse_seen or not get_window().has_focus():
+	if cursor_override != null or not mouse_seen:
+		return Vector2.ZERO
+	if beyond != Vector2.ZERO:           # still in the window, but past the game area (black borders)
+		return beyond
+	if OS.has_feature("web"):
+		return web_out
+	if not get_window().has_focus():
 		return Vector2.ZERO
 	var w := get_window()
 	var p := Vector2(DisplayServer.mouse_get_position() - w.position)
@@ -541,6 +552,30 @@ func _mouse_outside() -> Vector2:
 	out.x = -1.0 if p.x < 0 else (1.0 if p.x >= w.size.x else 0.0)
 	out.y = -1.0 if p.y < 0 else (1.0 if p.y >= w.size.y else 0.0)
 	return out
+
+
+## Browsers stop reporting the mouse once it leaves the page, so listen for the page's own
+## mouseleave / mouseenter and remember the edge it left by (the nearest one to where it went out).
+func _watch_web_mouse() -> void:
+	var root = JavaScriptBridge.get_interface("document").documentElement
+	var leave := JavaScriptBridge.create_callback(_on_web_mouse_leave)
+	var enter := JavaScriptBridge.create_callback(func(_args): web_out = Vector2.ZERO)
+	root.addEventListener("mouseleave", leave)
+	root.addEventListener("mouseenter", enter)
+	_web_callbacks = [leave, enter]
+
+
+func _on_web_mouse_leave(args: Array) -> void:
+	var e = args[0]
+	var win = JavaScriptBridge.get_interface("window")
+	var x: float = e.clientX
+	var y: float = e.clientY
+	var w: float = win.innerWidth
+	var h: float = win.innerHeight
+	var dist := [x, w - 1.0 - x, y, h - 1.0 - y]      # to the left, right, top and bottom edges
+	var near: float = minf(minf(dist[0], dist[1]), minf(dist[2], dist[3])) + 16.0
+	web_out = Vector2((-1.0 if dist[0] <= near and dist[0] <= dist[1] else (1.0 if dist[1] <= near else 0.0)),
+			(-1.0 if dist[2] <= near and dist[2] <= dist[3] else (1.0 if dist[3] <= near else 0.0)))
 
 
 ## WASD / arrows as a direction, for panning inside panels
@@ -601,7 +636,7 @@ func _update_push() -> void:
 	var out := _mouse_outside()
 	if live and ui.panel == "" and not edge_hold and out.x != 0.0:
 		push = out.x                     # the mouse has left the window on that side: full speed
-	elif live and ui.panel == "" and not edge_hold and mouse_inside:
+	elif live and ui.panel == "" and not edge_hold:
 		if cursor.x < EDGE:
 			push = -pow((EDGE - cursor.x) / EDGE, 1.5)
 		elif cursor.x > W - 1 - EDGE:
