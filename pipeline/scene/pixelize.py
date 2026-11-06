@@ -3,6 +3,9 @@ palette with ordered dithering and nearest-neighbour upscale.
 
 From the Blender GUI: Scripting tab > open text 'pixelize.py' > Run Script.
 Writes render_lowres.png and render_pixel.png next to the .blend.
+
+Preview stills only (build_pixel_scene.py runs it unless --no-render); the game does this
+live in shaders/post.gdshader.
 """
 import bpy
 import numpy as np

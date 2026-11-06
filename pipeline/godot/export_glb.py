@@ -54,7 +54,7 @@ for o in LATER:
 for c in bpy.data.collections:
     c.hide_render = c.hide_viewport = False
 
-# ---------------------------------------------------------------- groups (mirrors build_story.GROUPS)
+# ---------------------------------------------------------------- groups (mirrors GROUPS in pipeline/scene/story_parts/story_5_render_setup.py)
 def kids(root):
     return [o for o in objs[root].children_recursive if o.type == 'MESH'] if root in objs else []
 
