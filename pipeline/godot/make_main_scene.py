@@ -1,5 +1,9 @@
 """Write scenes/main.tscn from assets/scene_meta.json (lights + camera from the Blender scene).
 
+WorldVP and MaskVP don't set a world_3d of their own: both render the scene's own World3D (so they
+share it, and the editor's 3D view shows the room). Their cameras register with their SubViewport,
+so the root viewport draws no 3D itself.
+
 python3 pipeline/godot/make_main_scene.py
 
 Run once after an export to seed the scene; after that main.tscn is the source of
@@ -77,14 +81,12 @@ for L in meta['lights']:
     lights.append(body)
 
 wc = meta['world_color']
-tscn = f'''[gd_scene load_steps=8 format=3]
+tscn = f'''[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
 [ext_resource type="PackedScene" path="res://assets/shelter.glb" id="2_room"]
 [ext_resource type="Shader" path="res://shaders/post.gdshader" id="3_post"]
 [ext_resource type="Script" path="res://scripts/ui.gd" id="4_ui"]
-
-[sub_resource type="World3D" id="World3D_room"]
 
 [sub_resource type="Environment" id="Environment_world"]
 background_mode = 1
@@ -109,7 +111,6 @@ shader = ExtResource("3_post")
 script = ExtResource("1_main")
 
 [node name="WorldVP" type="SubViewport" parent="."]
-world_3d = SubResource("World3D_room")
 size = Vector2i(480, 270)
 render_target_update_mode = 4
 
@@ -126,7 +127,6 @@ environment = SubResource("Environment_world")
 
 ''' + '\n'.join(lights) + f'''
 [node name="MaskVP" type="SubViewport" parent="."]
-world_3d = SubResource("World3D_room")
 size = Vector2i(480, 270)
 render_target_update_mode = 4
 
