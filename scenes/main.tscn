@@ -59,7 +59,7 @@ omni_attenuation = 2.0
 [node name="cabinet_interior" type="OmniLight3D" parent="WorldVP/Lights"]
 transform = Transform3D(1.00000, 0.00000, 0.00000, 0.00000, 1.00000, 0.00000, 0.00000, 0.00000, 1.00000, 4.35000, 1.55000, -0.75000)
 light_color = Color(1.0000, 0.8650, 0.6800, 1)
-light_energy = 0.0
+light_energy = 0.0000
 light_size = 0.200
 omni_range = 9.0
 omni_attenuation = 2.0
@@ -83,11 +83,11 @@ omni_range = 9.0
 omni_attenuation = 2.0
 
 [node name="pendant_key" type="OmniLight3D" parent="WorldVP/Lights"]
-transform = Transform3D(1.00000, 0.00000, 0.00000, 0.00000, 1.00000, 0.00000, 0.00000, 0.00000, 1.00000, 2.75000, 2.30000, -0.75000)
+transform = Transform3D(1.00000, 0.00000, 0.00000, 0.00000, 1.00000, 0.00000, 0.00000, 0.00000, 1.00000, 2.40000, 2.30000, -0.75000)
 light_color = Color(1.0000, 0.8543, 0.6500, 1)
-light_energy = 7.5991
+light_energy = 10.1321
 light_size = 0.100
-omni_range = 9.0
+omni_range = 16.0
 omni_attenuation = 2.0
 shadow_enabled = true
 

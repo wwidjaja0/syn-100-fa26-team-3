@@ -66,7 +66,7 @@ for L in meta['lights']:
         body = (f'[node name="{name}" type="OmniLight3D" parent="WorldVP/Lights"]\n'
                 f'transform = {xform(L["pos"])}\nlight_color = {col(L["color"])}\n'
                 f'light_energy = {abs(e) / (4 * PI2):.4f}\nlight_size = {L["radius"]:.3f}\n'
-                f'omni_range = 9.0\nomni_attenuation = 2.0\n')
+                f'omni_range = {16.0 if shadow else 9.0}\nomni_attenuation = 2.0\n')
     elif kind == 'AREA':
         body = (f'[node name="{name}" type="SpotLight3D" parent="WorldVP/Lights"]\n'
                 f'transform = {xform(L["pos"], L["dir"])}\nlight_color = {col(L["color"])}\n'

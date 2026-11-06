@@ -133,11 +133,15 @@ def workbench():
  m.box('drawer_pull',(0,-.487,.735),(.20,.026,.022),'steel')
  for x in [-.095,.095]: m.cyl('drawer_knob_pin',(x,-.50,.735),.017,.025,'steel_light','y',10)
  # clamp vise mounted left
- m.box('vice_base',(-.75,-.23,1.01),(.26,.20,.13),'steel')
- m.box('vice_jaw_fixed',(-.75,-.16,1.11),(.27,.045,.21),'steel_dark')
- m.box('vice_jaw_mobile',(-.75,-.37,1.11),(.27,.045,.21),'steel')
- m.rod('vice_screw',(-.75,-.41,1.0),(-.75,-.62,1.0),.022,'silver')
- m.rod('vice_handle',(-.86,-.62,1.0),(-.64,-.62,1.0),.018,'steel_light')
+ # bench vice, scaled down by VK about where it bolts onto the top (it was big enough to hide the radio)
+ VK,VA=.6,np.array([-.75,-.23,.945])
+ vp=lambda p:tuple(VA+(np.array(p)-VA)*VK)
+ vs=lambda sz:tuple(v*VK for v in sz)
+ m.box('vice_base',vp((-.75,-.23,1.01)),vs((.26,.20,.13)),'steel')
+ m.box('vice_jaw_fixed',vp((-.75,-.16,1.11)),vs((.27,.045,.21)),'steel_dark')
+ m.box('vice_jaw_mobile',vp((-.75,-.37,1.11)),vs((.27,.045,.21)),'steel')
+ m.rod('vice_screw',vp((-.75,-.41,1.0)),vp((-.75,-.62,1.0)),.022*VK,'silver')
+ m.rod('vice_handle',vp((-.86,-.62,1.0)),vp((-.64,-.62,1.0)),.018*VK,'steel_light')
  return m
 
 def radio():
@@ -307,24 +311,28 @@ def power_station():
 
 def storm_shutters(open_state=False):
  m=Model('Storm shutters '+('stowed' if open_state else 'secured'))
- # 3.0m wide window approx .9m high. z center 1.50
+ # two panels that together cover the whole 3.24 x 1.10 m window opening (inside the jambs,
+ # sill and lintel of build_pixel_scene.py) with a little overlap; z centre 1.53
+ PW,PH,CZ=1.62,1.14,1.53
+ bottom=CZ-PH/2
  for side in (-1,1):
-  if not open_state: center_x=side*.755; yy=-.08
+  if not open_state: center_x=side*PW/2; yy=-.08
   else: center_x=side*2.30; yy=-.08
-  m.box('shutter_backing',(center_x,yy,1.53),(1.47,.08,1.0),'wood_dark')
-  for i in range(7):
-   z=1.09+i*.146
-   m.box('horizontal_storm_slats',(center_x,yy-.048,z),(1.45,.055,.134),'wood_light' if i%2 else 'oak')
-  for dx in [-.66,.66]:m.box('side_framing',(center_x+dx,yy-.075,1.53),(.075,.070,1.04),'walnut')
-  m.box('top_crossbar',(center_x,yy-.076,2.035),(1.41,.065,.073),'walnut')
-  m.box('bottom_crossbar',(center_x,yy-.076,1.025),(1.41,.065,.074),'walnut')
-  m.box('center_reinforcement',(center_x,yy-.11,1.51),(1.39,.045,.105),'wood_dark')
-  for z in [1.19,1.88]:
-   hinge_x=center_x+side*.735
+  m.box('shutter_backing',(center_x,yy,CZ),(PW,.08,PH),'wood_dark')
+  n=8
+  for i in range(n):
+   z=bottom+.04+(i+.5)*(PH-.08)/n
+   m.box('horizontal_storm_slats',(center_x,yy-.048,z),(PW-.02,.055,(PH-.08)/n-.012),'wood_light' if i%2 else 'oak')
+  for dx in [-(PW/2-.045),PW/2-.045]:m.box('side_framing',(center_x+dx,yy-.075,CZ),(.075,.070,PH+.04),'walnut')
+  m.box('top_crossbar',(center_x,yy-.076,bottom+PH-.035),(PW-.06,.065,.073),'walnut')
+  m.box('bottom_crossbar',(center_x,yy-.076,bottom+.035),(PW-.06,.065,.074),'walnut')
+  m.box('center_reinforcement',(center_x,yy-.11,CZ-.02),(PW-.08,.045,.105),'wood_dark')
+  for z in [bottom+.22,bottom+PH-.22]:
+   hinge_x=center_x+side*(PW/2-.005)
    m.box('heavy_hinge',(hinge_x,yy-.13,z),(.16,.05,.135),'steel')
    m.cyl('steel_hinge_bolt',(hinge_x,yy-.16,z),.025,.035,'brass','y')
-  m.box('sliding_latch',(center_x-side*.52,yy-.16,1.53),(.21,.045,.06),'steel_dark')
-  m.cyl('latch_rivet',(center_x-side*.52,yy-.19,1.53),.021,.017,'steel_light','y')
+  m.box('sliding_latch',(center_x-side*(PW/2-.21),yy-.16,CZ),(.21,.045,.06),'steel_dark')
+  m.cyl('latch_rivet',(center_x-side*(PW/2-.21),yy-.19,CZ),.021,.017,'steel_light','y')
  return m
 
 def sandbags():

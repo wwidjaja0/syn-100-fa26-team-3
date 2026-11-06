@@ -92,6 +92,24 @@
   "speaker_panel_0032"
  ],
  "materials": {
+  "ceiling_board_a": {
+   "kind": "toon",
+   "color": [
+    0.3400000035762787,
+    0.20999999344348907,
+    0.10999999940395355
+   ],
+   "strength": 0.0
+  },
+  "ceiling_board_b": {
+   "kind": "toon",
+   "color": [
+    0.28999999165534973,
+    0.17000000178813934,
+    0.09000000357627869
+   ],
+   "strength": 0.0
+  },
   "cutting_mat": {
    "kind": "toon",
    "color": [
@@ -327,7 +345,7 @@
    ],
    "strength": 0.0
   },
-  "mat_bottom_crossbar_12": {
+  "mat_bottom_crossbar_13": {
    "kind": "toon",
    "color": [
     0.45490196347236633,
@@ -336,7 +354,7 @@
    ],
    "strength": 0.0
   },
-  "mat_bottom_crossbar_12.001": {
+  "mat_bottom_crossbar_13.001": {
    "kind": "toon",
    "color": [
     0.45490196347236633,
@@ -345,7 +363,7 @@
    ],
    "strength": 0.0
   },
-  "mat_bottom_crossbar_31": {
+  "mat_bottom_crossbar_33": {
    "kind": "toon",
    "color": [
     0.45490196347236633,
@@ -354,7 +372,7 @@
    ],
    "strength": 0.0
   },
-  "mat_bottom_crossbar_31.001": {
+  "mat_bottom_crossbar_33.001": {
    "kind": "toon",
    "color": [
     0.45490196347236633,
@@ -1092,7 +1110,7 @@
    ],
    "strength": 0.0
   },
-  "mat_center_reinforcement_13": {
+  "mat_center_reinforcement_14": {
    "kind": "toon",
    "color": [
     0.3960784375667572,
@@ -1101,7 +1119,7 @@
    ],
    "strength": 0.0
   },
-  "mat_center_reinforcement_13.001": {
+  "mat_center_reinforcement_14.001": {
    "kind": "toon",
    "color": [
     0.3960784375667572,
@@ -1110,7 +1128,7 @@
    ],
    "strength": 0.0
   },
-  "mat_center_reinforcement_32": {
+  "mat_center_reinforcement_34": {
    "kind": "toon",
    "color": [
     0.3960784375667572,
@@ -1119,7 +1137,7 @@
    ],
    "strength": 0.0
   },
-  "mat_center_reinforcement_32.001": {
+  "mat_center_reinforcement_34.001": {
    "kind": "toon",
    "color": [
     0.3960784375667572,
@@ -1929,7 +1947,7 @@
    ],
    "strength": 0.0
   },
-  "mat_heavy_hinge_14": {
+  "mat_heavy_hinge_15": {
    "kind": "toon",
    "color": [
     0.30980393290519714,
@@ -1938,7 +1956,7 @@
    ],
    "strength": 0.0
   },
-  "mat_heavy_hinge_14.001": {
+  "mat_heavy_hinge_15.001": {
    "kind": "toon",
    "color": [
     0.30980393290519714,
@@ -1947,7 +1965,7 @@
    ],
    "strength": 0.0
   },
-  "mat_heavy_hinge_16": {
+  "mat_heavy_hinge_17": {
    "kind": "toon",
    "color": [
     0.30980393290519714,
@@ -1956,25 +1974,7 @@
    ],
    "strength": 0.0
   },
-  "mat_heavy_hinge_16.001": {
-   "kind": "toon",
-   "color": [
-    0.30980393290519714,
-    0.3450980484485626,
-    0.35686275362968445
-   ],
-   "strength": 0.0
-  },
-  "mat_heavy_hinge_33": {
-   "kind": "toon",
-   "color": [
-    0.30980393290519714,
-    0.3450980484485626,
-    0.35686275362968445
-   ],
-   "strength": 0.0
-  },
-  "mat_heavy_hinge_33.001": {
+  "mat_heavy_hinge_17.001": {
    "kind": "toon",
    "color": [
     0.30980393290519714,
@@ -1993,6 +1993,24 @@
    "strength": 0.0
   },
   "mat_heavy_hinge_35.001": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_heavy_hinge_37": {
+   "kind": "toon",
+   "color": [
+    0.30980393290519714,
+    0.3450980484485626,
+    0.35686275362968445
+   ],
+   "strength": 0.0
+  },
+  "mat_heavy_hinge_37.001": {
    "kind": "toon",
    "color": [
     0.30980393290519714,
@@ -2163,129 +2181,147 @@
    ],
    "strength": 0.0
   },
-  "mat_horizontal_storm_slats_21": {
-   "kind": "toon",
-   "color": [
-    0.7333333492279053,
-    0.5254902243614197,
-    0.3490196168422699
-   ],
-   "strength": 0.0
-  },
-  "mat_horizontal_storm_slats_21.001": {
-   "kind": "toon",
-   "color": [
-    0.7333333492279053,
-    0.5254902243614197,
-    0.3490196168422699
-   ],
-   "strength": 0.0
-  },
   "mat_horizontal_storm_slats_22": {
    "kind": "toon",
    "color": [
-    0.7411764860153198,
-    0.5411764979362488,
-    0.3450980484485626
+    0.7333333492279053,
+    0.5254902243614197,
+    0.3490196168422699
    ],
    "strength": 0.0
   },
   "mat_horizontal_storm_slats_22.001": {
    "kind": "toon",
    "color": [
-    0.7411764860153198,
-    0.5411764979362488,
-    0.3450980484485626
+    0.7333333492279053,
+    0.5254902243614197,
+    0.3490196168422699
    ],
    "strength": 0.0
   },
   "mat_horizontal_storm_slats_23": {
    "kind": "toon",
    "color": [
-    0.7333333492279053,
-    0.5254902243614197,
-    0.3490196168422699
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
    ],
    "strength": 0.0
   },
   "mat_horizontal_storm_slats_23.001": {
    "kind": "toon",
    "color": [
-    0.7333333492279053,
-    0.5254902243614197,
-    0.3490196168422699
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
    ],
    "strength": 0.0
   },
   "mat_horizontal_storm_slats_24": {
    "kind": "toon",
    "color": [
-    0.7411764860153198,
-    0.5411764979362488,
-    0.3450980484485626
+    0.7333333492279053,
+    0.5254902243614197,
+    0.3490196168422699
    ],
    "strength": 0.0
   },
   "mat_horizontal_storm_slats_24.001": {
    "kind": "toon",
    "color": [
-    0.7411764860153198,
-    0.5411764979362488,
-    0.3450980484485626
+    0.7333333492279053,
+    0.5254902243614197,
+    0.3490196168422699
    ],
    "strength": 0.0
   },
   "mat_horizontal_storm_slats_25": {
    "kind": "toon",
    "color": [
-    0.7333333492279053,
-    0.5254902243614197,
-    0.3490196168422699
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
    ],
    "strength": 0.0
   },
   "mat_horizontal_storm_slats_25.001": {
    "kind": "toon",
    "color": [
-    0.7333333492279053,
-    0.5254902243614197,
-    0.3490196168422699
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
    ],
    "strength": 0.0
   },
   "mat_horizontal_storm_slats_26": {
    "kind": "toon",
    "color": [
-    0.7411764860153198,
-    0.5411764979362488,
-    0.3450980484485626
+    0.7333333492279053,
+    0.5254902243614197,
+    0.3490196168422699
    ],
    "strength": 0.0
   },
   "mat_horizontal_storm_slats_26.001": {
    "kind": "toon",
    "color": [
-    0.7411764860153198,
-    0.5411764979362488,
-    0.3450980484485626
+    0.7333333492279053,
+    0.5254902243614197,
+    0.3490196168422699
    ],
    "strength": 0.0
   },
   "mat_horizontal_storm_slats_27": {
    "kind": "toon",
    "color": [
-    0.7333333492279053,
-    0.5254902243614197,
-    0.3490196168422699
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
    ],
    "strength": 0.0
   },
   "mat_horizontal_storm_slats_27.001": {
    "kind": "toon",
    "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_horizontal_storm_slats_28": {
+   "kind": "toon",
+   "color": [
     0.7333333492279053,
     0.5254902243614197,
     0.3490196168422699
+   ],
+   "strength": 0.0
+  },
+  "mat_horizontal_storm_slats_28.001": {
+   "kind": "toon",
+   "color": [
+    0.7333333492279053,
+    0.5254902243614197,
+    0.3490196168422699
+   ],
+   "strength": 0.0
+  },
+  "mat_horizontal_storm_slats_29": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_horizontal_storm_slats_29.001": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
    ],
    "strength": 0.0
   },
@@ -2397,6 +2433,24 @@
    ],
    "strength": 0.0
   },
+  "mat_horizontal_storm_slats_9": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_horizontal_storm_slats_9.001": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
   "mat_inset_dark_interior_2": {
    "kind": "toon",
    "color": [
@@ -2505,7 +2559,7 @@
    ],
    "strength": 0.0
   },
-  "mat_latch_rivet_19": {
+  "mat_latch_rivet_20": {
    "kind": "toon",
    "color": [
     0.529411792755127,
@@ -2514,7 +2568,7 @@
    ],
    "strength": 0.0
   },
-  "mat_latch_rivet_19.001": {
+  "mat_latch_rivet_20.001": {
    "kind": "toon",
    "color": [
     0.529411792755127,
@@ -2523,7 +2577,7 @@
    ],
    "strength": 0.0
   },
-  "mat_latch_rivet_38": {
+  "mat_latch_rivet_40": {
    "kind": "toon",
    "color": [
     0.529411792755127,
@@ -2532,7 +2586,7 @@
    ],
    "strength": 0.0
   },
-  "mat_latch_rivet_38.001": {
+  "mat_latch_rivet_40.001": {
    "kind": "toon",
    "color": [
     0.529411792755127,
@@ -4107,7 +4161,7 @@
    ],
    "strength": 0.0
   },
-  "mat_shutter_backing_20": {
+  "mat_shutter_backing_21": {
    "kind": "toon",
    "color": [
     0.3960784375667572,
@@ -4116,7 +4170,7 @@
    ],
    "strength": 0.0
   },
-  "mat_shutter_backing_20.001": {
+  "mat_shutter_backing_21.001": {
    "kind": "toon",
    "color": [
     0.3960784375667572,
@@ -4143,7 +4197,7 @@
    ],
    "strength": 0.0
   },
-  "mat_side_framing_28": {
+  "mat_side_framing_11": {
    "kind": "toon",
    "color": [
     0.45490196347236633,
@@ -4152,7 +4206,7 @@
    ],
    "strength": 0.0
   },
-  "mat_side_framing_28.001": {
+  "mat_side_framing_11.001": {
    "kind": "toon",
    "color": [
     0.45490196347236633,
@@ -4161,7 +4215,7 @@
    ],
    "strength": 0.0
   },
-  "mat_side_framing_29": {
+  "mat_side_framing_30": {
    "kind": "toon",
    "color": [
     0.45490196347236633,
@@ -4170,7 +4224,7 @@
    ],
    "strength": 0.0
   },
-  "mat_side_framing_29.001": {
+  "mat_side_framing_30.001": {
    "kind": "toon",
    "color": [
     0.45490196347236633,
@@ -4179,7 +4233,7 @@
    ],
    "strength": 0.0
   },
-  "mat_side_framing_9": {
+  "mat_side_framing_31": {
    "kind": "toon",
    "color": [
     0.45490196347236633,
@@ -4188,7 +4242,7 @@
    ],
    "strength": 0.0
   },
-  "mat_side_framing_9.001": {
+  "mat_side_framing_31.001": {
    "kind": "toon",
    "color": [
     0.45490196347236633,
@@ -4197,7 +4251,7 @@
    ],
    "strength": 0.0
   },
-  "mat_sliding_latch_18": {
+  "mat_sliding_latch_19": {
    "kind": "toon",
    "color": [
     0.19607843458652496,
@@ -4206,7 +4260,7 @@
    ],
    "strength": 0.0
   },
-  "mat_sliding_latch_18.001": {
+  "mat_sliding_latch_19.001": {
    "kind": "toon",
    "color": [
     0.19607843458652496,
@@ -4215,7 +4269,7 @@
    ],
    "strength": 0.0
   },
-  "mat_sliding_latch_37": {
+  "mat_sliding_latch_39": {
    "kind": "toon",
    "color": [
     0.19607843458652496,
@@ -4224,7 +4278,7 @@
    ],
    "strength": 0.0
   },
-  "mat_sliding_latch_37.001": {
+  "mat_sliding_latch_39.001": {
    "kind": "toon",
    "color": [
     0.19607843458652496,
@@ -4431,7 +4485,7 @@
    ],
    "strength": 0.0
   },
-  "mat_steel_hinge_bolt_15": {
+  "mat_steel_hinge_bolt_16": {
    "kind": "toon",
    "color": [
     0.7411764860153198,
@@ -4440,7 +4494,7 @@
    ],
    "strength": 0.0
   },
-  "mat_steel_hinge_bolt_15.001": {
+  "mat_steel_hinge_bolt_16.001": {
    "kind": "toon",
    "color": [
     0.7411764860153198,
@@ -4449,7 +4503,7 @@
    ],
    "strength": 0.0
   },
-  "mat_steel_hinge_bolt_17": {
+  "mat_steel_hinge_bolt_18": {
    "kind": "toon",
    "color": [
     0.7411764860153198,
@@ -4458,25 +4512,7 @@
    ],
    "strength": 0.0
   },
-  "mat_steel_hinge_bolt_17.001": {
-   "kind": "toon",
-   "color": [
-    0.7411764860153198,
-    0.5960784554481506,
-    0.33725491166114807
-   ],
-   "strength": 0.0
-  },
-  "mat_steel_hinge_bolt_34": {
-   "kind": "toon",
-   "color": [
-    0.7411764860153198,
-    0.5960784554481506,
-    0.33725491166114807
-   ],
-   "strength": 0.0
-  },
-  "mat_steel_hinge_bolt_34.001": {
+  "mat_steel_hinge_bolt_18.001": {
    "kind": "toon",
    "color": [
     0.7411764860153198,
@@ -4495,6 +4531,24 @@
    "strength": 0.0
   },
   "mat_steel_hinge_bolt_36.001": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_steel_hinge_bolt_38": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_steel_hinge_bolt_38.001": {
    "kind": "toon",
    "color": [
     0.7411764860153198,
@@ -5331,7 +5385,7 @@
    ],
    "strength": 0.0
   },
-  "mat_top_crossbar_11": {
+  "mat_top_crossbar_12": {
    "kind": "toon",
    "color": [
     0.45490196347236633,
@@ -5340,7 +5394,7 @@
    ],
    "strength": 0.0
   },
-  "mat_top_crossbar_11.001": {
+  "mat_top_crossbar_12.001": {
    "kind": "toon",
    "color": [
     0.45490196347236633,
@@ -5349,7 +5403,7 @@
    ],
    "strength": 0.0
   },
-  "mat_top_crossbar_30": {
+  "mat_top_crossbar_32": {
    "kind": "toon",
    "color": [
     0.45490196347236633,
@@ -5358,7 +5412,7 @@
    ],
    "strength": 0.0
   },
-  "mat_top_crossbar_30.001": {
+  "mat_top_crossbar_32.001": {
    "kind": "toon",
    "color": [
     0.45490196347236633,
@@ -6038,7 +6092,7 @@
    "name": "pendant_key",
    "type": "POINT",
    "pos": [
-    2.75,
+    2.4,
     2.3,
     -0.75
    ],
@@ -6052,7 +6106,7 @@
     0.699999988079071,
     0.3799999952316284
    ],
-   "energy": 300.0,
+   "energy": 400.0,
    "size": 0.0,
    "radius": 0.10000000149011612
   },
