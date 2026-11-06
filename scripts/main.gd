@@ -510,7 +510,7 @@ func _dbg_contact_all() -> void:
 func _dbg_give_all() -> void:
 	for f in DirAccess.get_files_at(InventoryManager.ITEM_DIR):
 		if f.ends_with(".tres") or f.ends_with(".tres.remap"):
-			var item := InventoryManager.get_item(f.get_basename().trim_suffix(".tres"))
+			var item: ItemData = InventoryManager.get_item(f.get_basename().trim_suffix(".tres"))
 			if item and not InventoryManager.has_item(item):
 				InventoryManager.add_item(item)
 	ui.debug_say("INVENTORY FULL")
