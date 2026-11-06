@@ -1,4 +1,5 @@
-"""Draw the Pacific Northwest wall map as pixel art.
+"""Draw the Pacific Northwest wall map as pixel art. Story video only: build_story.py still hangs it on
+the wall, but pipeline/godot/export_glb.py leaves it out of the game (which uses the microfiche instead).
 
 python3 make_map.py  ->  map_texture.png (wall texture for Blender),
                          map_panel.png + map_meta.json (close-up inspect overlay)

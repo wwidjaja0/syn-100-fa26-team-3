@@ -1,8 +1,15 @@
 extends Node
-## A close-up camera view: the room camera eases into a fixed pose looking at something, and back.
-## scripts/crafting.gd (straight down onto the cutting mat) and scripts/radio_view.gd (the ham
-## radio's front) extend this. main.gd blends whichever one is active into the room camera, hides
-## the room's hover while it is, and shows a BACK button once it has settled.
+## Base class for close-up camera views: the room camera eases into a fixed pose looking at
+## something, and back out again.
+##
+## crafting_view.gd (straight down onto the workbench's cutting mat) and radio_view.gd (the ham
+## radio's front panel) extend this. While a view is active, room_camera.gd blends it into the room
+## camera, the room's hover is off, the ceiling hides, and overlay.gd shows a BACK button once it
+## has settled. Esc, right-click and BACK all call exit().
+##
+## To add a view: extend this script, set _pose (camera transform), _size (orthographic width in
+## metres) and _focus (the point it looks at) in a setup() function, then create it in main.gd and
+## add it to `views`. See docs/HOW_TO.md.
 
 ## the camera has settled on the close-up
 signal entered
@@ -45,7 +52,7 @@ func active() -> bool:
 	return open or t > 0.0
 
 
-## per frame, from main.gd; subclasses extend it for their own hover
+## per frame, from room_camera.gd; subclasses extend it for their own hover
 func update(now: float, _cursor: Vector2, _cursor_free: bool) -> void:
 	var goal := 1.0 if open else 0.0
 	var span := absf(goal - _from_t) * MOVE_FRAMES

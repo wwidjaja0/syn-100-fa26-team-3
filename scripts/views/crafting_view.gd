@@ -1,4 +1,4 @@
-extends "res://scripts/close_view.gd"
+extends "res://scripts/views/close_view.gd"
 ## The crafting view. Clicking the workbench swings the camera straight down onto the
 ## cutting mat, whose printed grid is the build grid. This script owns the grid maths
 ## (the camera move is close_view.gd's); what crafting actually does is left open (see the signals).

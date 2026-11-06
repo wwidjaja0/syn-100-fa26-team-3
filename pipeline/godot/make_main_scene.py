@@ -86,7 +86,7 @@ tscn = f'''[gd_scene load_steps=7 format=3]
 [ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
 [ext_resource type="PackedScene" path="res://assets/shelter.glb" id="2_room"]
 [ext_resource type="Shader" path="res://shaders/post.gdshader" id="3_post"]
-[ext_resource type="Script" path="res://scripts/ui.gd" id="4_ui"]
+[ext_resource type="Script" path="res://scripts/ui/overlay.gd" id="4_ui"]
 
 [sub_resource type="Environment" id="Environment_world"]
 background_mode = 1
