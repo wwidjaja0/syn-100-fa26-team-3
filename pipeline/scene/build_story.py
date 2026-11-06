@@ -149,7 +149,8 @@ def glow(name, rgb, strength):
 def add_outline(o, thickness=0.016):
     o.data.materials.append(OUTLINE_MAT)
     md = o.modifiers.new('ToonOutline', 'SOLIDIFY')
-    md.thickness, md.offset = thickness, 1.0
+    # thin parts get a thinner shell (see build_pixel_scene.py's outlines)
+    md.thickness, md.offset = min(thickness, max(0.25 * min(o.dimensions), 0.003)), 1.0
     md.use_flip_normals = md.use_even_offset = True
     md.use_rim = False
     md.material_offset = len(o.data.materials) - 1

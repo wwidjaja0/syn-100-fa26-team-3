@@ -327,7 +327,9 @@ for o in outlined:
         o.data.materials.append(bpy.data.materials.new(o.name + '_mat'))
     o.data.materials.append(OUTLINE)
     m = o.modifiers.new('ToonOutline', 'SOLIDIFY')
-    m.thickness = 0.016
+    # a quarter of the part's thinnest side, 3 mm..1.6 cm: a full 1.6 cm shell around a needle, knob
+    # or tick mark is several times the part itself and reads as a dark, inside-out blob
+    m.thickness = min(max(0.25 * min(o.dimensions), 0.003), 0.016)
     m.offset = 1.0
     m.use_flip_normals = True
     m.use_even_offset = True
