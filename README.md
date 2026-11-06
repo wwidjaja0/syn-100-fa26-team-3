@@ -20,7 +20,7 @@ Open `project.godot` in Godot 4.7.x and press F5.
   right-click returns to the room. (The crafting itself isn't built yet.)
 - Click the ham radio for a close-up of the rig (BACK, Esc or right-click to leave). Talking on it isn't built yet.
 - Click the microfiche map on the wall (left of the bench; it idles on a turning globe) to read the world sheet. Pan by
-  dragging, pushing the cursor against the window's edges (past an edge, it scrolls at full speed), or WASD / arrows.
+  dragging or with WASD / arrows.
   The map starts blank except around the shelter (the Pacific Northwest); every station you reach over the radio is
   marked and printed in. Hover a mark for that station's problems. **Zoom** with the wheel, the title bar's - / + or the - / = keys:
   1/4, 1/2, full scale, then 4x, which is a printed area's detail map (more towns, every river, named peaks).

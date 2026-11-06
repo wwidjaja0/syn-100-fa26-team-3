@@ -8,8 +8,7 @@ extends RefCounted
 ## Zoom: the world sheet comes at 1/4, 1/2 and full scale (meta.levels), and every revealed area has
 ## a 4x detail map (ui/fiche_detail_<id>.png). Wheel, the title bar's - / + and the - / = keys step
 ## through them; clicking a revealed area jumps straight to its detail map.
-## Pan: drag, push the cursor against the window's edges (anywhere past an edge = full speed), or
-## WASD / arrow keys.
+## Pan: drag, or WASD / arrow keys (no edge-panning: the cursor is free to reach the buttons).
 ## ui.gd owns this and draws it as the "fiche" panel.
 
 const THUMB := preload("res://ui/fiche_thumb.png")
@@ -20,7 +19,6 @@ const ZOOM_MINUS := Rect2(414, 16, 11, 11) # title-bar zoom buttons
 const ZOOM_PLUS := Rect2(428, 16, 11, 11)
 const SCALE_NAMES := ["1/4", "1/2", "X1"]   # per world level; the detail maps are X4
 const TITLE := "MICROFICHE - WORLD SHEET 01"
-const EDGE := 22.0                          # px inside the window where the cursor pushes the sheet
 const PAN_SPEED := 360.0                    # sheet px per second at full push
 const MARK_HIT := 6.0                       # px from a mark that counts as hovering it
 const CLICK_SLOP := 3.0                     # a press that moves less than this is a click, not a drag
@@ -203,33 +201,17 @@ func _deg_dist(a: Vector2, b: Vector2) -> float:
 
 
 # ---------------------------------------------------------------- input
-## per frame while open. `outside` is the direction the mouse has left the game window in (or zero):
-## past any edge of the window onto the sheet, the sheet scrolls at full speed that way.
-func update(cursor: Vector2, delta: float, keys: Vector2, outside := Vector2.ZERO) -> void:
+## per frame while open: drag, or WASD / arrows (keys)
+func update(cursor: Vector2, delta: float, keys: Vector2) -> void:
 	if _drag != null:
 		if cursor.distance_to(_drag[0]) >= CLICK_SLOP:
 			offset = _drag[1] - (cursor - _drag[0])
 	else:
-		var push := keys + outside
-		if outside == Vector2.ZERO and not _over_controls(cursor):
-			if VIEW.has_point(cursor):
-				var d := cursor - VIEW.position
-				var e := VIEW.end - cursor
-				push.x += _ramp(d.x) * -1.0 + _ramp(e.x)
-				push.y += _ramp(d.y) * -1.0 + _ramp(e.y)
-			else:                           # left the window onto the sheet: full speed that way
-				push.x += -1.0 if cursor.x < VIEW.position.x else (1.0 if cursor.x >= VIEW.end.x else 0.0)
-				push.y += -1.0 if cursor.y < VIEW.position.y else (1.0 if cursor.y >= VIEW.end.y else 0.0)
-		push = push.clamp(Vector2(-1, -1), Vector2(1, 1))
-		offset += push * PAN_SPEED * delta
+		offset += keys.limit_length(1.0) * PAN_SPEED * delta
 	_clamp()
 	var dragging := _drag != null and cursor.distance_to(_drag[0]) >= CLICK_SLOP
 	hover_station = station_at(cursor) if not dragging else ""
 	hover_area = area_at(cursor) if not dragging and hover_station == "" else ""
-
-
-func _ramp(dist: float) -> float:
-	return pow(clampf((EDGE - dist) / EDGE, 0.0, 1.0), 1.5)
 
 
 ## the button went down inside the display. False = outside it (the caller closes the display).
@@ -262,10 +244,6 @@ func wheel(up: bool, p: Vector2) -> void:
 func over_close(p: Vector2) -> bool:
 	return absf(p.x - CLOSE.x) < 6 and absf(p.y - CLOSE.y) < 6
 
-
-## the title bar's buttons (no edge-scrolling while aiming at them)
-func _over_controls(p: Vector2) -> bool:
-	return over_close(p) or ZOOM_MINUS.grow(1).has_point(p) or ZOOM_PLUS.grow(1).has_point(p)
 
 
 ## the hover label ui.gd shows at the cursor ("" for none)

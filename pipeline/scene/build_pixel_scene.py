@@ -184,15 +184,48 @@ place('02_emergency_weather_radio', BENCH_X - 0.28, y_back=WALL_Y - 0.05, on_sur
 place('10_emergency_lantern', BENCH_X + 0.78, y=1.78, on_surface='01_wooden_workbench')
 place('11_flashlight', 0.9, y=1.0, on_surface='04_portable_power_station', rot_z=12)
 
-# pendant lamp over the workbench
+# ---------------------------------------------------------------- ceiling
+# sloped board panels between rafters, rising toward the camera. The room camera looks 8 degrees
+# down, so a ceiling only shows its underside if it climbs faster than that toward the front.
+CEIL_SLOPE = math.radians(16)
+CEIL_BACK_Z = 3.2                  # where the panels meet the top of the back wall
+CEIL_FRONT_Y = -1.1                # front of the room (the floor's front edge)
+
+
+def ceiling_z(y):
+    return CEIL_BACK_Z + (WALL_Y - y) * math.tan(CEIL_SLOPE)
+
+
+PENDANT_X = BENCH_X - 0.35         # left of the bench centre, clear of the crafting camera's swing
+RAFTER_STEP = 0.9
+ceil_len = (WALL_Y - CEIL_FRONT_Y) / math.cos(CEIL_SLOPE)
+ceil_mid_y = (WALL_Y + CEIL_FRONT_Y) / 2
+panel_mats = [base_mat('ceiling_board_a', (0.34, 0.21, 0.11)), base_mat('ceiling_board_b', (0.29, 0.17, 0.09))]
+rafter_xs = [PENDANT_X + k * RAFTER_STEP for k in range(-9, 4) if -HALF_W < PENDANT_X + k * RAFTER_STEP < HALF_W]
+edges = [-HALF_W] + rafter_xs + [HALF_W]
+for i, (x0, x1) in enumerate(zip(edges, edges[1:])):
+    o = box(f'ceiling_panel_{i:02d}', ((x0 + x1) / 2, ceil_mid_y, ceiling_z(ceil_mid_y) + 0.02),
+            (x1 - x0 + 0.02, ceil_len, 0.04), panel_mats[i % 2])
+    o.rotation_euler.x = -CEIL_SLOPE
+for i, x in enumerate(rafter_xs):
+    o = box(f'ceiling_rafter_{i:02d}', (x, ceil_mid_y, ceiling_z(ceil_mid_y) - 0.07),
+            (0.10, ceil_len, 0.14), beam_mat)
+    o.rotation_euler.x = -CEIL_SLOPE
+
+# pendant lamp over the workbench, hung on a cord from the rafter above it
 lamp_mat = base_mat('lamp_shade', (0.20, 0.24, 0.22))
-bpy.ops.mesh.primitive_cone_add(vertices=10, radius1=0.28, radius2=0.06, depth=0.22, location=(BENCH_X, 0.75, 2.55))
+LAMP_Y, LAMP_Z = 0.75, 2.55
+bpy.ops.mesh.primitive_cone_add(vertices=10, radius1=0.28, radius2=0.06, depth=0.22, location=(PENDANT_X, LAMP_Y, LAMP_Z))
 shade = bpy.context.object; shade.name = 'pendant_shade'; shade.data.materials.append(lamp_mat)
-bpy.ops.mesh.primitive_uv_sphere_add(segments=10, ring_count=6, radius=0.08, location=(BENCH_X, 0.75, 2.44))
+bpy.ops.mesh.primitive_uv_sphere_add(segments=10, ring_count=6, radius=0.08, location=(PENDANT_X, LAMP_Y, LAMP_Z - 0.11))
 bulb = bpy.context.object; bulb.name = 'pendant_bulb_emit'
-bpy.ops.mesh.primitive_cylinder_add(vertices=6, radius=0.008, depth=0.6, location=(BENCH_X, 0.75, 2.95))
+cord_top = ceiling_z(LAMP_Y) - 0.13       # the rafter's underside
+cord_len = cord_top - (LAMP_Z + 0.11)
+bpy.ops.mesh.primitive_cylinder_add(vertices=6, radius=0.008, depth=cord_len, location=(PENDANT_X, LAMP_Y, LAMP_Z + 0.11 + cord_len / 2))
 cord = bpy.context.object; cord.name = 'pendant_cord'; cord.data.materials.append(beam_mat)
-for o in (shade, bulb, cord):
+bpy.ops.mesh.primitive_cylinder_add(vertices=8, radius=0.05, depth=0.03, location=(PENDANT_X, LAMP_Y, cord_top - 0.015))
+canopy = bpy.context.object; canopy.name = 'pendant_ceiling_cup'; canopy.data.materials.append(lamp_mat)
+for o in (shade, bulb, cord, canopy):
     for c in o.users_collection:
         c.objects.unlink(o)
     room_coll.objects.link(o)
@@ -321,7 +354,7 @@ lantern_root, lantern_meshes = placed['10_emergency_lantern']
 llo, lhi = world_bounds(lantern_meshes)
 light('lantern_glow', 'POINT', ((llo.x + lhi.x) / 2, (llo.y + lhi.y) / 2, llo.z + (lhi.z - llo.z) * 0.45),
       90, (1.0, 0.55, 0.22), shadow_soft_size=0.05)
-light('pendant_key', 'POINT', (BENCH_X, 0.75, 2.3), 300, (1.0, 0.70, 0.38), shadow_soft_size=0.1)
+light('pendant_key', 'POINT', (PENDANT_X, 0.75, 2.3), 400, (1.0, 0.70, 0.38), shadow_soft_size=0.1)
 light('cabinet_fill', 'POINT', (4.25, 0.1, 1.5), 110, (1.0, 0.62, 0.32), shadow_soft_size=0.3)
 light('cool_front_fill', 'AREA', (-1.0, -3.0, 2.2), 160, (0.30, 0.55, 0.90), target=(0.0, 1.2, 0.8), size=5)
 storm_light = light('storm_window', 'AREA', (WIN_X, WALL_Y - 0.4, 1.55), 420, (0.22, 0.60, 1.0),

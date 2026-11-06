@@ -13,7 +13,8 @@ signal cell_hovered(cell: Vector2i)
 signal cell_clicked(cell: Vector2i, held: ItemData)
 
 const NO_CELL := Vector2i(-1, -1)
-const CAM_HEIGHT := 1.25                # m above the mat: under the pendant lamp, over the radio
+const CAM_HEIGHT := 2.0                 # m above the mat: above the pendant shade, so the swing never runs through
+                                        # it, and under the ceiling (hidden during the swing anyway)
 
 var cols: int
 var rows: int

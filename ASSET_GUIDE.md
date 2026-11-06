@@ -73,7 +73,10 @@ Godot reads the size, centre and grid from the `craft` block in `scene_meta.json
 a fixed pose and back (`scripts/close_view.gd`). To add another one (a shelf, a gauge), extend
 `close_view.gd`, set `_pose`, `_size` (ortho width in m) and `_focus` (the point it looks at) in a
 `setup()`, and add it to `views` in `main.gd`. Export the point you look at from `export_glb.py`
-(`points`), like `radio_front`, rather than hard-coding coordinates.
+(`points`), like `radio_front`, rather than hard-coding coordinates. The sloped ceiling (`ceiling_panel_*`, `ceiling_rafter_*`
+from `build_pixel_scene.py`) hides while any close-up is active, because the cameras swing up through
+it. Keep the pendant lamp clear of the crafting camera's path: it hangs left of the bench (`PENDANT_X`)
+and the top-down camera sits above it (`CAM_HEIGHT` in `crafting.gd`).
 
 **The microfiche display** hangs on the wall where the paper map used to be (`14_microfiche_reader`): a map-sized
 screen in a wooden map frame, with a control strip below. Its `fiche_screen` part is the only emissive one. The

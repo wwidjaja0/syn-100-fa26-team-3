@@ -17,7 +17,7 @@ const PAN_SPEED := 2.6                    # m/s at full push
 const PAN_EASE := 8.0                     # how quickly the camera speeds up / settles (1/s)
 const CAM_MIN := -1.85                    # camera x limits: left wall .. just past the speaker corner
 const CAM_MAX := 3.0
-const SH_ANGLE := deg_to_rad(176.0)
+const SH_ANGLE := deg_to_rad(100.0)       # open shutters stand out from the wall, clear of the microfiche display
 const SHUTTER_FRAMES := 48.0
 const DOOR_ANGLE := deg_to_rad(105.0)
 const DOOR_FRAMES := 36.0
@@ -99,6 +99,7 @@ var heat := 0.0
 var heat_from := 0.0
 var heat_at := -1e9
 var lantern_e0 := 1.0
+var ceiling: Array[Node3D] = []           # sloped ceiling panels and rafters (hidden in close-ups)
 
 # cabinet
 var door := 0.0
@@ -126,6 +127,9 @@ func _ready() -> void:
 	door_l = room.find_child("cabinet_hinge_L", true, false)
 	door_r = room.find_child("cabinet_hinge_R", true, false)
 	lantern_e0 = lantern_light.light_energy
+	for n in room.find_children("ceiling_*", "", true, false):
+		if n.name.begins_with("ceiling_panel") or n.name.begins_with("ceiling_rafter"):
+			ceiling.append(n)
 	if compat:
 		# Compatibility adds each shadow-casting light in its own pass, in sRGB space, which
 		# brightens everything it touches; scale those lights so the web build matches Forward+
@@ -268,7 +272,7 @@ func _process(delta: float) -> void:
 		if v.t > 0.0:
 			pose = v.camera_pose(room, room_size)
 	if ui.panel == "fiche":
-		ui.fiche.update(cursor, delta, _pan_keys(), _mouse_outside())
+		ui.fiche.update(cursor, delta, _pan_keys())
 	for cam: Camera3D in [camera, mask_cam]:
 		cam.transform = pose[0]
 		cam.size = pose[1]
@@ -332,9 +336,13 @@ func label_for(group: String) -> String:
 func _update_ambience() -> void:
 	set_mat_param("storm_window_emit", "sky_w", clock * 2.2 / 600.0)
 	set_mat_param("pa_led", "emission_energy", 6.0 + 3.0 * sin(clock * 0.21))
-	# lantern: gentle flame flicker
-	var n := sin(clock * 0.9) * 0.5 + sin(clock * 2.3 + 1.7) * 0.3 + sin(clock * 5.1) * 0.2
-	lantern_light.light_energy = lantern_e0 * (1.0 + 0.12 * n)
+	# lantern: a slow, faint breathing (fast or strong flicker makes the toon light bands jump)
+	var n := sin(clock * 0.045) * 0.6 + sin(clock * 0.11 + 1.7) * 0.4
+	lantern_light.light_energy = lantern_e0 * (1.0 + 0.04 * n)
+	# the ceiling would sit between a close-up camera and what it swings to, so it hides meanwhile
+	var room_view := active_view() == null
+	for c in ceiling:
+		c.visible = room_view
 
 
 # ---------------------------------------------------------------- the window
