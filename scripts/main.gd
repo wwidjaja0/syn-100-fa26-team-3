@@ -45,6 +45,8 @@ const LABELS := {
 @onready var mask_cam: Camera3D = $MaskVP/MaskCam
 @onready var screen: TextureRect = $Screen
 @onready var ui: Control = $UI/Overlay
+@onready var pause_menu: Control = $UI/PauseMenu
+@onready var start_menu: Control = $UI/StartMenu
 @onready var lantern_light: OmniLight3D = $WorldVP/Lights/lantern_glow
 @onready var cabinet_light: OmniLight3D = $WorldVP/Lights/cabinet_interior
 
@@ -60,6 +62,7 @@ var compat := RenderingServer.get_current_rendering_method() == "gl_compatibilit
 var clock := 0.0                          # 24 fps frames since start
 var cursor := Vector2(W / 2.0, H / 2.0)
 var cursor_override = null                # Vector2 while a demo script drives the cursor
+var landing_active := true                # title screen is up; ambience runs, gameplay input does not
 var hover := ""
 var hover_t := 0.0
 var click_at := -1e9
@@ -304,7 +307,8 @@ func _process(delta: float) -> void:
 
 func _update_hover(step: float) -> void:
 	var target := ""
-	if ui.panel == "" and not ui.over_ui(cursor) and not ui.flying() and active_view() == null:
+	if not landing_active and ui.panel == "" and not ui.over_ui(cursor) and not ui.flying() \
+			and active_view() == null:
 		target = _group_at(cursor)
 	hover_t = hover_t + step if (target != "" and target == hover) else (1.0 if target != "" else 0.0)
 	hover = target
@@ -411,11 +415,13 @@ func use_item(item: ItemData, group: String) -> bool:
 
 # ---------------------------------------------------------------- input
 func _input(event: InputEvent) -> void:
-	if event is InputEventMouseMotion:
+	if not landing_active and event is InputEventMouseMotion:
 		mouse_seen = true
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if landing_active:
+		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
 			click()
@@ -441,7 +447,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		match event.keycode:
 			KEY_ESCAPE:                      # leave whatever is open, all the way back to the room
 				ui.held = null
-				back(true)
+				if ui.panel != "" or active_view() != null:
+					back(true)
+				else:
+					pause_menu.open_pause()
 			KEY_F9:
 				ui.debug_open = DEBUG_MENU
 			KEY_MINUS, KEY_KP_SUBTRACT:
@@ -450,6 +459,17 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_EQUAL, KEY_PLUS, KEY_KP_ADD:
 				if ui.panel == "fiche":
 					ui.fiche.zoom_by(1, cursor)
+
+
+## Leave the title screen without reloading the live cabin behind it.
+func start_game() -> void:
+	landing_active = false
+	ui.visible = true
+	post.set_shader_parameter("landing_amount", 0.0)
+	mouse_seen = false
+	edge_hold = true
+	hover = ""
+	hover_t = 0.0
 
 
 ## Esc / right-click / BACK: close the panel, or leave the close-up view. Right-click (full = false)
@@ -635,6 +655,13 @@ func click() -> void:
 ## cursor inside the edge band pushes the view, harder the closer it gets; A/D push fully
 func _update_push() -> void:
 	push = 0.0
+	if landing_active:
+		# A slow, hands-off establishing shot while the title screen owns input.
+		var centre := (cam_left + cam_right) * 0.5
+		var amplitude := (cam_right - cam_left) * 0.39
+		cam_x = centre + amplitude * cos(clock * TAU / (TICK * 22.0))
+		cam_v = 0.0
+		return
 	if active_view() != null or ui.panel != "":
 		edge_hold = true
 		return
@@ -701,6 +728,10 @@ func _start_demo_if_asked() -> void:
 	var i := args.find("--demo")
 	if i < 0:
 		return
+	start_menu.active = false
+	start_menu.visible = false
+	pause_menu.pause_button_enabled = true
+	start_game()
 	var out := args[i + 1] if i + 1 < args.size() else "user://shots"
 	DirAccess.make_dir_recursive_absolute(out)
 	FileAccess.open(out.path_join(".gdignore"), FileAccess.WRITE)   # keep shots out of the import/export

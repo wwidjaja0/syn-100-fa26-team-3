@@ -10,12 +10,14 @@ Godot 4.7. Desktop game for Windows, macOS and Linux (Ubuntu), plus a WebGL buil
 
 Open `project.godot` in Godot 4.7.x and press F5.
 
+- The opening menu has Start Game, Settings and How to Play. Use the mouse, or Up/Down and Enter.
 - Mouse to point and click. Push the cursor against the left or right edge (or hold A/D) to look around. Taking the
   mouse right off the game window's left or right side pans at full speed.
 - Click an inventory slot to hold the item, then click something in the room to use it on that.
   Right-click or Esc puts it back.
 - **Esc** always goes straight back to the room: it closes the microfiche (zoomed or not) and leaves the workbench and
-  radio close-ups. Right-click steps back one level (out of a zoom first).
+  radio close-ups. From the room, Esc opens the pause/settings menu. Right-click steps back one level (out of a zoom
+  first). The PAUSE button in the top-right opens the menu from any view.
 - Click the workbench for the crafting view, which looks straight down on the cutting mat's build grid. BACK, Esc or
   right-click returns to the room. (The crafting itself isn't built yet.)
 - Click the ham radio for a close-up of the rig (BACK, Esc or right-click to leave). Talking on it isn't built yet.

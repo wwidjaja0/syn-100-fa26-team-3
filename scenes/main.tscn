@@ -1,9 +1,11 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
 [ext_resource type="PackedScene" path="res://assets/shelter.glb" id="2_room"]
 [ext_resource type="Shader" path="res://shaders/post.gdshader" id="3_post"]
 [ext_resource type="Script" path="res://scripts/ui.gd" id="4_ui"]
+[ext_resource type="Script" path="res://scripts/pause_menu.gd" id="5_pause"]
+[ext_resource type="Script" path="res://scripts/start_menu.gd" id="6_start"]
 
 [sub_resource type="Environment" id="Environment_world"]
 background_mode = 1
@@ -146,3 +148,24 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("4_ui")
+
+[node name="PauseMenu" type="Control" parent="UI"]
+process_mode = 3
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("5_pause")
+
+[node name="StartMenu" type="Control" parent="UI"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("6_start")

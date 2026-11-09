@@ -23,6 +23,9 @@ uniform float shutter = 0.0;
 uniform vec2 window_px = vec2(240.0, 136.0);
 uniform float dim = 0.0;              // darken behind panels
 uniform float fade = 0.0;             // to black
+uniform float pause_amount = 0.0;     // blur and dim behind the pause menu
+uniform float brightness = 1.0;       // user setting, 0.5 .. 1.5
+uniform float landing_amount = 0.0;   // cinematic title-screen grade and vignette
 
 const vec2 SIZE = vec2(480.0, 270.0);
 const int ID_OFFSET = 4;              // mask ids are stored 4 steps up (see toon.gdshader)
@@ -90,7 +93,21 @@ void fragment() {
 	              0.9 * env * sin(0.19 * x + 0.31 * f + 0.7));
 	vec2 src = pix + 0.5 + d;
 
-	vec3 px = texture(scene_tex, src / SIZE).rgb;
+	vec2 scene_uv = src / SIZE;
+	vec3 px = texture(scene_tex, scene_uv).rgb;
+	if (pause_amount > 0.001) {
+		vec2 o = vec2(2.5 * pause_amount) / SIZE;
+		vec3 blurred = px * 0.20;
+		blurred += texture(scene_tex, scene_uv + vec2(o.x, 0.0)).rgb * 0.12;
+		blurred += texture(scene_tex, scene_uv - vec2(o.x, 0.0)).rgb * 0.12;
+		blurred += texture(scene_tex, scene_uv + vec2(0.0, o.y)).rgb * 0.12;
+		blurred += texture(scene_tex, scene_uv - vec2(0.0, o.y)).rgb * 0.12;
+		blurred += texture(scene_tex, scene_uv + o).rgb * 0.08;
+		blurred += texture(scene_tex, scene_uv - o).rgb * 0.08;
+		blurred += texture(scene_tex, scene_uv + vec2(o.x, -o.y)).rgb * 0.08;
+		blurred += texture(scene_tex, scene_uv + vec2(-o.x, o.y)).rgb * 0.08;
+		px = mix(px, blurred, pause_amount);
+	}
 	vec4 m = texture(mask_tex, src / SIZE);
 	if (m.b > 0.5) {
 		px = toon_band(px);
@@ -106,7 +123,17 @@ void fragment() {
 		px = mix(px, warm, clamp(env, 0.0, 1.0));
 		px += 0.30 * heat * min(shutter, 1.0) * near * near * vec3(1.0, 0.85, 0.6);
 	}
+	if (landing_amount > 0.001) {
+		vec2 vp = (pix / SIZE - vec2(0.5)) * vec2(1.0, 0.72);
+		float vignette = smoothstep(0.28, 0.60, length(vp));
+		float breathe = 1.0 + 0.025 * sin(f * 0.035);
+		float lightning = pow(max(sin(f * 0.019), 0.0), 32.0);
+		px *= mix(1.0, breathe * (0.96 - 0.38 * vignette), landing_amount);
+		px += landing_amount * lightning * vec3(0.10, 0.14, 0.20);
+	}
+	px *= brightness;
 	px *= 1.0 - 0.55 * dim;
+	px *= 1.0 - 0.38 * pause_amount;
 	px *= 1.0 - fade;
 
 	// living dither: Bayer locked to the world, nudged by a slow drifting field
