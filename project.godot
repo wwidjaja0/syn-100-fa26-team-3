@@ -18,7 +18,7 @@ config/icon="res://icon.svg"
 [autoload]
 
 GameState="*res://scripts/game_state.gd"
-InventoryManager="*uid://2u0en41cmvdy"
+InventoryManager="*res://scripts/inventory/inventory_manager.gd"
 
 [display]
 

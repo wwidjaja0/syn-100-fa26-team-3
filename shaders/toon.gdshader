@@ -7,7 +7,7 @@ shader_type spatial;
 render_mode specular_disabled, cull_back;
 
 const uint MASK_LAYER = 524288u;      // 1 << 19, render layer 20
-const int ID_OFFSET = 4;              // keep in step with post.gdshader and main.gd
+const int ID_OFFSET = 4;              // keep in step with post.gdshader and scripts/room/object_picker.gd
 
 // 0 toon (lit), 1 emissive, 2 outline hull, 3 storm sky, 4 spinning globe screen (microfiche idle)
 uniform int kind = 0;
@@ -24,16 +24,16 @@ uniform float sky_day2 = 0.0;
 uniform float sky_energy = 2.5;
 
 // globe screen: albedo_tex is a full equirectangular world map (lat 90..-90); the screen's
-// world-space centre and size map each fragment to a point on it (see main.gd _make_material)
+// world-space centre and size map each fragment to a point on it (see scripts/room/room_materials.gd)
 uniform vec3 screen_center = vec3(0.0);
 uniform vec2 screen_size = vec2(1.0);
 uniform float globe_spin = 0.12;      // radians per second
 
 uniform int group_id = 0;                // object group, written by the mask pass
-uniform float direct_light = 1.0;        // < 1 on outlined props (see main.gd)
+uniform float direct_light = 1.0;        // < 1 on outlined props (PROP_DIRECT_LIGHT in scripts/room/room_materials.gd)
 // Compatibility (the web renderer) reads ALBEDO/EMISSION as sRGB and linearises them itself,
 // where Forward+ takes them linear. When true, colours are handed over sRGB-encoded so both
-// renderers light the same values (see main.gd `compat`).
+// renderers light the same values (see `compat` in scripts/main.gd).
 uniform bool srgb_io = false;
 
 varying vec3 local_pos;

@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://nn43ykjbb247"]
 
-[ext_resource type="PackedScene" uid="uid://6wvc4trkhcbf" path="res://SlotUI.tscn" id="1_aoyw2"]
+[ext_resource type="PackedScene" uid="uid://6wvc4trkhcbf" path="res://scenes/prototypes/slot_ui.tscn" id="1_aoyw2"]
 
 [node name="InventoryBar" type="HBoxContainer" unique_id=919282392]
 

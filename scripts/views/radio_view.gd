@@ -1,4 +1,4 @@
-extends "res://scripts/close_view.gd"
+extends "res://scripts/views/close_view.gd"
 ## The radio view. Clicking the ham radio brings the camera to the front of the rig. The
 ## communication itself is left open: listen to clicked / entered / exited, use
 ## screen_point() to put UI over a part of the radio, and call GameState.contact_station(id)
