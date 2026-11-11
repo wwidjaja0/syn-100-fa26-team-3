@@ -8,6 +8,7 @@ extends Node
 ##   * the position is snapped to whole screen pixels, so the pixel art never shimmers;
 ##   * when a close-up view (scripts/views/) is opening or open, its camera pose is blended in
 ##     instead, and the sloped ceiling hides (both close-up cameras swing up through it).
+##   * while the title screen is up (main.landing_active) it drifts slowly side to side instead.
 ## `push` (-1..1) tells overlay.gd to draw the edge chevrons.
 
 const EDGE := 48.0                      # px from the screen edge where the cursor starts pushing
@@ -15,6 +16,8 @@ const PAN_SPEED := 2.6                  # m/s at full push
 const PAN_EASE := 8.0                   # how quickly the camera speeds up / settles (1/s)
 const CAM_MIN := -1.85                  # camera x limits: the left wall .. just past the speaker corner
 const CAM_MAX := 3.0
+const LANDING_SWEEP := 0.39             # title-screen drift: this share of the left..right range each way
+const LANDING_PERIOD := 22.0            # ... and seconds per full sweep
 const ORTHO_WIDTH := 6.6                # m across the screen (matches the Blender camera)
 
 var push := 0.0                         # -1..1: how hard the cursor (or A/D) is pushing the view
@@ -26,6 +29,7 @@ var _main: Node
 var _cameras: Array[Camera3D] = []
 var _pix: float                         # m per screen pixel
 var _x_left: float                      # camera x at the left end of its range (pixel snapping origin)
+var _x_right: float                     # camera x over the workbench (where the game starts)
 var _basis: Basis                       # the room camera's fixed tilt, height, depth and zoom
 var _y: float
 var _z: float
@@ -42,7 +46,8 @@ func setup(main: Node, meta: Dictionary, room: Node3D, camera: Camera3D, mask_ca
 	_cameras = [camera, mask_cam]
 	_pix = ORTHO_WIDTH / main.W
 	_x_left = meta.camera.x_left
-	x = meta.camera.x_right             # start over the workbench
+	_x_right = meta.camera.x_right
+	x = _x_right                        # start over the workbench
 	_basis = camera.basis
 	_y = camera.position.y
 	_z = camera.position.z
@@ -82,8 +87,20 @@ func panning() -> bool:
 	return absf(velocity) > 0.05
 
 
+## no edge-push until the cursor has left the edge bands (e.g. right after the title screen)
+func hold_edge() -> void:
+	_edge_hold = true
+
+
 func _update_push() -> void:
 	push = 0.0
+	if _main.landing_active:
+		# a slow, hands-off establishing shot while the title screen owns input
+		var centre := (_x_left + _x_right) * 0.5
+		var amplitude := (_x_right - _x_left) * LANDING_SWEEP
+		x = centre + amplitude * cos(_main.clock * TAU / (_main.TICK * LANDING_PERIOD))
+		velocity = 0.0
+		return
 	var ui = _main.ui
 	if _main.active_view() != null or ui.panel != "":
 		_edge_hold = true

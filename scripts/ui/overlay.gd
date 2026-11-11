@@ -57,6 +57,7 @@ func open_panel(name: String, now: float) -> void:
 func close_panel() -> void:
 	if panel != "" and _closing_at < _panel_at:
 		_closing_at = main.clock
+		UiSounds.play("back")
 		if panel == "fiche":
 			microfiche.release(Vector2(-99, -99))   # drop any drag
 			microfiche.leave_detail()               # next time it opens on the world sheet

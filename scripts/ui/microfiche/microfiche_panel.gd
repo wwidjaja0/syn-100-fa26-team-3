@@ -74,7 +74,10 @@ func leave_detail() -> void:
 
 ## one zoom step around a screen point (the window's centre if the point is outside it)
 func zoom_by(dir: int, screen_anchor: Vector2) -> void:
+	var before := [map.level, map.zoom_area]
 	map.zoom_by(dir, screen_anchor - VIEW.position)
+	if [map.level, map.zoom_area] != before:
+		UiSounds.play("tick")
 
 
 ## the revealed area under a screen pixel ("" on a detail map, or outside the window)
@@ -129,6 +132,8 @@ func release(p: Vector2) -> void:
 		var id := area_at(p)
 		if id != "" and station_at(p) == "":
 			map.zoom_in(id, map.window_latlon(p - VIEW.position), p - VIEW.position)
+			if map.zoomed():
+				UiSounds.play("tick")
 	_drag = null
 
 

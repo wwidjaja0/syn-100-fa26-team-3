@@ -9,6 +9,7 @@ extends Node
 ##     if InventoryManager.add_item(jar): ...      # false when all MAX_ITEMS slots are full
 ##     if InventoryManager.has_item(jar): ...
 ##     InventoryManager.remove_item(jar)           # e.g. when an item is used up
+##     InventoryManager.clear()                    # a new game
 
 ## emitted after every add or remove
 signal inventory_updated
@@ -37,6 +38,12 @@ func remove_item(item: ItemData) -> void:
 	if item in inventory.items:
 		inventory.items.erase(item)
 		inventory_updated.emit()
+
+
+## drop everything (a new game)
+func clear() -> void:
+	inventory.items.clear()
+	inventory_updated.emit()
 
 
 func has_item(item: ItemData) -> bool:

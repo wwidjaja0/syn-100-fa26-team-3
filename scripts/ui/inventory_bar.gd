@@ -65,8 +65,10 @@ func click(p: Vector2) -> bool:
 	var item := slot_item(slot)
 	if held != null and item != held:
 		held = null
+		UiSounds.play("back")
 	elif item != null:
 		held = item
+		UiSounds.play("pick")
 	return true
 
 

@@ -16,6 +16,8 @@ extends Node
 ##   views/crafting_view.gd   close-up: straight down onto the workbench's cutting mat
 ##   views/radio_view.gd      close-up: the ham radio's front panel
 ##   ui/overlay.gd            the pixel UI (its own node, UI/Overlay)
+##   ui/start_menu.gd         the title screen (its own node, UI/StartMenu); calls start_game()
+##   ui/pause_menu.gd         the pause / settings menu (its own node, UI/PauseMenu)
 ##   dev/debug_menu.gd        the F9 menu
 ##   dev/demo.gd              the scripted screenshot walkthrough (--demo)
 ##
@@ -46,6 +48,8 @@ const Demo := preload("res://scripts/dev/demo.gd")
 @onready var mask_cam: Camera3D = $MaskVP/MaskCam
 @onready var screen: TextureRect = $Screen
 @onready var ui: Control = $UI/Overlay
+@onready var pause_menu: Control = $UI/PauseMenu
+@onready var start_menu: Control = $UI/StartMenu
 
 ## the room's description, written by pipeline/godot/export_glb.py: object groups, materials,
 ## lights, camera, and points of interest
@@ -57,9 +61,10 @@ var clock := 0.0                        # 24 fps frames since the game started
 var cursor := Vector2(W / 2.0, H / 2.0) # the mouse on the 480x270 canvas, clamped to it
 var cursor_override = null              # a Vector2 while the demo drives the cursor
 var beyond := Vector2.ZERO              # -1/0/+1 per axis: the pointer is past that edge of the game
-                                        # area (e.g. in the black borders around the scaled picture)
+										# area (e.g. in the black borders around the scaled picture)
 var mouse_seen := false                 # no edge-panning until the mouse has really moved (the web
-                                        # build starts with the pointer at 0,0)
+										# build starts with the pointer at 0,0)
+var landing_active := true              # the title screen is up: ambience runs, gameplay input does not
 var click_at := -1e9                    # clock of the last click (the cursor sinks in briefly)
 
 # the parts (see the list above)
@@ -140,7 +145,7 @@ func _process(delta: float) -> void:
 		ui.microfiche.update(cursor, delta, _pan_keys())
 	shutters.update()
 	cabinet.update()
-	var room_hover: bool = ui.panel == "" and not ui.over_ui(cursor) and not ui.inventory.flying() \
+	var room_hover: bool = not landing_active and ui.panel == "" and not ui.over_ui(cursor) and not ui.inventory.flying() \
 			and active_view() == null
 	picker.update(cursor, step, room_hover)
 	ambience.update()
@@ -159,15 +164,17 @@ func _read_cursor() -> void:
 ## Controls (also in the README):
 ##   left click         use the UI, else the close-up view, else the room object under the cursor
 ##   right click        drop the held item; else step back one level (out of a zoom, a panel, a close-up)
-##   Esc                drop the held item and go straight back to the room
+##   Esc                drop the held item and go straight back to the room; in the room, pause
 ##   mouse wheel, - / = zoom the microfiche
 ##   F9                 the debug menu
 func _input(event: InputEvent) -> void:
-	if event is InputEventMouseMotion:
+	if not landing_active and event is InputEventMouseMotion:
 		mouse_seen = true
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if landing_active:                   # start_menu.gd owns input until Start Game
+		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
 			click()
@@ -178,6 +185,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			debug_menu.open = false
 		elif ui.inventory.held != null:
 			ui.inventory.held = null
+			UiSounds.play("back")
 		else:
 			back(false)
 	elif event is InputEventMouseButton and event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
@@ -188,8 +196,13 @@ func _unhandled_input(event: InputEvent) -> void:
 			return
 		match event.keycode:
 			KEY_ESCAPE:
+				if ui.inventory.held != null:
+					UiSounds.play("back")
 				ui.inventory.held = null
-				back(true)
+				if ui.panel != "" or active_view() != null:
+					back(true)
+				else:
+					pause_menu.open_pause()
 			KEY_F9:
 				debug_menu.toggle()
 			KEY_MINUS, KEY_KP_SUBTRACT:
@@ -198,6 +211,18 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_EQUAL, KEY_PLUS, KEY_KP_ADD:
 				if ui.panel == "fiche":
 					ui.microfiche.zoom_by(1, cursor)
+
+
+## Leave the title screen (called by start_menu.gd). The cabin behind it is already live, so
+## nothing reloads: the UI appears and input starts reaching the game.
+func start_game() -> void:
+	landing_active = false
+	ui.visible = true
+	screen.material.set_shader_parameter("landing_amount", 0.0)
+	mouse_seen = false
+	room_camera.hold_edge()
+	picker.hover = ""
+	picker.hover_t = 0.0
 
 
 ## a left click: the UI gets it first, then an open close-up view, then the room
@@ -223,10 +248,11 @@ func click() -> void:
 func back(full := true) -> void:
 	if ui.panel == "fiche" and not full and ui.microfiche.zoomed():
 		ui.microfiche.leave_detail()
+		UiSounds.play("tick")
 	elif ui.panel != "":
 		ui.close_panel()
 	else:
-		for v in views:
+		for v in views:                  # silent: leaving a close-up is the room, not UI
 			v.exit(clock)
 
 

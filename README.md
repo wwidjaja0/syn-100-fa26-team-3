@@ -31,12 +31,15 @@ You don't need Blender or Python unless you change the room, the props or the ge
 
 | Input | What it does |
 |---|---|
+| Title screen | Start Game, Settings and How to Play. Use the mouse, or Up / Down and Enter. |
 | Mouse | Point. The cursor turns into a hand over anything you can click, and a label names it. |
 | Left click | Use the UI if the cursor is on it; otherwise act on the object under the cursor. |
 | Cursor at the left / right edge, or A / D, ← / → | Look around (pan the room). Taking the mouse right off the window's side pans at full speed. |
 | Click an inventory slot | Hold that item on the cursor. Then click something in the room to use the item on it. |
 | Right click | Put the held item back. Otherwise step back one level (out of a map zoom, then out of the map or a close-up). |
-| Esc | Put the held item back, then go straight back to the room. |
+| Esc | Put the held item back, then go straight back to the room. From the room, open the pause / settings menu. |
+| PAUSE button (top right) | Open the pause / settings menu from any view. It also has Quit to Title (a new game; nothing is saved yet). |
+| X (top right of a menu), or Esc | Close the menu: settings, pause, how to play. |
 | Mouse wheel, - / =, the map's - / + buttons | Zoom the microfiche map. |
 | Drag, or WASD / arrows | Pan the microfiche map while it's open. |
 | F9 | The debug menu (see below). |
@@ -51,6 +54,11 @@ What's in the room so far:
   except around the shelter (the Pacific Northwest). Every station you reach over the radio is marked and printed in;
   hover a mark to read that station's problems. Zoom goes 1/4, 1/2, full scale, then 4x, which is a printed area's
   detail map (more towns, every river, named peaks). Clicking a printed area jumps straight to its detail map.
+
+**Menus.** The title screen, the pause / settings menu and the how-to-play page share one look
+(`scripts/ui/menu_draw.gd`). All UI sounds (menus, inventory, map, BACK) are placeholders, synthesised in `scripts/ui/ui_sounds.gd`.
+Fullscreen can't switch while the game runs embedded in the editor's Game tab; turn off "Embed Game on Next Play"
+there, or run an exported build.
 
 **Debug menu (F9).** Press a number or click a line:
 1 contact the next station, 2 contact all stations, 3 reveal the whole map, 4 reset the map, 5 give all items,

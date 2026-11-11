@@ -39,11 +39,13 @@ func commands() -> Array:
 
 func toggle() -> void:
 	open = ENABLED and not open
+	UiSounds.play("click" if open else "back")
 
 
 func run(i: int) -> void:
 	var cmds := commands()
 	if i >= 0 and i < cmds.size():
+		UiSounds.play("click")
 		cmds[i][2].call()
 
 
