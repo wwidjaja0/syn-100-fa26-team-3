@@ -67,6 +67,15 @@ var mouse_seen := false                 # no edge-panning until the mouse has re
 var landing_active := true              # the title screen is up: ambience runs, gameplay input does not
 var click_at := -1e9                    # clock of the last click (the cursor sinks in briefly)
 
+# story & dialogue trigger tracking
+var game_started_at := -1e9
+var intro_triggered := false
+var scanned_left := false
+var scanned_right := false
+var radio_hint_triggered := false
+var suppress_auto_dialogue := false
+var _radio_was_fixed := false
+
 # the parts (see the list above)
 var materials: RoomMaterials
 var picker: ObjectPicker
@@ -114,6 +123,7 @@ func _ready() -> void:
 	radio_view = RadioView.new()
 	_add(radio_view, "RadioView")
 	radio_view.setup(meta, camera)
+	radio_view.entered.connect(_on_radio_view_entered)
 	views = [crafting, radio_view]
 	room_camera = RoomCamera.new()
 	_add(room_camera, "RoomCamera")
@@ -145,6 +155,8 @@ func _process(delta: float) -> void:
 		ui.microfiche.update(cursor, delta, _pan_keys())
 	shutters.update()
 	cabinet.update()
+	ui.dialogue.update(clock, step)
+	_check_dialogue_triggers()
 	var room_hover: bool = not landing_active and ui.panel == "" and not ui.over_ui(cursor) and not ui.inventory.flying() \
 			and active_view() == null
 	picker.update(cursor, step, room_hover)
@@ -183,6 +195,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
 		if debug_menu.open:
 			debug_menu.open = false
+		elif ui.dialogue.is_active():
+			ui.dialogue.close()
 		elif ui.inventory.held != null:
 			ui.inventory.held = null
 			UiSounds.play("back")
@@ -194,6 +208,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		if debug_menu.open:
 			debug_menu.key(event.keycode)
 			return
+		if ui.dialogue.is_active():
+			if event.keycode in [KEY_SPACE, KEY_ENTER, KEY_KP_ENTER]:
+				ui.dialogue.skip_or_advance()
+				return
+			elif event.keycode == KEY_ESCAPE:
+				ui.dialogue.close()
+				return
 		match event.keycode:
 			KEY_ESCAPE:
 				if ui.inventory.held != null:
@@ -217,12 +238,64 @@ func _unhandled_input(event: InputEvent) -> void:
 ## nothing reloads: the UI appears and input starts reaching the game.
 func start_game() -> void:
 	landing_active = false
+	game_started_at = clock
 	ui.visible = true
 	screen.material.set_shader_parameter("landing_amount", 0.0)
 	mouse_seen = false
 	room_camera.hold_edge()
 	picker.hover = ""
 	picker.hover_t = 0.0
+
+
+func _on_radio_view_entered() -> void:
+	if suppress_auto_dialogue:
+		return
+	if not GameState.flag("radio_fixed"):
+		ui.dialogue.start("inspect_radio_broken")
+
+
+func _apply_radio_mesh_state(fixed: bool) -> void:
+	for n in meta.start_hidden:
+		var node := room.find_child(n, true, false)
+		if node:
+			node.visible = fixed
+	for broken_part in ["radio_speaker_hole", "radio_wire_red", "radio_wire_yel"]:
+		var node := room.find_child(broken_part, true, false)
+		if node:
+			node.visible = not fixed
+
+
+func _check_dialogue_triggers() -> void:
+	var radio_fixed := GameState.flag("radio_fixed")
+	if radio_fixed != _radio_was_fixed:
+		_radio_was_fixed = radio_fixed
+		_apply_radio_mesh_state(radio_fixed)
+		if radio_fixed:
+			ui.dialogue.arm_radio_chatter(clock, true)
+			if not landing_active and not suppress_auto_dialogue and not ui.dialogue.is_active():
+				ui.dialogue.start("radio_repaired")
+
+	if landing_active or suppress_auto_dialogue:
+		return
+
+	# 1. Intro dialogue shortly after starting
+	if not intro_triggered and clock - game_started_at >= 12.0:
+		intro_triggered = true
+		ui.dialogue.start("intro_wake")
+
+	# 2. Room scan tracking: visiting left wall and right wall
+	if not radio_hint_triggered:
+		if room_camera.x <= room_camera.CAM_MIN + 0.6:
+			scanned_left = true
+		if room_camera.x >= room_camera.CAM_MAX - 0.6:
+			scanned_right = true
+
+		var can_trigger_hint: bool = scanned_left and scanned_right and not ui.dialogue.is_active() \
+				and ui.panel == "" and active_view() == null
+		if can_trigger_hint:
+			radio_hint_triggered = true
+			if not GameState.flag("radio_fixed"):
+				ui.dialogue.start("hint_use_radio")
 
 
 ## a left click: the UI gets it first, then an open close-up view, then the room
@@ -246,7 +319,9 @@ func click() -> void:
 ## Esc / right-click / BACK: close the panel, or leave the close-up view. Right-click (full = false)
 ## only steps back one level, e.g. out of a zoomed microfiche; Esc (full = true) closes it outright.
 func back(full := true) -> void:
-	if ui.panel == "fiche" and not full and ui.microfiche.zoomed():
+	if ui.dialogue.is_active():
+		ui.dialogue.close()
+	elif ui.panel == "fiche" and not full and ui.microfiche.zoomed():
 		ui.microfiche.leave_detail()
 		UiSounds.play("tick")
 	elif ui.panel != "":

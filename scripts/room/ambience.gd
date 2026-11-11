@@ -13,6 +13,7 @@ var _main: Node
 var _materials: Node
 var _lantern: OmniLight3D
 var _lantern_energy := 1.0
+var _radio_glow: OmniLight3D
 
 
 func setup(main: Node, lights: Node3D, materials: Node, lantern: OmniLight3D, compat: bool) -> void:
@@ -20,6 +21,7 @@ func setup(main: Node, lights: Node3D, materials: Node, lantern: OmniLight3D, co
 	_materials = materials
 	_lantern = lantern
 	_lantern_energy = lantern.light_energy
+	_radio_glow = lights.get_node_or_null("radio_glow") as OmniLight3D
 	if compat:
 		for l: Light3D in lights.get_children():
 			if l.shadow_enabled:
@@ -33,3 +35,10 @@ func update() -> void:
 	# slow and faint on purpose: a fast or strong flicker makes the toon light bands jump
 	var n := sin(clock * 0.045) * 0.6 + sin(clock * 0.11 + 1.7) * 0.4
 	_lantern.light_energy = _lantern_energy * (1.0 + LANTERN_SWING * n)
+
+	if _radio_glow != null:
+		var radio_active: bool = _main.ui.dialogue != null and _main.ui.dialogue.is_radio_talking()
+		if radio_active:
+			_radio_glow.light_energy = lerpf(_radio_glow.light_energy, 1.4 + 0.6 * sin(clock * 0.4), 0.2)
+		else:
+			_radio_glow.light_energy = lerpf(_radio_glow.light_energy, 0.0, 0.15)

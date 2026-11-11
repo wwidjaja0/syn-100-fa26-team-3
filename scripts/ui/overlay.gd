@@ -14,6 +14,7 @@ extends Control
 const Px := preload("res://scripts/ui/pixel_draw.gd")
 const InventoryBar := preload("res://scripts/ui/inventory_bar.gd")
 const MicrofichePanel := preload("res://scripts/ui/microfiche/microfiche_panel.gd")
+const DialogueBox := preload("res://scripts/ui/dialogue_box.gd")
 const ARROW := preload("res://ui/cursor_arrow.png")
 const HAND := preload("res://ui/cursor_hand.png")
 const BACK := Rect2(6, 6, 33, 15)       # close-up views: back to the room
@@ -24,6 +25,7 @@ const RIPPLE_FRAMES := 7.0
 var panel := ""                         # the open panel: "" or "fiche"
 var inventory: InventoryBar
 var microfiche: MicrofichePanel
+var dialogue: DialogueBox
 # palette-snapped panel colours, shared by everything drawn here
 var panel_col: Color
 var panel_hi: Color
@@ -45,6 +47,7 @@ func _ready() -> void:
 	panel_lo = Px.palette_color(pal, Color(0.03, 0.02, 0.03))
 	inventory = InventoryBar.new(self)
 	microfiche = MicrofichePanel.new(self, pal)
+	dialogue = DialogueBox.new(self, pal)
 
 
 # ---------------------------------------------------------------- panels
@@ -80,7 +83,7 @@ func panel_scale() -> float:
 # ---------------------------------------------------------------- input
 ## is the cursor on a piece of UI (so the room shouldn't react to it)?
 func over_ui(p: Vector2) -> bool:
-	return main.debug_menu.open or inventory.slot_at(p) >= 0 or _over_back(p)
+	return main.debug_menu.open or dialogue.is_active() or inventory.slot_at(p) >= 0 or _over_back(p)
 
 
 func _over_back(p: Vector2) -> bool:
@@ -92,6 +95,9 @@ func _over_back(p: Vector2) -> bool:
 func handle_click(p: Vector2) -> bool:
 	if main.debug_menu.open:
 		main.debug_menu.click(p)
+		return true
+	if dialogue.is_active():
+		dialogue.skip_or_advance()
 		return true
 	if panel == "fiche":
 		if microfiche.over_close(p) or not microfiche.press(p):
@@ -162,7 +168,7 @@ func _draw() -> void:
 	var hover: String = main.picker.hover
 	if label == "" and hover != "":
 		label = main.interactions.label_for(hover, inventory.held)
-	if label != "" and not main.debug_menu.open:
+	if label != "" and not main.debug_menu.open and not dialogue.is_active():
 		var tw := Px.text_width(label)
 		var lx := mini(int(cur.x) + 10, Px.W - tw - 3)
 		var ly := maxi(int(cur.y) - 13, 3)
@@ -179,8 +185,11 @@ func _draw() -> void:
 	if main.debug_menu.open:
 		ui_hover = main.debug_menu.draw(self, cur)
 
+	if dialogue.is_active():
+		dialogue.draw(now, cur)
+
 	# the cursor: a hand over anything clickable, pressed in while a click is fresh
-	var hand: bool = hover != "" or ui_hover or inventory.held != null or craft.hover_cell != craft.NO_CELL
+	var hand: bool = hover != "" or ui_hover or inventory.held != null or craft.hover_cell != craft.NO_CELL or dialogue.is_active()
 	var hs: Array = _hotspots["hand" if hand else "arrow"]
 	var pressed: bool = main.clicking()
 	var at := cur - Vector2(hs[0], hs[1]) + Vector2(0, 1 if pressed else 0)
