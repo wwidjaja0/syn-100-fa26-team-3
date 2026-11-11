@@ -11,7 +11,7 @@ python3 make_fiche.py  ->  fiche_blank.png        the world sheet as it starts: 
                            fiche_meta.json        projections: where a latitude/longitude lands on each image
 make_ui_assets.py copies them into ui/.
 
-The game (scripts/fiche.gd) shows the blank sheet and prints the full map only inside revealed
+The game (scripts/ui/microfiche/) shows the blank sheet and prints the full map only inside revealed
 areas: the Pacific Northwest from the start, and a patch around every station reached over the
 radio. Clicking a revealed area zooms into its detail map. Station marks are drawn on top in the game.
 
