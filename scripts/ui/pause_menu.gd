@@ -1,48 +1,48 @@
 extends Control
-## Always-processing pixel UI for pausing and the small set of global settings.
-## The game itself is paused through SceneTree, while this node keeps receiving input.
+## The pause / settings menu (UI/PauseMenu), and the PAUSE button in the top-right corner.
+##
+## One panel, opened two ways:
+##   * open_pause()            in the game: Esc from the room, or the PAUSE button. Headed PAUSED;
+##                             the game is paused through the SceneTree while it is up.
+##   * open_title_settings()   from the title screen's SETTINGS. Headed SETTINGS; the live
+##                             background keeps running, and there are no quit buttons (the
+##                             title screen has one).
+## The in-game menu also has QUIT TO TITLE (asks once more, then starts a new game at the title
+## screen: nothing is saved yet) and, off the web, QUIT TO DESKTOP.
+## The X in the top-right corner (or Esc) closes it: resume() goes back to the game or the title.
+## Settings (volumes, mutes, brightness, fullscreen) are saved to user://settings.cfg.
+##
+## This node keeps processing while the tree is paused, and takes all input while it is open.
+## It is drawn with menu_draw.gd so it matches start_menu.gd and the microfiche panel.
 
 signal title_settings_closed
 
-const W := 480
-const H := 270
-const FONT := preload("res://ui/pixel_font.fnt")
-const ARROW := preload("res://ui/cursor_arrow.png")
-const HAND := preload("res://ui/cursor_hand.png")
+const Px := preload("res://scripts/ui/pixel_draw.gd")
+const Menu := preload("res://scripts/ui/menu_draw.gd")
 const SETTINGS_PATH := "user://settings.cfg"
 
-const WHITE := Color(1, 1, 1)
-const INK := Color8(14, 5, 5)
-const PANEL := Color8(34, 22, 28)
-const PANEL_HI := Color8(119, 79, 57)
-const TRACK := Color8(68, 49, 52)
-const ACCENT := Color8(239, 180, 94)
-
 const PAUSE_BUTTON := Rect2(429, 6, 45, 15)
-const MENU := Rect2(108, 19, 264, 232)
-const RESUME := Rect2(121, 43, 238, 18)
-const MASTER_SLIDER := Rect2(207, 79, 103, 9)
-const MUSIC_SLIDER := Rect2(207, 106, 103, 9)
-const SFX_SLIDER := Rect2(207, 133, 103, 9)
-const BRIGHTNESS_SLIDER := Rect2(207, 160, 103, 9)
-const MASTER_MUTE := Rect2(317, 75, 42, 17)
-const MUSIC_MUTE := Rect2(317, 102, 42, 17)
-const SFX_MUTE := Rect2(317, 129, 42, 17)
-const FULLSCREEN := Rect2(121, 184, 238, 18)
-const QUIT := Rect2(121, 215, 238, 18)
+const MENU_W := 264.0
+const ROW := 27.0                       # px between the slider rows
+const SLIDERS := ["master", "music", "sfx", "brightness"]
+const MUTABLE := ["master", "music", "sfx"]
 
-var is_paused := false
-var title_context := false
+var is_paused := false                  # the panel is open (in either context)
+var title_context := false              # opened from the title screen
 var pause_button_enabled := true
-var dragging := ""
-var master_volume := 1.0
-var music_volume := 0.8
-var sfx_volume := 0.8
-var brightness := 1.0
-var master_muted := false
-var music_muted := false
-var sfx_muted := false
+var dragging := ""                      # the slider being dragged, or ""
+var volume := {"master": 1.0, "music": 0.8, "sfx": 0.8}
+var muted := {"master": false, "music": false, "sfx": false}
+var brightness := 1.0                   # 0.5 .. 1.5
 var fullscreen := false
+
+var _menu: Rect2                        # the panel; the rects below are laid out inside it
+var _slider := {}                       # name -> Rect2
+var _mute := {}                         # name -> Rect2
+var _fullscreen: Rect2
+var _to_title: Rect2
+var _quit: Rect2
+var _confirm_title := false             # QUIT TO TITLE was pressed once; again does it
 
 @onready var game_ui: CanvasItem = owner.get_node("UI/Overlay")
 @onready var post: ShaderMaterial = owner.get_node("Screen").material
@@ -51,8 +51,14 @@ var fullscreen := false
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	Menu.load_style()
 	_load_settings()
-	_apply_settings()
+	_apply_audio()
+	_apply_brightness()
+	if fullscreen:                       # leave the window alone unless the player asked for fullscreen
+		_apply_fullscreen()
+	post.set_shader_parameter("pause_amount", 0.0)
+	_layout()
 	z_index = -1
 
 
@@ -60,52 +66,48 @@ func _process(_delta: float) -> void:
 	queue_redraw()
 
 
+# ---------------------------------------------------------------- open / close
 func open_pause() -> void:
 	if is_paused or not pause_button_enabled:
 		return
-	is_paused = true
-	title_context = false
-	dragging = ""
-	z_index = 10
-	game_ui.visible = false
-	post.set_shader_parameter("pause_amount", 1.0)
+	_open(false)
 	get_tree().paused = true
-	queue_redraw()
 
 
-## Show the same persisted settings from the landing page without freezing its live background.
+## the same settings from the title screen, without freezing its live background
 func open_title_settings() -> void:
 	if is_paused:
 		return
+	_open(true)
+
+
+func _open(from_title: bool) -> void:
 	is_paused = true
-	title_context = true
+	title_context = from_title
 	dragging = ""
+	_confirm_title = false
+	_layout()
 	z_index = 10
 	game_ui.visible = false
 	post.set_shader_parameter("pause_amount", 1.0)
 	queue_redraw()
 
 
+## close the panel: back to the game, or to the title screen
 func resume() -> void:
 	if not is_paused:
 		return
-	if title_context:
-		post.set_shader_parameter("pause_amount", 0.0)
-		is_paused = false
-		title_context = false
-		dragging = ""
-		z_index = -1
-		_save_settings()
-		title_settings_closed.emit()
-		queue_redraw()
-		return
-	get_tree().paused = false
 	post.set_shader_parameter("pause_amount", 0.0)
-	game_ui.visible = true
 	is_paused = false
 	dragging = ""
 	z_index = -1
 	_save_settings()
+	if title_context:
+		title_context = false
+		title_settings_closed.emit()
+	else:
+		get_tree().paused = false
+		game_ui.visible = true
 	queue_redraw()
 
 
@@ -114,9 +116,41 @@ func _exit_tree() -> void:
 		get_tree().paused = false
 
 
+## QUIT TO DESKTOP is only in the in-game pause menu, and never on the web
+func _has_quit() -> bool:
+	return not title_context and not OS.has_feature("web")
+
+
+## Back to the title screen as a new game. Nothing is saved yet, so this resets the story state
+## and the inventory, and reloads the scene (which resets the room and brings the title back).
+func quit_to_title() -> void:
+	_save_settings()
+	GameState.reset()
+	InventoryManager.clear()
+	get_tree().paused = false
+	get_tree().reload_current_scene()
+
+
+## place the panel's parts; it is shorter without the quit buttons
+func _layout() -> void:
+	var h := 160.0 if title_context else (212.0 if _has_quit() else 186.0)
+	_menu = Rect2((Px.W - MENU_W) / 2.0, floorf((Px.H - h) / 2.0), MENU_W, h)
+	var x := _menu.position.x
+	var y := _menu.position.y
+	for i in SLIDERS.size():
+		_slider[SLIDERS[i]] = Rect2(x + 99, y + 28 + i * ROW, 103, 9)
+	for i in MUTABLE.size():
+		_mute[MUTABLE[i]] = Rect2(x + 209, y + 24 + i * ROW, 42, 17)
+	_fullscreen = Rect2(x + 13, y + 132, 238, 18)
+	_to_title = Rect2(x + 13, y + 158, 238, 18)
+	_quit = Rect2(x + 13, y + 184, 238, 18)
+
+
+# ---------------------------------------------------------------- input
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo and is_paused:
 		if event.keycode == KEY_ESCAPE:
+			UiSounds.play("back")
 			resume()
 		get_viewport().set_input_as_handled()
 		return
@@ -136,130 +170,144 @@ func _input(event: InputEvent) -> void:
 	if event.pressed:
 		if not is_paused:
 			if pause_button_enabled and PAUSE_BUTTON.has_point(p):
+				UiSounds.play("click")
 				open_pause()
 				get_viewport().set_input_as_handled()
 			return
 		_handle_press(p)
 		get_viewport().set_input_as_handled()
-	else:
-		if is_paused:
-			if dragging != "":
-				_set_slider(dragging, p.x)
-				_save_settings()
-			dragging = ""
-			get_viewport().set_input_as_handled()
+	elif is_paused:
+		if dragging != "":
+			_set_slider(dragging, p.x)
+			_save_settings()
+		dragging = ""
+		get_viewport().set_input_as_handled()
 
 
 func _handle_press(p: Vector2) -> void:
-	if RESUME.has_point(p):
-		resume()
+	var at := _hot_at(p)
+	if at != "to_title":
+		_confirm_title = false
+	if at == "":
 		return
-	for entry in [
-		["master", MASTER_SLIDER],
-		["music", MUSIC_SLIDER],
-		["sfx", SFX_SLIDER],
-		["brightness", BRIGHTNESS_SLIDER],
-	]:
-		if entry[1].grow(4).has_point(p):
-			dragging = entry[0]
-			_set_slider(dragging, p.x)
-			return
-	if MASTER_MUTE.has_point(p):
-		master_muted = not master_muted
+	if at == "close":
+		UiSounds.play("back")
+		resume()
+	elif at in SLIDERS:
+		dragging = at
+		_set_slider(at, p.x)
+	elif at.begins_with("mute_"):
+		var which := at.trim_prefix("mute_")
+		muted[which] = not muted[which]
+		UiSounds.play("click")
 		_apply_audio()
 		_save_settings()
-	elif MUSIC_MUTE.has_point(p):
-		music_muted = not music_muted
-		_apply_audio()
-		_save_settings()
-	elif SFX_MUTE.has_point(p):
-		sfx_muted = not sfx_muted
-		_apply_audio()
-		_save_settings()
-	elif FULLSCREEN.has_point(p):
+	elif at == "fullscreen":
+		UiSounds.play("click")
 		fullscreen = not fullscreen
 		_apply_fullscreen()
 		_save_settings()
-	elif not OS.has_feature("web") and QUIT.has_point(p):
+	elif at == "to_title":
+		UiSounds.play("click")
+		if _confirm_title:
+			quit_to_title()
+		_confirm_title = true
+	elif at == "quit":
 		get_tree().paused = false
 		get_tree().quit()
 
 
+## the name of the control under p: "close", a slider's name, "mute_<name>", "fullscreen",
+## "to_title", "quit", "pause" (the corner button), or ""
+func _hot_at(p: Vector2) -> String:
+	if not is_paused:
+		return "pause" if pause_button_enabled and visible and PAUSE_BUTTON.has_point(p) else ""
+	if Menu.close_rect(_menu).has_point(p):
+		return "close"
+	for s in SLIDERS:
+		if _slider[s].grow(4).has_point(p):
+			return s
+	for m in MUTABLE:
+		if _mute[m].has_point(p):
+			return "mute_" + m
+	if _fullscreen.has_point(p) and _can_fullscreen():
+		return "fullscreen"
+	if not title_context and _to_title.has_point(p):
+		return "to_title"
+	if _has_quit() and _quit.has_point(p):
+		return "quit"
+	return ""
+
+
 func _set_slider(which: String, pointer_x: float) -> void:
-	var rect := BRIGHTNESS_SLIDER if which == "brightness" else (
-			MASTER_SLIDER if which == "master" else MUSIC_SLIDER if which == "music" else SFX_SLIDER)
+	var rect: Rect2 = _slider[which]
 	var value := clampf((pointer_x - rect.position.x) / rect.size.x, 0.0, 1.0)
-	match which:
-		"master":
-			master_volume = value
-			master_muted = false
-			_apply_audio()
-		"music":
-			music_volume = value
-			music_muted = false
-			_apply_audio()
-		"sfx":
-			sfx_volume = value
-			sfx_muted = false
-			_apply_audio()
-		"brightness":
-			brightness = lerpf(0.5, 1.5, value)
-			_apply_brightness()
+	var before := _slider_value(which)
+	if which == "brightness":
+		brightness = lerpf(0.5, 1.5, value)
+		_apply_brightness()
+	else:
+		volume[which] = value
+		muted[which] = false
+		_apply_audio()
+	if int(before * 20.0) != int(value * 20.0):      # a tick every 5 %
+		UiSounds.play("tick")
 
 
-func _apply_settings() -> void:
-	_apply_audio()
-	_apply_brightness()
-	_apply_fullscreen()
-	post.set_shader_parameter("pause_amount", 0.0)
+func _slider_value(which: String) -> float:
+	if which == "brightness":
+		return brightness - 0.5
+	return 0.0 if muted[which] else volume[which]
 
 
+# ---------------------------------------------------------------- settings
 func _apply_audio() -> void:
-	_set_bus("Master", master_volume, master_muted)
-	_set_bus("Music", music_volume, music_muted)
-	_set_bus("SFX", sfx_volume, sfx_muted)
+	_set_bus("Master", volume.master, muted.master)
+	_set_bus("Music", volume.music, muted.music)
+	_set_bus("SFX", volume.sfx, muted.sfx)
 
 
-func _set_bus(bus_name: String, volume: float, muted: bool) -> void:
+func _set_bus(bus_name: String, level: float, mute: bool) -> void:
 	var bus := AudioServer.get_bus_index(bus_name)
 	if bus < 0:
 		return
-	AudioServer.set_bus_volume_db(bus, linear_to_db(maxf(volume, 0.0001)))
-	AudioServer.set_bus_mute(bus, muted or volume <= 0.001)
+	AudioServer.set_bus_volume_db(bus, linear_to_db(maxf(level, 0.0001)))
+	AudioServer.set_bus_mute(bus, mute or level <= 0.001)
 
 
 func _apply_brightness() -> void:
 	post.set_shader_parameter("brightness", brightness)
 
 
+## False when the game runs inside the Godot editor's Game tab ("Embed Game on Next Play"):
+## an embedded game has no window of its own to make fullscreen. Run it floating, or exported.
+func _can_fullscreen() -> bool:
+	return not Engine.is_embedded_in_editor()
+
+
 func _apply_fullscreen() -> void:
-	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if fullscreen
-			else DisplayServer.WINDOW_MODE_WINDOWED)
+	if not _can_fullscreen():
+		return
+	get_window().mode = Window.MODE_FULLSCREEN if fullscreen else Window.MODE_WINDOWED
 
 
 func _load_settings() -> void:
 	var cfg := ConfigFile.new()
 	if cfg.load(SETTINGS_PATH) != OK:
-		fullscreen = DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN
+		fullscreen = get_window().mode in [Window.MODE_FULLSCREEN, Window.MODE_EXCLUSIVE_FULLSCREEN]
 		return
-	master_volume = clampf(float(cfg.get_value("audio", "master", master_volume)), 0.0, 1.0)
-	music_volume = clampf(float(cfg.get_value("audio", "music", music_volume)), 0.0, 1.0)
-	sfx_volume = clampf(float(cfg.get_value("audio", "sfx", sfx_volume)), 0.0, 1.0)
-	master_muted = bool(cfg.get_value("audio", "master_muted", master_muted))
-	music_muted = bool(cfg.get_value("audio", "music_muted", music_muted))
-	sfx_muted = bool(cfg.get_value("audio", "sfx_muted", sfx_muted))
+	for k in volume:
+		volume[k] = clampf(float(cfg.get_value("audio", k, volume[k])), 0.0, 1.0)
+		muted[k] = bool(cfg.get_value("audio", k + "_muted", muted[k]))
 	brightness = clampf(float(cfg.get_value("video", "brightness", brightness)), 0.5, 1.5)
 	fullscreen = bool(cfg.get_value("video", "fullscreen", fullscreen))
 
 
 func _save_settings() -> void:
 	var cfg := ConfigFile.new()
-	cfg.set_value("audio", "master", master_volume)
-	cfg.set_value("audio", "music", music_volume)
-	cfg.set_value("audio", "sfx", sfx_volume)
-	cfg.set_value("audio", "master_muted", master_muted)
-	cfg.set_value("audio", "music_muted", music_muted)
-	cfg.set_value("audio", "sfx_muted", sfx_muted)
+	for k in volume:
+		cfg.set_value("audio", k, volume[k])
+		cfg.set_value("audio", k + "_muted", muted[k])
 	cfg.set_value("video", "brightness", brightness)
 	cfg.set_value("video", "fullscreen", fullscreen)
 	var err := cfg.save(SETTINGS_PATH)
@@ -267,95 +315,43 @@ func _save_settings() -> void:
 		push_warning("Could not save settings: %s" % error_string(err))
 
 
+# ---------------------------------------------------------------- drawing
 func _draw() -> void:
 	var cur := get_local_mouse_position().floor()
+	var hot := _hot_at(cur)
 	if not is_paused:
 		if pause_button_enabled:
-			_button(PAUSE_BUTTON, "PAUSE", PAUSE_BUTTON.has_point(cur))
+			Menu.button(self, PAUSE_BUTTON, "PAUSE", hot == "pause")
 		return
 
-	draw_rect(Rect2(0, 0, W, H), Color(0.02, 0.01, 0.02, 0.34))
-	draw_rect(MENU, INK)
-	_frame(MENU, WHITE)
-	_frame(MENU.grow(-2), PANEL_HI)
-	var heading := "SETTINGS" if title_context else "PAUSED"
-	text(heading, Vector2(MENU.get_center().x - text_width(heading) / 2.0, 27), ACCENT)
-	_button(RESUME, "BACK TO TITLE" if title_context else "RESUME", RESUME.has_point(cur))
-
-	text("MASTER", Vector2(121, 78), WHITE)
-	_slider(MASTER_SLIDER, 0.0 if master_muted else master_volume, cur, false)
-	_button(MASTER_MUTE, "MUTED" if master_muted else "MUTE",
-			MASTER_MUTE.has_point(cur), master_muted)
-	text("MUSIC", Vector2(121, 105), WHITE)
-	_slider(MUSIC_SLIDER, 0.0 if music_muted else music_volume, cur, false)
-	_button(MUSIC_MUTE, "MUTED" if music_muted else "MUTE",
-			MUSIC_MUTE.has_point(cur), music_muted)
-	text("SFX", Vector2(121, 132), WHITE)
-	_slider(SFX_SLIDER, 0.0 if sfx_muted else sfx_volume, cur, false)
-	_button(SFX_MUTE, "MUTED" if sfx_muted else "MUTE",
-			SFX_MUTE.has_point(cur), sfx_muted)
-	text("BRIGHTNESS", Vector2(121, 159), WHITE)
-	_slider(BRIGHTNESS_SLIDER, (brightness - 0.5) / 1.0, cur, true)
-	_button(FULLSCREEN, "FULLSCREEN: " + ("ON" if fullscreen else "OFF"),
-			FULLSCREEN.has_point(cur), fullscreen)
-	if not OS.has_feature("web"):
-		_button(QUIT, "QUIT TO DESKTOP", QUIT.has_point(cur))
-
-	var hot := _interactive_at(cur)
-	var cursor_tex: Texture2D = HAND if hot else ARROW
-	draw_texture(cursor_tex, cur - Vector2(3, 2), WHITE)
+	draw_rect(Rect2(0, 0, Px.W, Px.H), Color(0.02, 0.01, 0.02, 0.34))
+	Menu.panel(self, _menu, "SETTINGS" if title_context else "PAUSED", hot == "close")
+	for s in SLIDERS:
+		var r: Rect2 = _slider[s]
+		Px.text(self, s, Vector2(_menu.position.x + 13, r.position.y), Px.WHITE)
+		_draw_slider(r, _slider_value(s), hot == s or dragging == s, s == "brightness")
+	for m in MUTABLE:
+		Menu.button(self, _mute[m], "MUTED" if muted[m] else "MUTE", hot == "mute_" + m, muted[m])
+	if _can_fullscreen():
+		Menu.button(self, _fullscreen, "FULLSCREEN: " + ("ON" if fullscreen else "OFF"),
+				hot == "fullscreen", fullscreen)
+	else:
+		Menu.button(self, _fullscreen, "FULLSCREEN: NOT IN EDITOR VIEW", false, false, false)
+	if not title_context:
+		Menu.button(self, _to_title, "SURE? PROGRESS WILL BE LOST" if _confirm_title else "QUIT TO TITLE",
+				hot == "to_title", _confirm_title)
+	if _has_quit():
+		Menu.button(self, _quit, "QUIT TO DESKTOP", hot == "quit")
+	Menu.cursor(self, cur, hot != "")
 
 
-func _interactive_at(p: Vector2) -> bool:
-	if RESUME.has_point(p) or FULLSCREEN.has_point(p):
-		return true
-	if not OS.has_feature("web") and QUIT.has_point(p):
-		return true
-	for r in [MASTER_SLIDER, MUSIC_SLIDER, SFX_SLIDER, BRIGHTNESS_SLIDER,
-			MASTER_MUTE, MUSIC_MUTE, SFX_MUTE]:
-		if r.grow(4).has_point(p):
-			return true
-	return false
-
-
-func _slider(rect: Rect2, value: float, cursor: Vector2, default_marker: bool) -> void:
-	draw_rect(rect, TRACK)
-	_frame(rect, WHITE if rect.grow(4).has_point(cursor) else PANEL_HI)
-	var fill := Rect2(rect.position + Vector2(2, 2),
-			Vector2((rect.size.x - 4) * value, rect.size.y - 4))
-	draw_rect(fill, ACCENT)
-	if default_marker:
-		var x := rect.position.x + rect.size.x * 0.5
-		draw_rect(Rect2(x, rect.position.y - 2, 1, rect.size.y + 4), WHITE)
+func _draw_slider(rect: Rect2, value: float, hot: bool, centre_mark: bool) -> void:
+	draw_rect(rect, Menu.panel_lo)
+	Px.frame(self, rect, Px.WHITE if hot else Menu.panel_hi)
+	draw_rect(Rect2(rect.position + Vector2(2, 2), Vector2((rect.size.x - 4) * value, rect.size.y - 4)),
+			Menu.accent)
+	if centre_mark:                      # brightness: the default sits in the middle
+		draw_rect(Rect2(rect.position.x + floorf(rect.size.x * 0.5), rect.position.y - 2, 1, rect.size.y + 4),
+				Px.WHITE)
 	var knob_x := rect.position.x + roundf((rect.size.x - 1) * value)
-	draw_rect(Rect2(knob_x - 1, rect.position.y - 2, 3, rect.size.y + 4), WHITE)
-
-
-func _button(rect: Rect2, label: String, hovered: bool, active := false) -> void:
-	draw_rect(rect, PANEL_HI if active else PANEL)
-	_frame(rect, WHITE if hovered else (ACCENT if active else PANEL_HI))
-	var x := rect.get_center().x - text_width(label) / 2.0
-	var y := rect.position.y + (rect.size.y - 8.0) / 2.0
-	text(label, Vector2(x, y), WHITE, INK)
-
-
-static func text_width(s: String) -> int:
-	return int(FONT.get_string_size(s.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, 7).x) - 1
-
-
-func text(s: String, pos: Vector2, color: Color, shadow = null) -> void:
-	var base := pos.floor() + Vector2(0, 7)
-	s = s.to_upper()
-	if shadow != null:
-		for dy in [-1, 0, 1]:
-			for dx in [-1, 0, 1]:
-				if dx != 0 or dy != 0:
-					draw_string(FONT, base + Vector2(dx, dy), s, HORIZONTAL_ALIGNMENT_LEFT, -1, 7, shadow)
-	draw_string(FONT, base, s, HORIZONTAL_ALIGNMENT_LEFT, -1, 7, color)
-
-
-func _frame(rect: Rect2, color: Color) -> void:
-	draw_rect(Rect2(rect.position, Vector2(rect.size.x, 1)), color)
-	draw_rect(Rect2(rect.position + Vector2(0, rect.size.y - 1), Vector2(rect.size.x, 1)), color)
-	draw_rect(Rect2(rect.position, Vector2(1, rect.size.y)), color)
-	draw_rect(Rect2(rect.position + Vector2(rect.size.x - 1, 0), Vector2(1, rect.size.y)), color)
+	draw_rect(Rect2(knob_x - 1, rect.position.y - 2, 3, rect.size.y + 4), Px.WHITE)

@@ -4,6 +4,7 @@ extends Node
 ##
 ##     godot --path . -- --demo screens            # walkthrough -> screens/*.png
 ##     godot --path . -- --demo screens --raw      # one unprocessed frame + the object mask
+##     godot --path . -- --demo screens --menus    # the title screen, how to play, settings, pause
 ##
 ## Add --rendering-driver opengl3 (before --) to check the Compatibility renderer the web build uses.
 ## Compare the screenshots before and after a change to catch regressions.
@@ -18,6 +19,9 @@ func start_if_asked(main: Node) -> void:
 	var i := args.find("--demo")
 	if i < 0:
 		return
+	if args.has("--menus"):
+		_menus(args[i + 1] if i + 1 < args.size() else "user://shots")
+		return
 	main.start_menu.active = false       # the walkthrough starts in the room, past the title screen
 	main.start_menu.visible = false
 	main.pause_menu.pause_button_enabled = true
@@ -30,6 +34,34 @@ func start_if_asked(main: Node) -> void:
 		_raw(out)
 	else:
 		_run(out)
+
+
+## the menus, one screenshot each. They read the real mouse, so keep it away from the window.
+func _menus(out: String) -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS          # the pause menu pauses the tree
+	DirAccess.make_dir_recursive_absolute(out)
+	FileAccess.open(out.path_join(".gdignore"), FileAccess.WRITE)
+	var start = _main.start_menu
+	var pause = _main.pause_menu
+	await _menu_shot(out, "menu_1_title")
+	start._activate("how")
+	await _menu_shot(out, "menu_2_how_to_play")
+	start._show_main()
+	start._activate("settings")
+	await _menu_shot(out, "menu_3_settings")
+	pause.resume()
+	start._activate("start")
+	await _menu_shot(out, "menu_4_in_game")
+	pause.open_pause()
+	await _menu_shot(out, "menu_5_paused")
+	get_tree().quit()
+
+
+func _menu_shot(out: String, shot_name: String) -> void:
+	for i in 20:
+		await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png(out.path_join(shot_name + ".png"))
 
 
 ## a plain lit frame (no post shader, no UI) and the object-id mask, for matching Blender's renders

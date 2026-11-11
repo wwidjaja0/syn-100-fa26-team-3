@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 GameState="*res://scripts/game_state.gd"
 InventoryManager="*res://scripts/inventory/inventory_manager.gd"
+UiSounds="*res://scripts/ui/ui_sounds.gd"
 
 [display]
 
@@ -36,10 +37,5 @@ window/stretch/scale_mode="integer"
 [rendering]
 
 textures/canvas_textures/default_texture_filter=0
-textures/vram_compression/import_etc2_astc=true
-anti_aliasing/quality/msaa_3d=0
-rendering_device/driver.windows="vulkan"
-rendering_device/driver.macos="metal"
-renderer/rendering_method="forward_plus"
 renderer/rendering_method.mobile="gl_compatibility"
-renderer/rendering_method.web="gl_compatibility"
+textures/vram_compression/import_etc2_astc=true

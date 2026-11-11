@@ -185,6 +185,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			debug_menu.open = false
 		elif ui.inventory.held != null:
 			ui.inventory.held = null
+			UiSounds.play("back")
 		else:
 			back(false)
 	elif event is InputEventMouseButton and event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
@@ -195,6 +196,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			return
 		match event.keycode:
 			KEY_ESCAPE:
+				if ui.inventory.held != null:
+					UiSounds.play("back")
 				ui.inventory.held = null
 				if ui.panel != "" or active_view() != null:
 					back(true)
@@ -245,10 +248,11 @@ func click() -> void:
 func back(full := true) -> void:
 	if ui.panel == "fiche" and not full and ui.microfiche.zoomed():
 		ui.microfiche.leave_detail()
+		UiSounds.play("tick")
 	elif ui.panel != "":
 		ui.close_panel()
 	else:
-		for v in views:
+		for v in views:                  # silent: leaving a close-up is the room, not UI
 			v.exit(clock)
 
 

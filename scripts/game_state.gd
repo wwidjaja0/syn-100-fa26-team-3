@@ -61,6 +61,13 @@ func is_contacted(id: String) -> bool:
 	return id in contacted
 
 
+## a new game: day 1, nothing done, the map as it started (pause menu's QUIT TO TITLE)
+func reset() -> void:
+	day = 1
+	flags.clear()
+	reset_map()
+
+
 ## back to the start: no stations reached, only the starting areas printed (debug menu)
 func reset_map() -> void:
 	contacted.clear()
