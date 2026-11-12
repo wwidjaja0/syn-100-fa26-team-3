@@ -12,6 +12,7 @@ rules, see [`../ASSET_GUIDE.md`](../ASSET_GUIDE.md).
 - [Add a prop to the room](#add-a-prop-to-the-room)
 - [Add an object that opens and closes](#add-an-object-that-opens-and-closes)
 - [Add a close-up view](#add-a-close-up-view)
+- [Add a crafting recipe](#add-a-crafting-recipe)
 - [Build on the crafting or radio view](#build-on-the-crafting-or-radio-view)
 - [Add a debug menu command](#add-a-debug-menu-command)
 - [Add a step to the screenshot demo](#add-a-step-to-the-screenshot-demo)
@@ -28,7 +29,8 @@ Every clickable thing is an **object group**: a set of meshes that hover, outlin
    'kettle': kids('15_kettle'),          # every mesh under the imported prop
    # or: 'kettle': named('kettle_'),      # every mesh whose name starts with kettle_
    ```
-   A mesh belongs to the first group that lists it. There's room for 17 groups and 16 are used. To go past that,
+   A mesh belongs to the first group that lists it. There's room for 17 groups and all 17 are used (the 17th is the
+   placeholder battery from `scripts/room/placeholders.gd`; modelling it frees that slot). To go past that,
    see "Object groups and the mask" in [`ARCHITECTURE.md`](ARCHITECTURE.md).
 2. **Re-export** the room (`export_glb.py`, see [`PIPELINE.md`](PIPELINE.md) step 5) and let Godot re-import.
 3. **Label it.** In `scripts/room/interactions.gd`, add the hover text to `LABELS`:
@@ -172,6 +174,20 @@ A close-up view swings the camera from the room into a fixed pose (the workbench
 Esc, right-click and the BACK button already close any view. The ceiling hides while a view is active. Keep the camera
 path clear of the pendant lamp (see the asset guide).
 
+## Add a crafting recipe
+
+1. Make sure every ingredient and the result are items (see [Add an inventory item](#add-an-inventory-item)). The
+   result needs an icon: it's shown 3x in the result slot.
+2. Add a line to `RECIPES` in `scripts/crafting/crafting.gd`, the result's item id → its ingredients' ids:
+   ```gdscript
+   "cig": ["jar", "papers"],
+   ```
+   Where the items sit on the mat doesn't matter, but the mat must hold exactly these items, no more.
+3. To react to it being made, check the flag `crafted_<id>` (`GameState.flag("crafted_cig")`) or connect to
+   `main.workbench.crafted`.
+
+F9 → 5 (give all items) fills the bar with recipe ingredients first, for testing.
+
 ## Build on the crafting or radio view
 
 Both views stop at "the player clicked here". They emit signals, so the game logic can live in its own script:
@@ -181,8 +197,9 @@ Both views stop at "the player clicked here". They emit signals, so the game log
 | `crafting_view.gd` | `cell_hovered(cell)`, `cell_clicked(cell, held)`; `cell_world(cell)` gives a cell's 3D centre for placing a piece; the grid is 12x7 cells of 5 cm |
 | `radio_view.gd` | `clicked(cursor, held)`; `screen_point(world)` maps a 3D point to the screen |
 
-A crafting system, for example, could be a new `scripts/crafting/crafting.gd` that main.gd creates, which runs
-`main.crafting.cell_clicked.connect(_on_cell_clicked)` in its `setup()`.
+Crafting is built this way: `scripts/crafting/crafting.gd` (`main.workbench`) runs
+`main.crafting.cell_clicked.connect(_on_cell_clicked)` in its `setup()`. See "Crafting" in
+[`ARCHITECTURE.md`](ARCHITECTURE.md).
 
 ## Add a debug menu command
 
