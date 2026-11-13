@@ -17,8 +17,8 @@ const SIZE := 28
 const DIM := 0.55                       # how bright the listener's portrait is
 
 const MAPS := {
-	# the player: a blank person silhouette with a plain o_o face, so anyone can see themselves
-	# in it. No talk or blink frames: it stays still while speaking.
+	# the player: a blank person silhouette with a small o_o face, so anyone can see themselves
+	# in it. One eye sits a pixel higher and the mouth tilts. No talk or blink frames.
 	"you": {
 		"colors": {".": Color8(64, 45, 50), "f": Color8(14, 5, 5), "r": Color8(32, 30, 33), "e": Color8(249, 228, 177)},
 		"rows": [
@@ -30,12 +30,12 @@ const MAPS := {
 			".........rffffffffr.........",
 			".........rffffffffr.........",
 			"........rffffffffffr........",
-			"........rfeeffffeefr........",
-			"........rfeeffffeefr........",
+			"........rffefffffffr........",
+			"........rfffffffeffr........",
 			"........rffffffffffr........",
-			"........rffffffffffr........",
-			"........rffffffffffr........",
-			".........rffeeeeffr.........",
+			"........rffffffefffr........",
+			"........rffffeeffffr........",
+			".........rffffffffr.........",
 			".........rffffffffr.........",
 			"..........rffffffr..........",
 			"...........rffffr...........",
