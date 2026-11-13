@@ -1,0 +1,161 @@
+{
+  "_note": "Placeholder dialogue sequences for internal monologue and random radio chatter. Text uses the pixel font character set: A-Z 0-9 . , ' - : ? ! ( ) / + = %",
+  "dialogues": {
+    "intro_wake": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "once_flag": "dlg_intro_seen",
+      "lines": [
+        "YEAR 2094. DAY 14 OF THE WET-BULB STORM CYCLE.",
+        "OUROBOROS SHELTER 03 - PACIFIC NORTHWEST. SEALED TIGHT AGAINST THE HEAT.",
+        "THE GRID COLLAPSED WEEKS AGO. IT'S JUST ME AND WHATEVER STILL WORKS IN THIS CABIN."
+      ]
+    },
+    "hint_use_radio": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "once_flag": "dlg_radio_hint_seen",
+      "lines": [
+        "IVE CHECKED EVERY CORNER OF THE CABIN. STILL SEALED.",
+        "THE HAM RADIO ON THE WORKBENCH IS COMPLETELY DEAD - ITS SPEAKER IS RIPPED OUT.",
+        "I NEED TO CHECK THE RADIO AND FIND A WAY TO FIX IT IF I WANT TO HEAR ANYONE OUT THERE."
+      ]
+    },
+    "inspect_radio_broken": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "once_flag": "dlg_radio_broken_seen",
+      "lines": [
+        "THE SPEAKER CONE IS GONE. JUST BARE RED AND YELLOW WIRES HANGING OUT.",
+        "MAYBE I CAN SALVAGE A WORKING SPEAKER FROM SOMEWHERE ELSE IN THE CABIN."
+      ]
+    },
+    "radio_repaired": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "once_flag": "dlg_radio_repaired_seen",
+      "lines": [
+        "THE SPEAKER IS WIRED IN. THE FREQUENCY DISPLAY JUST FLICKERED TO LIFE.",
+        "NOW I JUST HAVE TO KEEP AN EAR OUT FOR ANY INCOMING TRANSMISSIONS."
+      ]
+    },
+    "inspect_shutters_open": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "once_flag": "dlg_shutters_seen",
+      "lines": [
+        "UGH - THE HEAT HITS LIKE AN OVEN DOOR. BETTER NOT LEAVE THE SHUTTERS OPEN TOO LONG."
+      ]
+    },
+    "inspect_speaker": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "lines": [
+        "THE SHELTER PA SPEAKER. THE STATUS LED STILL BREATHES, EVEN WITH THE LINE DEAD."
+      ]
+    },
+    "inspect_lantern": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "lines": [
+        "OIL LANTERN. BURNING LOW TO SAVE FUEL."
+      ]
+    },
+    "inspect_instruments": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "lines": [
+        "BAROMETER AND HYGROMETER. THE NEEDLES ARE PEGGED IN THE RED."
+      ]
+    },
+    "inspect_power": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "lines": [
+        "PORTABLE POWER STATION. FOUR CELLS STILL HOLDING A CHARGE."
+      ]
+    },
+    "inspect_filter": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "lines": [
+        "GRAVITY WATER FILTER. SLOW DRIP, CLEAN WATER."
+      ]
+    },
+    "inspect_crates": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "lines": [
+        "DRY RATION CRATES. ENOUGH TINS FOR ANOTHER FEW WEEKS."
+      ]
+    },
+    "inspect_sandbags": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "lines": [
+        "SANDBAGS STACKED AGAINST FLASH RUNOFF."
+      ]
+    },
+    "inspect_flashlight": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "lines": [
+        "HEAVY DUTY FLASHLIGHT CHARGING ON THE POWER BANK."
+      ]
+    }
+  },
+  "radio_chatter": [
+    {
+      "id": "radio_aquarium_1",
+      "style": "radio",
+      "speaker": "RADIO // COASTAL AQUARIUM",
+      "priority": true,
+      "once_flag": "dlg_aquarium_1",
+      "lines": [
+        "KZZT... AUTOMATED BEACON K6-AQUA... COASTAL AQUARIUM...",
+        "COOLING PUMPS FAILING IN KELP FOREST TANK 2. SEA SURFACE TEMP AT 34C.",
+        "ANY SHELTER READING THIS: OUR MARINE BIOLOGISTS ARE STILL INSIDE... KZZT..."
+      ]
+    },
+    {
+      "id": "radio_aquarium_2",
+      "style": "radio",
+      "speaker": "RADIO // COASTAL AQUARIUM",
+      "priority": true,
+      "once_flag": "dlg_aquarium_2",
+      "lines": [
+        "KZZT... AQUARIUM DISPATCH... WE REROUTED SOLAR POWER TO THE DEEP REEF TANKS.",
+        "THE OTTERS AND KELP SPORES ARE SAFE IN THE SUB-BASEMENT CHILLER FOR NOW... KZZT..."
+      ]
+    },
+    {
+      "id": "radio_aquarium_3",
+      "style": "radio",
+      "speaker": "RADIO // COASTAL AQUARIUM",
+      "priority": true,
+      "once_flag": "dlg_aquarium_3",
+      "lines": [
+        "KZZT... THIS IS K6-AQUA... IF YOUR TRANSMITTER IS BROKEN, JUST KEEP LISTENING.",
+        "WE BROADCAST ON THE HOUR. HOLD ON UP THERE IN THE HIGHLANDS... KZZT..."
+      ]
+    },
+    {
+      "id": "radio_aquarium_ambient_1",
+      "style": "radio",
+      "speaker": "RADIO // COASTAL AQUARIUM",
+      "priority": false,
+      "lines": [
+        "KZZT... AQUARIUM TELEMETRY: CHILLER LOOP B AT 62% CAPACITY... KZZT..."
+      ]
+    },
+    {
+      "id": "radio_aquarium_ambient_2",
+      "style": "radio",
+      "speaker": "RADIO // COASTAL AQUARIUM",
+      "priority": false,
+      "lines": [
+        "KZZT... TIDE GAUGE +2.4M... SEA WALL HOLDING... KZZT..."
+      ]
+    }
+  ]
+}

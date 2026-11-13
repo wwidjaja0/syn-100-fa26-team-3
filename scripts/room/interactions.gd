@@ -32,6 +32,8 @@ func hoverable(group: String) -> bool:
 ## the label to show while hovering a group, given the item held on the cursor (or null)
 func label_for(group: String, held: ItemData) -> String:
 	var name: String = "CLOSE SHUTTERS" if group == "sky" else LABELS.get(group, "")
+	if group == "radio" and GameState.flag("radio_fixed"):
+		name = "HAM RADIO"
 	if held != null and name != "":
 		return "USE %s ON %s" % [held.name, name]
 	return name
@@ -43,6 +45,8 @@ func click(group: String) -> void:
 	match group:
 		"shutters", "sky":
 			_main.shutters.toggle()
+			if _main.shutters.is_open and not _main.suppress_auto_dialogue:
+				_main.ui.dialogue.start("inspect_shutters_open")
 		"microfiche":
 			_main.ui.open_panel("fiche", clock)
 			GameState.set_flag("fiche_seen")
@@ -56,6 +60,8 @@ func click(group: String) -> void:
 			pick_up("papers", "papers")
 		"bench":
 			_main.crafting.enter(clock)
+		"speaker", "lantern", "instruments", "power", "filter", "crates", "sandbags", "flashlight":
+			_main.ui.dialogue.start("inspect_" + group)
 
 
 ## an item held on the cursor was clicked on a room object. Return true if something happened.

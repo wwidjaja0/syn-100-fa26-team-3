@@ -25,6 +25,9 @@ func start_if_asked(main: Node) -> void:
 	main.start_menu.active = false       # the walkthrough starts in the room, past the title screen
 	main.start_menu.visible = false
 	main.pause_menu.pause_button_enabled = true
+	main.suppress_auto_dialogue = true   # suppress auto-monologues during scripted walkthrough
+	main.intro_triggered = true
+	main.radio_hint_triggered = true
 	main.start_game()
 	var out := args[i + 1] if i + 1 < args.size() else "user://shots"
 	DirAccess.make_dir_recursive_absolute(out)
@@ -108,7 +111,9 @@ const STEPS := [
 	[1010, "shot", "29_radio_swing"], [1035, "shot", "30_radio_view"],
 	[1036, "point", Vector2(20, 12)], [1040, "click"], [1075, "shot", "31_back_from_radio"],
 	[1076, "debug"], [1085, "shot", "32_debug_menu"],
-	[1086, "quit"],
+	[1086, "dialogue", "hint_use_radio"], [1110, "shot", "33_dialogue_monologue"],
+	[1111, "radio_dialogue", "radio_aquarium_1"], [1135, "shot", "34_dialogue_radio"],
+	[1136, "quit"],
 ]
 
 
@@ -157,5 +162,15 @@ func _do(s: Array, out: String) -> void:
 		"debug":                         # open the F9 menu
 			main.debug_menu.open = true
 			main.cursor_override = Vector2(240, 80)
+		"dialogue":
+			main.debug_menu.open = false
+			main.ui.dialogue.start(s[2])
+			main.ui.dialogue._chars_shown = 999.0
+			main.cursor_override = Vector2(main.W / 2.0, main.H / 2.0)
+		"radio_dialogue":
+			GameState.set_flag("radio_fixed", true)
+			main.ui.dialogue.start(s[2])
+			main.ui.dialogue._chars_shown = 999.0
+			main.cursor_override = Vector2(main.W / 2.0, main.H / 2.0)
 		"quit":
 			get_tree().quit()
