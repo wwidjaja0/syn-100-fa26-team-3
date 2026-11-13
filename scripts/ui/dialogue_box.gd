@@ -108,18 +108,23 @@ func start(id: String) -> bool:
 	return false
 
 
-func start_entry(entry: Dictionary, _id := "") -> bool:
-	if entry.get("style", "monologue") == "radio" and not GameState.flag("radio_fixed"):
+func start_entry(entry: Dictionary, id := "") -> bool:
+	var entry_style: String = entry.get("style", "monologue")
+	if entry_style == "radio" and not GameState.flag("radio_fixed"):
 		return false
-	if entry.has("once_flag") and GameState.flag(entry.once_flag):
-		return false
-	if entry.has("once_flag"):
-		GameState.set_flag(entry.once_flag)
+
+	var seen_flag: String = entry.get("once_flag", "")
+	if seen_flag == "" and entry_style == "monologue" and not entry.get("repeatable", false) and id != "":
+		seen_flag = "dlg_seen_" + id
+	if seen_flag != "":
+		if GameState.flag(seen_flag):
+			return false
+		GameState.set_flag(seen_flag)
 
 	active = true
 	closing = false
 	_start_clock = _overlay.main.clock
-	style = entry.get("style", "monologue")
+	style = entry_style
 	speaker = entry.get("speaker", "INTERNAL MONOLOGUE")
 	lines = entry.get("lines", []).duplicate()
 	current_line_idx = 0

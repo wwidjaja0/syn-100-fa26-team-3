@@ -50,6 +50,7 @@
     "inspect_speaker": {
       "style": "monologue",
       "speaker": "INTERNAL MONOLOGUE",
+      "once_flag": "dlg_inspect_speaker_seen",
       "lines": [
         "THE SHELTER PA SPEAKER. THE STATUS LED STILL BREATHES, EVEN WITH THE LINE DEAD."
       ]
@@ -57,6 +58,7 @@
     "inspect_lantern": {
       "style": "monologue",
       "speaker": "INTERNAL MONOLOGUE",
+      "once_flag": "dlg_inspect_lantern_seen",
       "lines": [
         "OIL LANTERN. BURNING LOW TO SAVE FUEL."
       ]
@@ -64,6 +66,7 @@
     "inspect_instruments": {
       "style": "monologue",
       "speaker": "INTERNAL MONOLOGUE",
+      "once_flag": "dlg_inspect_instruments_seen",
       "lines": [
         "BAROMETER AND HYGROMETER. THE NEEDLES ARE PEGGED IN THE RED."
       ]
@@ -71,6 +74,7 @@
     "inspect_power": {
       "style": "monologue",
       "speaker": "INTERNAL MONOLOGUE",
+      "once_flag": "dlg_inspect_power_seen",
       "lines": [
         "PORTABLE POWER STATION. FOUR CELLS STILL HOLDING A CHARGE."
       ]
@@ -78,6 +82,7 @@
     "inspect_filter": {
       "style": "monologue",
       "speaker": "INTERNAL MONOLOGUE",
+      "once_flag": "dlg_inspect_filter_seen",
       "lines": [
         "GRAVITY WATER FILTER. SLOW DRIP, CLEAN WATER."
       ]
@@ -85,6 +90,7 @@
     "inspect_crates": {
       "style": "monologue",
       "speaker": "INTERNAL MONOLOGUE",
+      "once_flag": "dlg_inspect_crates_seen",
       "lines": [
         "DRY RATION CRATES. ENOUGH TINS FOR ANOTHER FEW WEEKS."
       ]
@@ -92,6 +98,7 @@
     "inspect_sandbags": {
       "style": "monologue",
       "speaker": "INTERNAL MONOLOGUE",
+      "once_flag": "dlg_inspect_sandbags_seen",
       "lines": [
         "SANDBAGS STACKED AGAINST FLASH RUNOFF."
       ]
@@ -99,6 +106,7 @@
     "inspect_flashlight": {
       "style": "monologue",
       "speaker": "INTERNAL MONOLOGUE",
+      "once_flag": "dlg_inspect_flashlight_seen",
       "lines": [
         "HEAVY DUTY FLASHLIGHT CHARGING ON THE POWER BANK."
       ]
