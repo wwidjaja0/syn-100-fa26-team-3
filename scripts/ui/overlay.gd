@@ -3,7 +3,8 @@ extends Control
 ## (the UI/Overlay node in scenes/main.tscn).
 ##
 ## Draws, in this order (later on top):
-##   edge chevrons while the view pans  - crafting grid cell highlight - BACK button (close-ups)
+##   edge chevrons while the view pans  - crafting: items on the mat, the cell highlight, the
+##   result slot  - BACK button (close-ups)
 ##   inventory bar (inventory_bar.gd)   - the microfiche panel (microfiche/microfiche_panel.gd)
 ##   hover label - items flying into the bar - click ripples - F9 menu (dev/debug_menu.gd)
 ##   the cursor (arrow, or hand over anything clickable) with the held item on it
@@ -18,6 +19,8 @@ const DialogueBox := preload("res://scripts/ui/dialogue_box.gd")
 const ARROW := preload("res://ui/cursor_arrow.png")
 const HAND := preload("res://ui/cursor_hand.png")
 const BACK := Rect2(6, 6, 33, 15)       # close-up views: back to the room
+const RESULT := Rect2(402, 112, 46, 46) # crafting view: the result slot, right of the mat
+const RESULT_SCALE := 3                 # the result's 12x12 icon, drawn 3x
 const PANEL_OPEN_FRAMES := 6.0
 const PANEL_CLOSE_FRAMES := 4.0
 const RIPPLE_FRAMES := 7.0
@@ -83,7 +86,12 @@ func panel_scale() -> float:
 # ---------------------------------------------------------------- input
 ## is the cursor on a piece of UI (so the room shouldn't react to it)?
 func over_ui(p: Vector2) -> bool:
-	return main.debug_menu.open or dialogue.is_active() or inventory.slot_at(p) >= 0 or _over_back(p)
+	return main.debug_menu.open or dialogue.is_active() or inventory.slot_at(p) >= 0 or _over_back(p) \
+			or _over_result(p)
+
+
+func _over_result(p: Vector2) -> bool:
+	return main.crafting.settled() and RESULT.has_point(p)
 
 
 func _over_back(p: Vector2) -> bool:
@@ -105,6 +113,9 @@ func handle_click(p: Vector2) -> bool:
 		return true
 	if _over_back(p):
 		main.back()
+		return true
+	if _over_result(p):
+		main.workbench.craft(RESULT.get_center())
 		return true
 	return inventory.click(p)
 
@@ -140,13 +151,12 @@ func _draw() -> void:
 	elif push > 0.0:
 		_chevron(1, push > 0.5, now)
 
-	# close-ups: the crafting grid's hovered cell (2 px white on its grid lines, inked outside) and BACK
+	# close-ups: the crafting mat (items on it, the hovered cell, the result slot) and BACK
 	var craft = main.crafting
-	if craft.settled() and craft.hover_cell != craft.NO_CELL:
-		var cr := Rect2(craft.cell_rect(craft.hover_cell))
-		Px.frame(self, cr.grow(1), Px.INK)
-		Px.frame(self, cr, Px.WHITE)
-		Px.frame(self, cr.grow(-1), Px.WHITE)
+	if craft.settled():
+		var craft_label := _draw_crafting(craft, cur)
+		ui_hover = ui_hover or craft_label != ""
+		label = craft_label
 	var view = main.active_view()
 	if view != null and view.settled():
 		var hot := BACK.has_point(cur)
@@ -155,7 +165,9 @@ func _draw() -> void:
 		Px.text(self, "BACK", BACK.position + Vector2(5, 4), Px.WHITE, Px.INK)
 		ui_hover = ui_hover or hot
 
-	label = inventory.draw_slots(cur, panel == "")
+	var slot_label := inventory.draw_slots(cur, panel == "")
+	if slot_label != "":
+		label = slot_label
 	ui_hover = ui_hover or label != ""
 
 	if panel == "fiche":
@@ -196,6 +208,39 @@ func _draw() -> void:
 	draw_texture(HAND if hand else ARROW, at, Color(0.78, 0.78, 0.80) if pressed else Px.WHITE)
 	if inventory.held != null:
 		inventory.draw_icon(inventory.held, cur + Vector2(5, 8))
+
+
+## the crafting view's UI: the items lying on the mat, the hovered cell (2 px white on its grid
+## lines, inked outside) and the result slot (empty until the mat holds a recipe; crafting/crafting.gd).
+## Returns the hover label.
+func _draw_crafting(craft, cur: Vector2) -> String:
+	var bench = main.workbench
+	var label := ""
+	for cell: Vector2i in bench.placed:
+		inventory.draw_icon(bench.placed[cell], Vector2(craft.cell_rect(cell).position) + Vector2(5, 5))
+	if craft.hover_cell != craft.NO_CELL:
+		var cr := Rect2(craft.cell_rect(craft.hover_cell))
+		Px.frame(self, cr.grow(1), Px.INK)
+		Px.frame(self, cr, Px.WHITE)
+		Px.frame(self, cr.grow(-1), Px.WHITE)
+		var on: ItemData = bench.item_at(craft.hover_cell)
+		if on != null and inventory.held == null:
+			label = "TAKE " + on.name
+	var out: String = bench.result()
+	var hot := out != "" and RESULT.has_point(cur)
+	draw_rect(RESULT, panel_col)
+	Px.frame(self, RESULT.grow(1), Px.INK)
+	Px.frame(self, RESULT, Px.WHITE if hot else panel_hi)
+	if out != "":
+		var item := InventoryManager.get_item(out)
+		var at := RESULT.position + (RESULT.size - Vector2(12, 12) * RESULT_SCALE) / 2.0
+		if item.icon != null:
+			draw_texture_rect(item.icon, Rect2(at, Vector2(12, 12) * RESULT_SCALE), false)
+		else:
+			Px.text(self, "?", RESULT.get_center() - Vector2(2, 3), Px.WHITE, Px.INK)
+		if hot:
+			label = "MAKE " + item.name
+	return label
 
 
 ## a little pixel chevron at the left (side -1) or right (+1) edge, bobbing toward that side

@@ -47,9 +47,17 @@ You don't need Blender or Python unless you change the room, the props or the ge
 What's in the room so far:
 - **Storm shutters:** open and close; heat floods in while they're open.
 - **Supply cabinet:** opens and closes.
-- **Dried mushrooms, rolling papers:** click to pick them up into the inventory.
-- **Workbench:** the crafting view, looking straight down on the cutting mat's build grid. Crafting itself isn't built yet.
-- **Ham radio:** a close-up of the rig. Talking on it isn't built yet.
+- **Dried mushrooms, rolling papers, PA speaker, battery:** click to pick them up into the inventory (the speaker
+  gets a line of thought first, then goes into the inventory once it closes). The battery is a
+  placeholder box on the workbench's left end (`scripts/room/placeholders.gd`) until it's modelled.
+- **Workbench:** the crafting view, looking straight down on the cutting mat. Hold an item and click a cell to put it
+  on the mat; click it again to take it back. When the mat holds exactly a recipe's ingredients, the result appears in
+  the big slot right of the mat; click it to make it. The only recipe so far: broken ham radio + battery + PA speaker
+  = a working ham radio.
+- **Ham radio:** broken at first. Clicking it zooms in on it and plays the player's thoughts; when they close, the
+  radio is picked up for crafting (no second click) and the view swings back to the room. Holding the fixed radio outlines its empty spot
+  on the bench; click there to put it back. After that, clicking it opens a close-up of the rig. Talking on it isn't
+  built yet.
 - **Microfiche map** (on the wall, left of the bench; it idles on a turning globe): a world map that starts blank
   except around the shelter (the Pacific Northwest). Every station you reach over the radio is marked and printed in;
   hover a mark to read that station's problems. Zoom goes 1/4, 1/2, full scale, then 4x, which is a printed area's
@@ -78,6 +86,7 @@ scripts/
   room/                             the 3D room: materials, hover picking, interactions, shutters, cabinet,
                                     ambience, camera, post-processing
   views/                            close-up camera views: the crafting table and the ham radio
+  crafting/                         the crafting rules: what's on the mat, the recipes, making things
   ui/                               the pixel UI: overlay, inventory bar, drawing helpers
     microfiche/                     the microfiche map panel and its sheets/zoom maths
   inventory/                        autoload InventoryManager and the ItemData / InventoryData resources
@@ -85,7 +94,7 @@ scripts/
 shaders/
   toon.gdshader                     every 3D surface, plus the object-id mask pass
   post.gdshader                     toon banding, dither, 40-colour palette, hover outline, heat
-items/                              one ItemData .tres per item (jar, papers, cig, speaker, battery)
+items/                              one ItemData .tres per item (jar, papers, cig, speaker, battery, radio_broken, radio)
 data/stations.json                  radio stations and the map areas printed at the start (placeholders)
 assets/                             shelter.glb (the room), scene_meta.json, palette.json   [generated]
 ui/                                 font, cursors, item icons, microfiche sheets            [generated]
