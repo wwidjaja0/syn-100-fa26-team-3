@@ -165,10 +165,6 @@ func _clear_inventory() -> void:
 func _trigger_radio_chatter() -> void:
 	open = false
 	if not GameState.flag("radio_fixed"):
-		for id in ["radio_broken", "radio"]:     # taken off the bench for crafting: it's back now
-			var item: ItemData = InventoryManager.get_item(id)
-			if InventoryManager.has_item(item):
-				InventoryManager.remove_item(item)
 		GameState.set_flag("radio_fixed", true)
 		say("RADIO FIXED")
 		return

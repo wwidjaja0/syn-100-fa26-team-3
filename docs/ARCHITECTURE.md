@@ -49,7 +49,7 @@ order every frame, and routes input. Each part is one file with one job.
 | `inventory/inventory_manager.gd` | **Autoload `InventoryManager`.** What the player carries (max 5) | `get_item(id)`, `add_item`, `remove_item`, `has_item`, signal `inventory_updated` |
 | `inventory/item_data.gd` | `ItemData` resource: `id`, `name`, `icon` | one `.tres` per item in `items/` |
 | `inventory/inventory_data.gd` | `InventoryData` resource: the list of carried items | |
-| `room/interactions.gd` | **The game rules:** hover labels and what clicking each object does; the ham radio's taken / put-back states | `LABELS`, `click(group)`, `use_item(item, group)`, `pick_up(group, item_id, hide)`, `hint()` |
+| `room/interactions.gd` | **The game rules:** hover labels and what clicking each object does | `LABELS`, `click(group)`, `use_item(item, group)`, `pick_up(group, item_id, hide)`, `say(id)`, `then_after_dialogue(action)` |
 | `room/placeholders.gd` | Stand-in boxes for props not modelled yet (the battery), each its own object group | `PROPS`, `add_all(room, meta)` |
 | `room/object_picker.gd` | Reads the mask render: which group is under the cursor | `hover`, `group_at(p)`, `group_of(node)`, `screen_point(group)` |
 | `room/room_materials.gd` | Replaces the room's imported materials with the toon shader | `set_param(material, param, value)` |
@@ -63,8 +63,9 @@ order every frame, and routes input. Each part is one file with one job.
 | `views/crafting_view.gd` | Close-up straight down onto the cutting mat; the build grid | `cell_at(p)`, `cell_rect`, `cell_world`, signals `cell_hovered`, `cell_clicked` |
 | `views/radio_view.gd` | Close-up of the ham radio's front panel | signal `clicked`, `screen_point(world)` |
 | `crafting/crafting.gd` | **The crafting rules** (`main.workbench`): items lying on the mat, `RECIPES`, making the result | `placed`, `item_at(cell)`, `result()`, `craft(from)`, signals `changed`, `crafted` |
+| `radio/radio_repair.gd` | The radio close-up's slots for its missing parts (`main.radio_repair`); filling them all sets `radio_fixed` | `SLOTS`, `filled`, `showing()`, `slot_rect(id)`, `click(p, held)`, signal `changed` |
 | `ui/overlay.gd` | Draws all UI; gets every click first; owns the open panel | `panel`, `open_panel`, `close_panel`, `handle_click`, `over_ui` |
-| `ui/inventory_bar.gd` | The slots along the bottom, the held item, items flying in | `held`, `fly`, `has_room`, `click` |
+| `ui/inventory_bar.gd` | The slots along the bottom, the held item, items flying in, dragging | `held`, `fly`, `has_room`, `click`, `drag_released(p)` |
 | `ui/pixel_draw.gd` | Drawing helpers: pixel text, frames, rings, palette colours | static functions, `W`, `H`, `INK`, `WHITE` |
 | `ui/microfiche/microfiche_panel.gd` | The map panel: layout, mouse, marks, station cards | `update`, `press`, `release`, `wheel`, `draw` |
 | `ui/microfiche/microfiche_map.gd` | The map sheets, zoom levels and lat/lon maths (no drawing) | `zoom_by`, `center_on`, `sheet_latlon`, `area_at_latlon` |
@@ -168,7 +169,8 @@ transform), `_size` (orthographic width in metres) and `_focus` (the point it lo
 - While a view is active, room hover is off, the sloped ceiling hides (both cameras swing up through it), and the
   overlay shows BACK once `settled()`.
 - Clicks go to the view's `click(cursor, held)`. The views only *emit signals* (`cell_clicked`, `clicked`).
-  `crafting/crafting.gd` listens to `cell_clicked` (see "Crafting" below); what the radio does isn't written yet.
+  `crafting/crafting.gd` listens to `cell_clicked` (see "Crafting" below). The radio's repair slots are UI, so
+  `overlay.gd` hands them clicks before the view sees any (see "Fixing the radio" below).
 
 `main.views` lists every view. `main.active_view()` returns the one opening or open, else one still easing out.
 
@@ -183,14 +185,28 @@ transform), `_size` (orthographic width in metres) and `_focus` (the point it lo
   something, then that item's icon at 3x. Clicking it calls `craft()`, which uses up the mat, flies the result into
   the inventory and sets the flag `crafted_<id>`.
 
-The first recipe fixes the ham radio. Clicking the broken radio opens the radio close-up; once it settles,
-`main._on_radio_view_entered` calls `interactions.inspect_broken_radio()`, which plays the "inspect_radio_broken"
-monologue and, when the dialogue box closes (`then_after_dialogue()`, checked in `interactions.update()`), picks the
-radio up and leaves the close-up. It's picked up as `radio_broken`, but its meshes stay in
-place as a *ghost* (`interactions.update()`): render layer 0 normally, and layer 20 only (mask only, see
-`toon.gdshader`) while the fixed `radio` item is held. So the empty spot is hoverable and outlined then, with
-`interactions.hint()` keeping the outline on even when the cursor is elsewhere. Using the radio there
-(`put_back_radio`) restores its layers, shows the speaker grill parts (`start_hidden`) and sets `radio_fixed`.
+There are no recipes yet; the radio is fixed in its own close-up instead.
+
+## Fixing the radio
+
+Clicking the radio opens the radio close-up. While it's broken, `main._on_radio_view_entered` calls
+`interactions.inspect_broken_radio()` (the "inspect_radio_broken" monologue, flag `inspected_radio`), and
+`radio/radio_repair.gd` (`main.radio_repair`) shows one square slot per entry in `SLOTS`: the speaker over the
+`radio_speaker_hole` mesh, the battery over `psu_front_panel`. `slot_rect(id)` projects that mesh's centre with
+`radio_view.screen_point()`, so the slots follow the rig if it moves. `overlay.gd` draws them and sends clicks on them
+to `radio_repair.click(p, held)`:
+- the matching item goes in and leaves the inventory; anything else goes back to its slot;
+- a filled slot clicked with nothing held flies its part back into the inventory;
+- once every slot is filled, `radio_fixed` is set. `main._check_dialogue_triggers()` then swaps in the repaired
+  meshes (`start_hidden` grill on, the bare wires off), arms radio chatter and plays "radio_repaired".
+
+## Dragging items
+
+Any press on an inventory slot that picks an item up remembers where it started (`inventory_bar._drag_from`). On
+release, `main._unhandled_input` asks `inventory.drag_released(cursor)`: if the cursor moved more than `DRAG_PX`, it
+calls `main.click()` there with the item still held. So a drag and drop is exactly a click-to-hold followed by a
+click on the target, and every target (room objects, mat cells, the radio's slots, other inventory slots) works
+both ways with no extra code.
 
 ## The microfiche map
 

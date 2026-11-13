@@ -13,6 +13,7 @@ rules, see [`../ASSET_GUIDE.md`](../ASSET_GUIDE.md).
 - [Add an object that opens and closes](#add-an-object-that-opens-and-closes)
 - [Add a close-up view](#add-a-close-up-view)
 - [Add a crafting recipe](#add-a-crafting-recipe)
+- [Add a part slot to the radio](#add-a-part-slot-to-the-radio)
 - [Build on the crafting or radio view](#build-on-the-crafting-or-radio-view)
 - [Add a debug menu command](#add-a-debug-menu-command)
 - [Add a step to the screenshot demo](#add-a-step-to-the-screenshot-demo)
@@ -49,14 +50,14 @@ Every clickable thing is an **object group**: a set of meshes that hover, outlin
 
 ## Use an item on an object
 
-The player clicks a slot to hold an item, then clicks an object. That calls
+The player clicks a slot to hold an item, then clicks an object (or drags the item onto it). That calls
 `use_item(item, group)` in `scripts/room/interactions.gd`:
 
 ```gdscript
 func use_item(item: ItemData, group: String) -> bool:
-    if item.id == "battery" and group == "radio":
+    if item.id == "jar" and group == "filter":
         InventoryManager.remove_item(item)     # used up
-        GameState.set_flag("radio_powered")
+        GameState.set_flag("filter_baited")
         return true
     return false
 ```
@@ -187,6 +188,18 @@ path clear of the pendant lamp (see the asset guide).
    `main.workbench.crafted`.
 
 F9 → 5 (give all items) fills the bar with recipe ingredients first, for testing.
+
+## Add a part slot to the radio
+
+The radio close-up's slots are `SLOTS` in `scripts/radio/radio_repair.gd`, slot id → [the item that fits, the radio
+mesh it sits over, its label]:
+
+```gdscript
+"antenna": ["antenna", "coax_connector", "ANTENNA"],
+```
+
+The mesh name is matched as a prefix within the radio's group (names carry Blender's `_0012`-style suffixes). The
+radio is fixed once every slot is filled, so adding one makes it a three-part repair.
 
 ## Build on the crafting or radio view
 

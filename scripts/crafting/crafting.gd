@@ -16,9 +16,10 @@ signal changed
 ## something was made; the result item is flying into the inventory
 signal crafted(result: ItemData)
 
-## result item id -> its ingredients' item ids (any order, any cells)
+## result item id -> its ingredients' item ids (any order, any cells), e.g.
+##     "cig": ["jar", "papers"],
+## None yet: the radio is fixed in its own close-up instead (radio/radio_repair.gd).
 const RECIPES := {
-	"radio": ["radio_broken", "battery", "speaker"],
 }
 
 var placed := {}                        # Vector2i cell -> ItemData lying there

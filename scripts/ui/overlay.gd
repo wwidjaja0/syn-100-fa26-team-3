@@ -87,7 +87,7 @@ func panel_scale() -> float:
 ## is the cursor on a piece of UI (so the room shouldn't react to it)?
 func over_ui(p: Vector2) -> bool:
 	return main.debug_menu.open or dialogue.is_active() or inventory.slot_at(p) >= 0 or _over_back(p) \
-			or _over_result(p)
+			or _over_result(p) or main.radio_repair.slot_at(p) != ""
 
 
 func _over_result(p: Vector2) -> bool:
@@ -116,6 +116,8 @@ func handle_click(p: Vector2) -> bool:
 		return true
 	if _over_result(p):
 		main.workbench.craft(RESULT.get_center())
+		return true
+	if main.radio_repair.click(p, inventory.held):
 		return true
 	return inventory.click(p)
 
@@ -157,6 +159,10 @@ func _draw() -> void:
 		var craft_label := _draw_crafting(craft, cur)
 		ui_hover = ui_hover or craft_label != ""
 		label = craft_label
+	if main.radio_repair.showing():
+		var radio_label := _draw_radio_slots(cur)
+		ui_hover = ui_hover or radio_label != ""
+		label = radio_label
 	var view = main.active_view()
 	if view != null and view.settled():
 		var hot := BACK.has_point(cur)
@@ -208,6 +214,28 @@ func _draw() -> void:
 	draw_texture(HAND if hand else ARROW, at, Color(0.78, 0.78, 0.80) if pressed else Px.WHITE)
 	if inventory.held != null:
 		inventory.draw_icon(inventory.held, cur + Vector2(5, 8))
+
+
+## the radio close-up's repair slots (radio/radio_repair.gd): a square per missing part, white when
+## hovered, with the part's icon at 2x once it's in. Returns the hover label.
+func _draw_radio_slots(cur: Vector2) -> String:
+	var repair = main.radio_repair
+	var label := ""
+	for id: String in repair.SLOTS:
+		var r: Rect2 = repair.slot_rect(id)
+		var hot := r.has_point(cur)
+		draw_rect(r, panel_col)
+		Px.frame(self, r.grow(1), Px.INK)
+		Px.frame(self, r, Px.WHITE if hot else panel_hi)
+		var item: ItemData = repair.filled.get(id)
+		if item != null and item.icon != null:
+			draw_texture_rect(item.icon, Rect2(r.position + Vector2(2, 2), Vector2(24, 24)), false)
+		else:
+			var name: String = repair.SLOTS[id][2]
+			Px.text(self, name, Vector2(r.get_center().x - Px.text_width(name) / 2.0, r.end.y + 3).floor(), Px.WHITE, Px.INK)
+		if hot:
+			label = repair.label(id, inventory.held)
+	return label
 
 
 ## the crafting view's UI: the items lying on the mat, the hovered cell (2 px white on its grid

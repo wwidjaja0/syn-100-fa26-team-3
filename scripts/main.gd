@@ -17,6 +17,7 @@ extends Node
 ##   views/crafting_view.gd   close-up: straight down onto the workbench's cutting mat
 ##   views/radio_view.gd      close-up: the ham radio's front panel
 ##   crafting/crafting.gd     what lies on the cutting mat, the recipes, crafting   <- crafting rules
+##   radio/radio_repair.gd    the radio close-up's slots for its missing speaker and battery
 ##   ui/overlay.gd            the pixel UI (its own node, UI/Overlay)
 ##   ui/start_menu.gd         the title screen (its own node, UI/StartMenu); calls start_game()
 ##   ui/pause_menu.gd         the pause / settings menu (its own node, UI/PauseMenu)
@@ -41,6 +42,7 @@ const PostProcess := preload("res://scripts/room/post_process.gd")
 const CraftingView := preload("res://scripts/views/crafting_view.gd")
 const RadioView := preload("res://scripts/views/radio_view.gd")
 const Crafting := preload("res://scripts/crafting/crafting.gd")
+const RadioRepair := preload("res://scripts/radio/radio_repair.gd")
 const Placeholders := preload("res://scripts/room/placeholders.gd")
 const DebugMenu := preload("res://scripts/dev/debug_menu.gd")
 const Demo := preload("res://scripts/dev/demo.gd")
@@ -92,6 +94,7 @@ var post: PostProcess
 var crafting: CraftingView
 var radio_view: RadioView
 var workbench: Crafting                 # the crafting rules (crafting is the camera view)
+var radio_repair: RadioRepair
 var views: Array[Node] = []             # every close-up view
 var debug_menu: DebugMenu
 var demo: Demo
@@ -134,6 +137,9 @@ func _ready() -> void:
 	workbench = Crafting.new()
 	_add(workbench, "Workbench")
 	workbench.setup(self)
+	radio_repair = RadioRepair.new()
+	_add(radio_repair, "RadioRepair")
+	radio_repair.setup(self)
 	room_camera = RoomCamera.new()
 	_add(room_camera, "RoomCamera")
 	room_camera.setup(self, meta, room, camera, mask_cam)
@@ -202,6 +208,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			click()
 		else:
 			ui.release_click(cursor)
+			if ui.inventory.drag_released(cursor):
+				click()                  # dropping a dragged item works like clicking with it held
 	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
 		if debug_menu.open:
 			debug_menu.open = false
@@ -259,7 +267,7 @@ func start_game() -> void:
 
 func _on_radio_view_entered() -> void:
 	if not GameState.flag("radio_fixed"):
-		interactions.inspect_broken_radio()      # its monologue, then it's picked up
+		interactions.inspect_broken_radio()      # its monologue; the repair slots show meanwhile
 
 
 func _apply_radio_mesh_state(fixed: bool) -> void:
@@ -302,7 +310,7 @@ func _check_dialogue_triggers() -> void:
 				and ui.panel == "" and active_view() == null
 		if can_trigger_hint:
 			radio_hint_triggered = true
-			if not GameState.flag("radio_fixed") and not GameState.flag("took_radio_broken"):
+			if not GameState.flag("radio_fixed") and not GameState.flag("inspected_radio"):
 				ui.dialogue.start("hint_use_radio")
 
 
