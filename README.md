@@ -36,6 +36,7 @@ You don't need Blender or Python unless you change the room, the props or the ge
 | Left click | Use the UI if the cursor is on it; otherwise act on the object under the cursor. |
 | Cursor at the left / right edge, or A / D, ← / → | Look around (pan the room). Taking the mouse right off the window's side pans at full speed. |
 | Click an inventory slot | Hold that item on the cursor. Then click something in the room to use the item on it. |
+| Drag from an inventory slot | The same in one move: let go over the target (a room object, a mat cell, a radio slot). |
 | Right click | Put the held item back. Otherwise step back one level (out of a map zoom, then out of the map or a close-up). |
 | Esc | Put the held item back, then go straight back to the room. From the room, open the pause / settings menu. |
 | PAUSE button (top right) | Open the pause / settings menu from any view. It also has Quit to Title (a new game; nothing is saved yet). |
@@ -52,12 +53,13 @@ What's in the room so far:
   placeholder box on the workbench's left end (`scripts/room/placeholders.gd`) until it's modelled.
 - **Workbench:** the crafting view, looking straight down on the cutting mat. Hold an item and click a cell to put it
   on the mat; click it again to take it back. When the mat holds exactly a recipe's ingredients, the result appears in
-  the big slot right of the mat; click it to make it. The only recipe so far: broken ham radio + battery + PA speaker
-  = a working ham radio.
-- **Ham radio:** broken at first. Clicking it zooms in on it and plays the player's thoughts; when they close, the
-  radio is picked up for crafting (no second click) and the view swings back to the room. Holding the fixed radio outlines its empty spot
-  on the bench; click there to put it back. After that, clicking it opens a close-up of the rig. Talking on it isn't
-  built yet.
+  the big slot right of the mat; click it to make it. There are no recipes yet (`RECIPES` in
+  `scripts/crafting/crafting.gd`).
+- **Ham radio:** clicking it opens a close-up of the rig. While it's broken, the player's thoughts on it play and the
+  close-up shows two square slots, SPEAKER (over the empty speaker hole) and BATTERY (over the power supply). Drag
+  the PA speaker and the battery into them (or hold one and click its slot); click a filled slot to take the part
+  back. Filling both fixes the radio. Using either part on the radio in the room opens the close-up. Talking on it
+  isn't built yet.
 - **Microfiche map** (on the wall, left of the bench; it idles on a turning globe): a world map that starts blank
   except around the shelter (the Pacific Northwest). Every station you reach over the radio is marked and printed in;
   hover a mark to read that station's problems. Zoom goes 1/4, 1/2, full scale, then 4x, which is a printed area's
@@ -87,6 +89,7 @@ scripts/
                                     ambience, camera, post-processing
   views/                            close-up camera views: the crafting table and the ham radio
   crafting/                         the crafting rules: what's on the mat, the recipes, making things
+  radio/                            fixing the radio: the close-up's speaker and battery slots
   ui/                               the pixel UI: overlay, inventory bar, drawing helpers
     microfiche/                     the microfiche map panel and its sheets/zoom maths
   inventory/                        autoload InventoryManager and the ItemData / InventoryData resources
@@ -94,7 +97,7 @@ scripts/
 shaders/
   toon.gdshader                     every 3D surface, plus the object-id mask pass
   post.gdshader                     toon banding, dither, 40-colour palette, hover outline, heat
-items/                              one ItemData .tres per item (jar, papers, cig, speaker, battery, radio_broken, radio)
+items/                              one ItemData .tres per item (jar, papers, cig, speaker, battery)
 data/stations.json                  radio stations and the map areas printed at the start (placeholders)
 assets/                             shelter.glb (the room), scene_meta.json, palette.json   [generated]
 ui/                                 font, cursors, item icons, microfiche sheets            [generated]

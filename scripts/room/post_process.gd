@@ -36,8 +36,7 @@ func update() -> void:
 	_mat.set_shader_parameter("cam_px", _main.room_camera.cam_px)
 	_mat.set_shader_parameter("noise_seed", fmod(clock, 97.0))
 	_mat.set_shader_parameter("cursor", _main.cursor.floor())
-	var target: String = picker.hover if picker.hover != "" else _main.interactions.hint()
-	_mat.set_shader_parameter("target_id", picker.id_of(target))                     # hover outline
+	_mat.set_shader_parameter("target_id", picker.id_of(picker.hover))               # hover outline
 	_mat.set_shader_parameter("build", 1.0 - exp(-picker.hover_t / 10.0))            # outline grows in
 	_mat.set_shader_parameter("outline_px", 3 if _main.clicking() else 2)
 	_mat.set_shader_parameter("heat", shutters.heat)

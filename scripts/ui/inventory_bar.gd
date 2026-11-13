@@ -4,7 +4,9 @@ extends RefCounted
 ##
 ## The items themselves live in the InventoryManager autoload; this only draws them and handles
 ## clicks on the slots. Clicking a slot picks its item up (it rides on the cursor, see `held`);
-## clicking a slot while holding something puts it back. Owned and drawn by overlay.gd.
+## clicking a slot while holding something puts it back. Items can also be dragged: press on a slot,
+## move, and let go over the target; main.gd treats the release as a click there (drag_released()).
+## Owned and drawn by overlay.gd.
 
 const Px := preload("res://scripts/ui/pixel_draw.gd")
 const SLOT := 20                        # slot size, px
@@ -12,9 +14,12 @@ const SLOT_STEP := 22                   # slot pitch, px
 const SLOTS: int = preload("res://scripts/inventory/inventory_manager.gd").MAX_ITEMS
 const POS := Vector2i((Px.W - SLOT_STEP * SLOTS + SLOT_STEP - SLOT) / 2, 245)   # first slot's top-left; bar centred
 const FLY_FRAMES := 16.0                # how long an item takes to fly into its slot
+const DRAG_PX := 4.0                    # a press that moves further than this before release is a drag
+const NO_DRAG := Vector2(-1, -1)
 
 var held: ItemData = null               # the item riding on the cursor, or null
 var _flights: Array = []                # [ItemData, from (screen px), launched at (clock)]
+var _drag_from := NO_DRAG               # where the press that picked up `held` was, until release
 var _overlay: Control
 
 
@@ -68,8 +73,17 @@ func click(p: Vector2) -> bool:
 		UiSounds.play("back")
 	elif item != null:
 		held = item
+		_drag_from = p
 		UiSounds.play("pick")
 	return true
+
+
+## the left button came up. True when this ends a drag (the press picked an item up and the cursor
+## has moved since): main.gd then clicks at p with the item, which drops it there.
+func drag_released(p: Vector2) -> bool:
+	var dragged := _drag_from != NO_DRAG and held != null and p.distance_to(_drag_from) > DRAG_PX
+	_drag_from = NO_DRAG
+	return dragged
 
 
 ## draw the slots; returns the name of the item under the cursor ("" if none) for the hover label
