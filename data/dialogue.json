@@ -1,5 +1,20 @@
 {
   "_note": "Placeholder dialogue sequences for internal monologue and random radio chatter. Text uses the pixel font character set: A-Z 0-9 . , ' - : ? ! ( ) / + = %",
+  "_characters_note": "Who can speak. 'character' on an entry says who speaks its lines (default: you); a line can also be {\"who\": id, \"text\": ...}. 'voice' is the Undertale-style blip standing in for voice acting (see UiSounds.add_voice); 'every' is letters per blip. 'portrait' (optional) is a PNG strip of idle | talking | blinking frames; without one, scripts/ui/portraits.gd draws a placeholder.",
+  "characters": {
+    "you": {
+      "name": "YOU",
+      "voice": {"wave": "triangle", "pitch": 175, "jitter": 1, "length": 0.05, "loudness": 0.34}
+    },
+    "aqua_dispatch": {
+      "name": "DISPATCH",
+      "voice": {"wave": "square", "duty": 0.25, "pitch": 330, "jitter": 2, "length": 0.04, "noise": 0.15, "crush": 3, "loudness": 0.15}
+    },
+    "aqua_beacon": {
+      "name": "K6-AQUA",
+      "voice": {"wave": "square", "duty": 0.125, "pitch": 523, "jitter": 0, "length": 0.03, "noise": 0.1, "crush": 4, "loudness": 0.13}
+    }
+  },
   "dialogues": {
     "intro_wake": {
       "style": "monologue",
@@ -109,18 +124,21 @@
       "id": "radio_aquarium_1",
       "style": "radio",
       "speaker": "RADIO // COASTAL AQUARIUM",
+      "character": "aqua_beacon",
       "priority": true,
       "once_flag": "dlg_aquarium_1",
       "lines": [
         "KZZT... AUTOMATED BEACON K6-AQUA... COASTAL AQUARIUM...",
         "COOLING PUMPS FAILING IN KELP FOREST TANK 2. SEA SURFACE TEMP AT 34C.",
-        "ANY SHELTER READING THIS: OUR MARINE BIOLOGISTS ARE STILL INSIDE... KZZT..."
+        "ANY SHELTER READING THIS: OUR MARINE BIOLOGISTS ARE STILL INSIDE... KZZT...",
+        {"who": "you", "text": "A SIGNAL... SOMEONE IS STILL OUT THERE."}
       ]
     },
     {
       "id": "radio_aquarium_2",
       "style": "radio",
       "speaker": "RADIO // COASTAL AQUARIUM",
+      "character": "aqua_dispatch",
       "priority": true,
       "once_flag": "dlg_aquarium_2",
       "lines": [
@@ -132,6 +150,7 @@
       "id": "radio_aquarium_3",
       "style": "radio",
       "speaker": "RADIO // COASTAL AQUARIUM",
+      "character": "aqua_dispatch",
       "priority": true,
       "once_flag": "dlg_aquarium_3",
       "lines": [
@@ -143,6 +162,7 @@
       "id": "radio_aquarium_ambient_1",
       "style": "radio",
       "speaker": "RADIO // COASTAL AQUARIUM",
+      "character": "aqua_beacon",
       "priority": false,
       "lines": [
         "KZZT... AQUARIUM TELEMETRY: CHILLER LOOP B AT 62% CAPACITY... KZZT..."
@@ -152,6 +172,7 @@
       "id": "radio_aquarium_ambient_2",
       "style": "radio",
       "speaker": "RADIO // COASTAL AQUARIUM",
+      "character": "aqua_beacon",
       "priority": false,
       "lines": [
         "KZZT... TIDE GAUGE +2.4M... SEA WALL HOLDING... KZZT..."

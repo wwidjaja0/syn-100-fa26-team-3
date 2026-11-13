@@ -5,6 +5,7 @@ extends Node
 ##     godot --path . -- --demo screens            # walkthrough -> screens/*.png
 ##     godot --path . -- --demo screens --raw      # one unprocessed frame + the object mask
 ##     godot --path . -- --demo screens --menus    # the title screen, how to play, settings, pause
+##     godot --path . -- --demo screens --dialogue # the dialogue box: portraits, speakers, mid-line
 ##
 ## Add --rendering-driver opengl3 (before --) to check the Compatibility renderer the web build uses.
 ## Compare the screenshots before and after a change to catch regressions.
@@ -35,6 +36,8 @@ func start_if_asked(main: Node) -> void:
 	main.cursor_override = Vector2(main.W / 2.0, main.H / 2.0)      # the real mouse may sit on an edge and pan
 	if args.has("--raw"):
 		_raw(out)
+	elif args.has("--dialogue"):
+		_dialogues(out)
 	else:
 		_run(out)
 
@@ -76,6 +79,47 @@ func _raw(out: String) -> void:
 	get_viewport().get_texture().get_image().save_png(out.path_join("raw.png"))
 	_main.mask_vp.get_texture().get_image().save_png(out.path_join("mask.png"))
 	get_tree().quit()
+
+
+## [dialogue id, line, shot name, finished?]. An unfinished line is shot while its voice is
+## blipping, so the speaker's mouth is open.
+const DIALOGUE_SHOTS := [
+	["intro_wake", 0, "dlg_1_monologue_talking", false],
+	["intro_wake", 0, "dlg_2_monologue", true],
+	["radio_aquarium_1", 0, "dlg_3_beacon_talking", false],
+	["radio_aquarium_1", 3, "dlg_4_player_replies", true],
+	["radio_aquarium_2", 0, "dlg_5_dispatch", true],
+]
+
+
+## one screenshot per DIALOGUE_SHOTS entry
+func _dialogues(out: String) -> void:
+	var box = _main.ui.dialogue
+	GameState.set_flag("radio_fixed", true)
+	for s in DIALOGUE_SHOTS:
+		box.close()
+		await _wait(6.0)
+		for entry in [box._dialogue_data.get(s[0], {})] + box._radio_chatter_pool.filter(func(e): return e.id == s[0]):
+			if entry.has("once_flag"):
+				GameState.set_flag(entry.once_flag, false)   # replayable, though the demo has shown it
+		box.start(s[0])
+		box.current_line_idx = s[1]
+		await _wait(16.0)
+		if s[3]:
+			box._chars_shown = 999.0
+		else:
+			box._mouth_until = _main.clock + 99.0
+		await _wait(1.0)
+		await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_png(out.path_join(s[2] + ".png"))
+	get_tree().quit()
+
+
+## wait this many frames of the game clock (24 fps)
+func _wait(frames: float) -> void:
+	var until: float = _main.clock + frames
+	while _main.clock < until:
+		await get_tree().process_frame
 
 
 ## the timeline: [frame (24 fps), action, arguments...]. Actions are listed in _do().
@@ -123,7 +167,8 @@ const STEPS := [
 	[1271, "debug"], [1280, "shot", "41_debug_menu"],
 	[1281, "dialogue", "hint_use_radio"], [1305, "shot", "42_dialogue_monologue"],
 	[1306, "radio_dialogue", "radio_aquarium_1"], [1330, "shot", "43_dialogue_radio"],
-	[1331, "quit"],
+	[1331, "dialogue_line", 3], [1340, "shot", "44_dialogue_reply"],
+	[1341, "quit"],
 ]
 
 
@@ -191,5 +236,8 @@ func _do(s: Array, out: String) -> void:
 			main.ui.dialogue.start(s[2])
 			main.ui.dialogue._chars_shown = 999.0
 			main.cursor_override = Vector2(main.W / 2.0, main.H / 2.0)
+		"dialogue_line":                 # jump the open dialogue to a line, fully shown
+			main.ui.dialogue.current_line_idx = s[2]
+			main.ui.dialogue._chars_shown = 999.0
 		"quit":
 			get_tree().quit()
