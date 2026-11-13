@@ -107,13 +107,26 @@ const STEPS := [
 	[921, "cell", Vector2i(4, 2)], [935, "shot", "24_craft_hover_cell"],
 	[936, "point", Vector2(20, 12)], [945, "shot", "25_craft_hover_back"], [946, "click"],
 	[960, "shot", "26_craft_leaving"], [985, "shot", "27_back_in_room"],
+	# crafting: take the broken radio, the battery and the PA speaker, fix the radio, put it back
 	[986, "radio"], [995, "shot", "28_hover_radio"], [996, "click"],
-	[1010, "shot", "29_radio_swing"], [1035, "shot", "30_radio_view"],
-	[1036, "point", Vector2(20, 12)], [1040, "click"], [1075, "shot", "31_back_from_radio"],
-	[1076, "debug"], [1085, "shot", "32_debug_menu"],
-	[1086, "dialogue", "hint_use_radio"], [1110, "shot", "33_dialogue_monologue"],
-	[1111, "radio_dialogue", "radio_aquarium_1"], [1135, "shot", "34_dialogue_radio"],
-	[1136, "quit"],
+	[1020, "shot", "29_radio_closeup"], [1060, "shot", "29b_radio_taken"],
+	[1061, "hover", "battery"], [1075, "shot", "30_hover_battery"], [1076, "click"],
+	[1090, "hover", "speaker"], [1105, "shot", "31_hover_speaker"], [1106, "click"], [1128, "shot", "32_parts_taken"],
+	[1130, "hover", "bench", Vector2(0, 20)], [1131, "click"], [1170, "shot", "33_craft_view"],
+	[1171, "hold", "radio_broken"], [1172, "cell", Vector2i(3, 2)], [1174, "click"],
+	[1176, "hold", "battery"], [1177, "cell", Vector2i(5, 2)], [1179, "click"], [1185, "shot", "34_craft_no_match"],
+	[1186, "hold", "speaker"], [1187, "cell", Vector2i(7, 4)], [1189, "click"],
+	[1191, "point", Vector2(425, 135)], [1200, "shot", "35_craft_result"], [1201, "click"],
+	[1206, "shot", "36_crafted_flying"], [1225, "shot", "37_crafted"],
+	[1226, "point", Vector2(20, 12)], [1227, "click"], [1265, "shot", "38_back_in_room"],
+	[1266, "hold", "radio"], [1267, "point", Vector2(240, 120)], [1275, "shot", "39_radio_spot_outline"],
+	[1276, "radio"], [1285, "shot", "40_hover_radio_spot"], [1286, "click"], [1295, "shot", "41_radio_fixed"],
+	[1296, "click"], [1335, "shot", "42_radio_view"],
+	[1336, "point", Vector2(20, 12)], [1337, "click"], [1375, "shot", "43_back_from_radio"],
+	[1376, "debug"], [1385, "shot", "44_debug_menu"],
+	[1386, "dialogue", "hint_use_radio"], [1410, "shot", "45_dialogue_monologue"],
+	[1411, "radio_dialogue", "radio_aquarium_1"], [1435, "shot", "46_dialogue_radio"],
+	[1436, "quit"],
 ]
 
 
@@ -159,6 +172,8 @@ func _do(s: Array, out: String) -> void:
 			main.ui.release_click(main.cursor_override)
 		"cell":                          # the middle of a crafting grid cell
 			main.cursor_override = Vector2(main.crafting.cell_rect(s[2]).get_center())
+		"hold":                          # put an inventory item on the cursor, as clicking its slot does
+			main.ui.inventory.held = InventoryManager.get_item(s[2])
 		"debug":                         # open the F9 menu
 			main.debug_menu.open = true
 			main.cursor_override = Vector2(240, 80)

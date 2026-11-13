@@ -134,12 +134,24 @@ func _contact_all() -> void:
 	say("ALL %d STATIONS CONTACTED" % GameState.stations.size())
 
 
+## fills the bar: crafting ingredients first (so a recipe can be tried straight away), then the rest.
+## Things only crafting makes are left out.
 func _give_all_items() -> void:
+	var recipes: Dictionary = _main.workbench.RECIPES
+	var ingredients := []
+	for out in recipes:
+		ingredients.append_array(recipes[out])
+	var ids := []
 	for f in DirAccess.get_files_at(InventoryManager.ITEM_DIR):
 		if f.ends_with(".tres") or f.ends_with(".tres.remap"):       # exported builds list .remap files
-			var item: ItemData = InventoryManager.get_item(f.get_basename().trim_suffix(".tres"))
-			if item and not InventoryManager.has_item(item):
-				InventoryManager.add_item(item)
+			var id := f.get_basename().trim_suffix(".tres")
+			if not recipes.has(id) and not ids.has(id):
+				ids.append(id)
+	ids.sort_custom(func(a, b): return int(a in ingredients) > int(b in ingredients))
+	for id in ids:
+		var item: ItemData = InventoryManager.get_item(id)
+		if item and not InventoryManager.has_item(item):
+			InventoryManager.add_item(item)
 	say("INVENTORY FULL")
 
 
@@ -153,6 +165,10 @@ func _clear_inventory() -> void:
 func _trigger_radio_chatter() -> void:
 	open = false
 	if not GameState.flag("radio_fixed"):
+		for id in ["radio_broken", "radio"]:     # taken off the bench for crafting: it's back now
+			var item: ItemData = InventoryManager.get_item(id)
+			if InventoryManager.has_item(item):
+				InventoryManager.remove_item(item)
 		GameState.set_flag("radio_fixed", true)
 		say("RADIO FIXED")
 		return

@@ -49,7 +49,8 @@ order every frame, and routes input. Each part is one file with one job.
 | `inventory/inventory_manager.gd` | **Autoload `InventoryManager`.** What the player carries (max 5) | `get_item(id)`, `add_item`, `remove_item`, `has_item`, signal `inventory_updated` |
 | `inventory/item_data.gd` | `ItemData` resource: `id`, `name`, `icon` | one `.tres` per item in `items/` |
 | `inventory/inventory_data.gd` | `InventoryData` resource: the list of carried items | |
-| `room/interactions.gd` | **The game rules:** hover labels and what clicking each object does | `LABELS`, `click(group)`, `use_item(item, group)`, `pick_up(group, item_id)` |
+| `room/interactions.gd` | **The game rules:** hover labels and what clicking each object does; the ham radio's taken / put-back states | `LABELS`, `click(group)`, `use_item(item, group)`, `pick_up(group, item_id, hide)`, `hint()` |
+| `room/placeholders.gd` | Stand-in boxes for props not modelled yet (the battery), each its own object group | `PROPS`, `add_all(room, meta)` |
 | `room/object_picker.gd` | Reads the mask render: which group is under the cursor | `hover`, `group_at(p)`, `group_of(node)`, `screen_point(group)` |
 | `room/room_materials.gd` | Replaces the room's imported materials with the toon shader | `set_param(material, param, value)` |
 | `room/shutters.gd` | Storm shutters swing open/shut; heat rises and falls | `toggle()`, `is_open`, `heat` |
@@ -61,6 +62,7 @@ order every frame, and routes input. Each part is one file with one job.
 | `views/close_view.gd` | Base class for close-ups: camera eases from the room to a fixed pose and back | `enter(now)`, `exit(now)`, `settled()`, `active()`, signals `entered`, `exited` |
 | `views/crafting_view.gd` | Close-up straight down onto the cutting mat; the build grid | `cell_at(p)`, `cell_rect`, `cell_world`, signals `cell_hovered`, `cell_clicked` |
 | `views/radio_view.gd` | Close-up of the ham radio's front panel | signal `clicked`, `screen_point(world)` |
+| `crafting/crafting.gd` | **The crafting rules** (`main.workbench`): items lying on the mat, `RECIPES`, making the result | `placed`, `item_at(cell)`, `result()`, `craft(from)`, signals `changed`, `crafted` |
 | `ui/overlay.gd` | Draws all UI; gets every click first; owns the open panel | `panel`, `open_panel`, `close_panel`, `handle_click`, `over_ui` |
 | `ui/inventory_bar.gd` | The slots along the bottom, the held item, items flying in | `held`, `fly`, `has_room`, `click` |
 | `ui/pixel_draw.gd` | Drawing helpers: pixel text, frames, rings, palette colours | static functions, `W`, `H`, `INK`, `WHITE` |
@@ -124,7 +126,9 @@ which must agree:
 | `shaders/post.gdshader` | `ID_OFFSET = 4`, `/ 12.0` |
 | `scripts/room/object_picker.gd` | `MASK_ID_OFFSET = 4`, `ID_STEP = 12` |
 
-One 8-bit channel fits `(id + 4) * 12 ≤ 255`, so there's room for **17 groups**. 16 are used.
+One 8-bit channel fits `(id + 4) * 12 ≤ 255`, so there's room for **17 groups**. All 17 are used: 16 from the room,
+plus the placeholder battery, which `room/placeholders.gd` adds at start-up (appending to `meta.groups` before the
+picker numbers them).
 
 A group is only hoverable if `interactions.hoverable(group)` says so: it needs a label in `LABELS`. The window's
 `sky` group is the exception; it can be hovered only while the shutters are open.
@@ -164,9 +168,29 @@ transform), `_size` (orthographic width in metres) and `_focus` (the point it lo
 - While a view is active, room hover is off, the sloped ceiling hides (both cameras swing up through it), and the
   overlay shows BACK once `settled()`.
 - Clicks go to the view's `click(cursor, held)`. The views only *emit signals* (`cell_clicked`, `clicked`).
-  What crafting or the radio actually do isn't written yet; connect to those signals to build it.
+  `crafting/crafting.gd` listens to `cell_clicked` (see "Crafting" below); what the radio does isn't written yet.
 
 `main.views` lists every view. `main.active_view()` returns the one opening or open, else one still easing out.
+
+## Crafting
+
+`crafting/crafting.gd` (`main.workbench`; `main.crafting` is the camera view) owns what lies on the cutting mat:
+`placed`, a map of grid cell → `ItemData`. In the crafting view:
+- holding an item and clicking an empty cell takes it out of the inventory and puts it on the mat;
+- clicking a placed item with nothing held flies it back into the inventory;
+- `result()` is the recipe whose ingredients are exactly the mat's items (cells don't matter), or `""`;
+- `overlay.gd` draws the placed icons, and the result slot (`RESULT`) right of the mat: empty until `result()` names
+  something, then that item's icon at 3x. Clicking it calls `craft()`, which uses up the mat, flies the result into
+  the inventory and sets the flag `crafted_<id>`.
+
+The first recipe fixes the ham radio. Clicking the broken radio opens the radio close-up; once it settles,
+`main._on_radio_view_entered` calls `interactions.inspect_broken_radio()`, which plays the "inspect_radio_broken"
+monologue and, when the dialogue box closes (`then_after_dialogue()`, checked in `interactions.update()`), picks the
+radio up and leaves the close-up. It's picked up as `radio_broken`, but its meshes stay in
+place as a *ghost* (`interactions.update()`): render layer 0 normally, and layer 20 only (mask only, see
+`toon.gdshader`) while the fixed `radio` item is held. So the empty spot is hoverable and outlined then, with
+`interactions.hint()` keeping the outline on even when the cursor is elsewhere. Using the radio there
+(`put_back_radio`) restores its layers, shows the speaker grill parts (`start_hidden`) and sets `radio_fixed`.
 
 ## The microfiche map
 

@@ -11,10 +11,12 @@ extends Node
 ##   room/shutters.gd         storm shutters and the heat they let in
 ##   room/cabinet.gd          supply cabinet doors and interior light
 ##   room/ambience.gd         storm sky, PA light, lantern glow
+##   room/placeholders.gd     stand-in boxes for props not modelled yet (the battery)
 ##   room/room_camera.gd      panning, pixel snapping, hand-over to close-ups
 ##   room/post_process.gd     feeds the post shader
 ##   views/crafting_view.gd   close-up: straight down onto the workbench's cutting mat
 ##   views/radio_view.gd      close-up: the ham radio's front panel
+##   crafting/crafting.gd     what lies on the cutting mat, the recipes, crafting   <- crafting rules
 ##   ui/overlay.gd            the pixel UI (its own node, UI/Overlay)
 ##   ui/start_menu.gd         the title screen (its own node, UI/StartMenu); calls start_game()
 ##   ui/pause_menu.gd         the pause / settings menu (its own node, UI/PauseMenu)
@@ -38,6 +40,8 @@ const RoomCamera := preload("res://scripts/room/room_camera.gd")
 const PostProcess := preload("res://scripts/room/post_process.gd")
 const CraftingView := preload("res://scripts/views/crafting_view.gd")
 const RadioView := preload("res://scripts/views/radio_view.gd")
+const Crafting := preload("res://scripts/crafting/crafting.gd")
+const Placeholders := preload("res://scripts/room/placeholders.gd")
 const DebugMenu := preload("res://scripts/dev/debug_menu.gd")
 const Demo := preload("res://scripts/dev/demo.gd")
 
@@ -87,6 +91,7 @@ var room_camera: RoomCamera
 var post: PostProcess
 var crafting: CraftingView
 var radio_view: RadioView
+var workbench: Crafting                 # the crafting rules (crafting is the camera view)
 var views: Array[Node] = []             # every close-up view
 var debug_menu: DebugMenu
 var demo: Demo
@@ -98,6 +103,7 @@ func _ready() -> void:
 		var node := room.find_child(n, true, false)
 		if node:
 			node.visible = false
+	Placeholders.add_all(room, meta)     # adds their groups to meta.groups, so before the picker
 
 	interactions = Interactions.new()
 	_add(interactions, "Interactions")
@@ -125,6 +131,9 @@ func _ready() -> void:
 	radio_view.setup(meta, camera)
 	radio_view.entered.connect(_on_radio_view_entered)
 	views = [crafting, radio_view]
+	workbench = Crafting.new()
+	_add(workbench, "Workbench")
+	workbench.setup(self)
 	room_camera = RoomCamera.new()
 	_add(room_camera, "RoomCamera")
 	room_camera.setup(self, meta, room, camera, mask_cam)
@@ -157,6 +166,7 @@ func _process(delta: float) -> void:
 	cabinet.update()
 	ui.dialogue.update(clock, step)
 	_check_dialogue_triggers()
+	interactions.update()
 	var room_hover: bool = not landing_active and ui.panel == "" and not ui.over_ui(cursor) and not ui.inventory.flying() \
 			and active_view() == null
 	picker.update(cursor, step, room_hover)
@@ -248,10 +258,8 @@ func start_game() -> void:
 
 
 func _on_radio_view_entered() -> void:
-	if suppress_auto_dialogue:
-		return
 	if not GameState.flag("radio_fixed"):
-		ui.dialogue.start("inspect_radio_broken")
+		interactions.inspect_broken_radio()      # its monologue, then it's picked up
 
 
 func _apply_radio_mesh_state(fixed: bool) -> void:
@@ -294,7 +302,7 @@ func _check_dialogue_triggers() -> void:
 				and ui.panel == "" and active_view() == null
 		if can_trigger_hint:
 			radio_hint_triggered = true
-			if not GameState.flag("radio_fixed"):
+			if not GameState.flag("radio_fixed") and not GameState.flag("took_radio_broken"):
 				ui.dialogue.start("hint_use_radio")
 
 
