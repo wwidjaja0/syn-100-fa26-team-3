@@ -41,6 +41,7 @@ You don't need Blender or Python unless you change the room, the props or the ge
 | Esc | Put the held item back, then go straight back to the room. From the room, open the pause / settings menu. |
 | PAUSE button (top right) | Open the pause / settings menu from any view. It also has Quit to Title (a new game; nothing is saved yet). |
 | X (top right of a menu), or Esc | Close the menu: settings, pause, how to play. |
+| J, or the book icon beside the inventory | Open or close the encyclopedia. Its pages are blank until aquarium repair recipes are added. |
 | Mouse wheel, - / =, the map's - / + buttons | Zoom the microfiche map. |
 | Drag, or WASD / arrows | Pan the microfiche map while it's open. |
 | F9 | The debug menu (see below). |

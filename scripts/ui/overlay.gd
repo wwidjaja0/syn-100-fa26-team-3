@@ -5,29 +5,32 @@ extends Control
 ## Draws, in this order (later on top):
 ##   edge chevrons while the view pans  - crafting: items on the mat, the cell highlight, the
 ##   result slot  - BACK button (close-ups)
-##   inventory bar (inventory_bar.gd)   - the microfiche panel (microfiche/microfiche_panel.gd)
+##   inventory bar (inventory_bar.gd)   - the microfiche or encyclopedia panel
 ##   hover label - items flying into the bar - click ripples - F9 menu (dev/debug_menu.gd)
 ##   the cursor (arrow, or hand over anything clickable) with the held item on it
 ##
-## Panels: at most one is open at a time (`panel`); today only "fiche", the microfiche.
+## Panels: at most one is open at a time (`panel`): "fiche" or "encyclopedia".
 ## main.gd sends every click here first (handle_click); the room only gets the ones the UI ignores.
 
 const Px := preload("res://scripts/ui/pixel_draw.gd")
 const InventoryBar := preload("res://scripts/ui/inventory_bar.gd")
 const MicrofichePanel := preload("res://scripts/ui/microfiche/microfiche_panel.gd")
+const EncyclopediaPanel := preload("res://scripts/ui/encyclopedia_panel.gd")
 const DialogueBox := preload("res://scripts/ui/dialogue_box.gd")
 const ARROW := preload("res://ui/cursor_arrow.png")
 const HAND := preload("res://ui/cursor_hand.png")
 const BACK := Rect2(6, 6, 33, 15)       # close-up views: back to the room
 const RESULT := Rect2(402, 112, 46, 46) # crafting view: the result slot, right of the mat
+const ENCYCLOPEDIA_BUTTON := Rect2(296, 245, 20, 20) # immediately right of the inventory
 const RESULT_SCALE := 3                 # the result's 12x12 icon, drawn 3x
 const PANEL_OPEN_FRAMES := 6.0
 const PANEL_CLOSE_FRAMES := 4.0
 const RIPPLE_FRAMES := 7.0
 
-var panel := ""                         # the open panel: "" or "fiche"
+var panel := ""                         # the open panel: "", "fiche" or "encyclopedia"
 var inventory: InventoryBar
 var microfiche: MicrofichePanel
+var encyclopedia: EncyclopediaPanel
 var dialogue: DialogueBox
 # palette-snapped panel colours, shared by everything drawn here
 var panel_col: Color
@@ -50,6 +53,7 @@ func _ready() -> void:
 	panel_lo = Px.palette_color(pal, Color(0.03, 0.02, 0.03))
 	inventory = InventoryBar.new(self)
 	microfiche = MicrofichePanel.new(self, pal)
+	encyclopedia = EncyclopediaPanel.new(self, pal)
 	dialogue = DialogueBox.new(self, pal)
 
 
@@ -87,7 +91,8 @@ func panel_scale() -> float:
 ## is the cursor on a piece of UI (so the room shouldn't react to it)?
 func over_ui(p: Vector2) -> bool:
 	return main.debug_menu.open or dialogue.is_active() or inventory.slot_at(p) >= 0 or _over_back(p) \
-			or _over_result(p) or main.radio_repair.slot_at(p) != ""
+			or _over_result(p) or main.radio_repair.slot_at(p) != "" \
+			or (panel == "" and ENCYCLOPEDIA_BUTTON.has_point(p))
 
 
 func _over_result(p: Vector2) -> bool:
@@ -111,6 +116,13 @@ func handle_click(p: Vector2) -> bool:
 		if microfiche.over_close(p) or not microfiche.press(p):
 			close_panel()
 		return true
+	if panel == "encyclopedia":
+		if encyclopedia.over_close(p):
+			close_panel()
+		return true
+	if panel == "" and ENCYCLOPEDIA_BUTTON.has_point(p):
+		toggle_encyclopedia()
+		return true
 	if _over_back(p):
 		main.back()
 		return true
@@ -120,6 +132,15 @@ func handle_click(p: Vector2) -> bool:
 	if main.radio_repair.click(p, inventory.held):
 		return true
 	return inventory.click(p)
+
+
+func toggle_encyclopedia() -> void:
+	if panel == "encyclopedia":
+		close_panel()
+	elif panel == "":
+		inventory.held = null
+		open_panel("encyclopedia", main.clock)
+		UiSounds.play("tick")
 
 
 ## the left button came up (ends a drag on the microfiche, or zooms if it was a click)
@@ -175,6 +196,11 @@ func _draw() -> void:
 	if slot_label != "":
 		label = slot_label
 	ui_hover = ui_hover or label != ""
+	if panel == "":
+		var book_hot := _draw_encyclopedia_button(cur)
+		if book_hot:
+			label = "ENCYCLOPEDIA"
+			ui_hover = true
 
 	if panel == "fiche":
 		var sc := panel_scale()
@@ -182,6 +208,12 @@ func _draw() -> void:
 		if sc >= 1.0:
 			label = microfiche.hover_label(cur)
 			ui_hover = label != "" or microfiche.hover_station != ""
+	elif panel == "encyclopedia":
+		var book_scale := panel_scale()
+		encyclopedia.draw(book_scale, cur)
+		if book_scale >= 1.0:
+			label = encyclopedia.hover_label(cur)
+			ui_hover = label != ""
 
 	var hover: String = main.picker.hover
 	if label == "" and hover != "":
@@ -214,6 +246,19 @@ func _draw() -> void:
 	draw_texture(HAND if hand else ARROW, at, Color(0.78, 0.78, 0.80) if pressed else Px.WHITE)
 	if inventory.held != null:
 		inventory.draw_icon(inventory.held, cur + Vector2(5, 8))
+
+
+func _draw_encyclopedia_button(cur: Vector2) -> bool:
+	var hot := ENCYCLOPEDIA_BUTTON.has_point(cur)
+	draw_rect(ENCYCLOPEDIA_BUTTON, panel_col)
+	Px.frame(self, ENCYCLOPEDIA_BUTTON, Px.WHITE if hot else panel_hi)
+	var book := Rect2(ENCYCLOPEDIA_BUTTON.position + Vector2(4, 3), Vector2(12, 14))
+	draw_rect(book, panel_hi)
+	Px.frame(self, book, Px.WHITE if hot else Px.GREY)
+	draw_rect(Rect2(book.position + Vector2(2, 2), Vector2(4, 9)), Px.WHITE)
+	draw_rect(Rect2(book.position + Vector2(6, 2), Vector2(4, 9)), Px.WHITE)
+	draw_rect(Rect2(book.position + Vector2(5, 2), Vector2(1, 11)), Px.INK)
+	return hot
 
 
 ## the radio close-up's repair slots (radio/radio_repair.gd): a square per missing part, white when

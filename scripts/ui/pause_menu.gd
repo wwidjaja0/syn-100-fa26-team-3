@@ -66,9 +66,13 @@ func _process(_delta: float) -> void:
 	queue_redraw()
 
 
+func _pause_button_available() -> bool:
+	return pause_button_enabled and game_ui.get("panel") != "encyclopedia"
+
+
 # ---------------------------------------------------------------- open / close
 func open_pause() -> void:
-	if is_paused or not pause_button_enabled:
+	if is_paused or not _pause_button_available():
 		return
 	_open(false)
 	get_tree().paused = true
@@ -169,7 +173,7 @@ func _input(event: InputEvent) -> void:
 	var p := get_local_mouse_position()
 	if event.pressed:
 		if not is_paused:
-			if pause_button_enabled and PAUSE_BUTTON.has_point(p):
+			if _pause_button_available() and PAUSE_BUTTON.has_point(p):
 				UiSounds.play("click")
 				open_pause()
 				get_viewport().set_input_as_handled()
@@ -221,7 +225,7 @@ func _handle_press(p: Vector2) -> void:
 ## "to_title", "quit", "pause" (the corner button), or ""
 func _hot_at(p: Vector2) -> String:
 	if not is_paused:
-		return "pause" if pause_button_enabled and visible and PAUSE_BUTTON.has_point(p) else ""
+		return "pause" if _pause_button_available() and visible and PAUSE_BUTTON.has_point(p) else ""
 	if Menu.close_rect(_menu).has_point(p):
 		return "close"
 	for s in SLIDERS:
@@ -320,7 +324,7 @@ func _draw() -> void:
 	var cur := get_local_mouse_position().floor()
 	var hot := _hot_at(cur)
 	if not is_paused:
-		if pause_button_enabled:
+		if _pause_button_available():
 			Menu.button(self, PAUSE_BUTTON, "PAUSE", hot == "pause")
 		return
 

@@ -193,6 +193,7 @@ func _read_cursor() -> void:
 ##   left click         use the UI, else the close-up view, else the room object under the cursor
 ##   right click        drop the held item; else step back one level (out of a zoom, a panel, a close-up)
 ##   Esc                drop the held item and go straight back to the room; in the room, pause
+##   J                  open / close the encyclopedia
 ##   mouse wheel, - / = zoom the microfiche
 ##   F9                 the debug menu
 func _input(event: InputEvent) -> void:
@@ -234,6 +235,8 @@ func _unhandled_input(event: InputEvent) -> void:
 				ui.dialogue.close()
 				return
 		match event.keycode:
+			KEY_J:
+				ui.toggle_encyclopedia()
 			KEY_ESCAPE:
 				if ui.inventory.held != null:
 					UiSounds.play("back")
