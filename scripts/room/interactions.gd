@@ -46,7 +46,7 @@ func hoverable(group: String) -> bool:
 func label_for(group: String, held: ItemData) -> String:
 	var name: String = "CLOSE SHUTTERS" if group == "sky" else LABELS.get(group, "")
 	if group == "radio" and GameState.flag("radio_fixed"):
-		name = "HAM RADIO"
+		name = "HAM RADIO (INCOMING SIGNAL)" if _main.ui.dialogue.has_pending_radio() else "HAM RADIO"
 	if held != null and name != "":
 		return "USE %s ON %s" % [held.name, name]
 	return name
@@ -64,7 +64,10 @@ func click(group: String) -> void:
 			_main.ui.open_panel("fiche", clock)
 			GameState.set_flag("fiche_seen")
 		"radio":
-			_main.radio_view.enter(clock)    # broken: main.gd calls inspect_broken_radio() once it settles
+			if _main.ui.dialogue.has_pending_radio():
+				_main.ui.dialogue.answer_pending_radio(clock)
+			else:
+				_main.radio_view.enter(clock)    # broken: main.gd calls inspect_broken_radio() once it settles
 		"cabinet":
 			_main.cabinet.toggle()
 		"jar":

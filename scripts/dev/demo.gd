@@ -123,7 +123,9 @@ const STEPS := [
 	[1271, "debug"], [1280, "shot", "41_debug_menu"],
 	[1281, "dialogue", "hint_use_radio"], [1305, "shot", "42_dialogue_monologue"],
 	[1306, "radio_dialogue", "radio_aquarium_1"], [1330, "shot", "43_dialogue_radio"],
-	[1331, "quit"],
+	[1331, "finish_radio_dialogue"], [1342, "open_journal"], [1355, "shot", "44_radio_journal"],
+	[1356, "point", Vector2(160, 60)], [1357, "click"], [1365, "shot", "45_radio_journal_detail"],
+	[1366, "quit"],
 ]
 
 
@@ -190,6 +192,13 @@ func _do(s: Array, out: String) -> void:
 			GameState.set_flag("radio_fixed", true)
 			main.ui.dialogue.start(s[2])
 			main.ui.dialogue._chars_shown = 999.0
+			main.cursor_override = Vector2(main.W / 2.0, main.H / 2.0)
+		"finish_radio_dialogue":
+			while main.ui.dialogue.is_active() and not main.ui.dialogue.closing:
+				main.ui.dialogue._chars_shown = 999.0
+				main.ui.dialogue.skip_or_advance()
+		"open_journal":
+			main.ui.open_panel("journal", main.clock)
 			main.cursor_override = Vector2(main.W / 2.0, main.H / 2.0)
 		"quit":
 			get_tree().quit()

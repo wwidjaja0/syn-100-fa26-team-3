@@ -117,6 +117,7 @@
       "id": "radio_aquarium_1",
       "style": "radio",
       "speaker": "RADIO // COASTAL AQUARIUM",
+      "title": "BEACON K6-AQUA: COOLING PUMPS",
       "priority": true,
       "once_flag": "dlg_aquarium_1",
       "lines": [
@@ -129,6 +130,7 @@
       "id": "radio_aquarium_2",
       "style": "radio",
       "speaker": "RADIO // COASTAL AQUARIUM",
+      "title": "AQUARIUM DISPATCH: DEEP REEF",
       "priority": true,
       "once_flag": "dlg_aquarium_2",
       "lines": [
@@ -140,6 +142,7 @@
       "id": "radio_aquarium_3",
       "style": "radio",
       "speaker": "RADIO // COASTAL AQUARIUM",
+      "title": "K6-AQUA: HOURLY BROADCAST",
       "priority": true,
       "once_flag": "dlg_aquarium_3",
       "lines": [
@@ -151,6 +154,7 @@
       "id": "radio_aquarium_ambient_1",
       "style": "radio",
       "speaker": "RADIO // COASTAL AQUARIUM",
+      "title": "TELEMETRY: CHILLER LOOP B",
       "priority": false,
       "lines": [
         "KZZT... AQUARIUM TELEMETRY: CHILLER LOOP B AT 62% CAPACITY... KZZT..."
@@ -160,6 +164,7 @@
       "id": "radio_aquarium_ambient_2",
       "style": "radio",
       "speaker": "RADIO // COASTAL AQUARIUM",
+      "title": "TELEMETRY: TIDE GAUGE",
       "priority": false,
       "lines": [
         "KZZT... TIDE GAUGE +2.4M... SEA WALL HOLDING... KZZT..."

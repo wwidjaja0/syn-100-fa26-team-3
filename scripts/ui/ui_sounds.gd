@@ -41,6 +41,7 @@ func _ready() -> void:
 		"type_mono": _blip([[330.0, 0.018]], 0.18),
 		"type_radio": _blip([[740.0, 0.014], [880.0, 0.014]], 0.20),
 		"radio_in": _blip([[980.0, 0.025], [620.0, 0.03], [840.0, 0.04]], 0.30),
+		"radio_static": _static_burst(0.55, 0.28),
 	}
 	for i in VOICES:
 		var p := AudioStreamPlayer.new()
@@ -83,6 +84,36 @@ func _blip(notes: Array, loudness: float) -> AudioStreamWAV:
 			var envelope := minf(i / ATTACK, 1.0) * exp(-3.0 * t) * minf((count - i) / RELEASE, 1.0)
 			data.encode_s16(i * 2, int(smooth * loudness * envelope * 32767.0))
 			i += 1
+	var wav := AudioStreamWAV.new()
+	wav.format = AudioStreamWAV.FORMAT_16_BITS
+	wav.mix_rate = RATE
+	wav.data = data
+	return wav
+
+
+## band-limited radio static burst with a faint carrier warble for incoming transmissions
+func _static_burst(duration: float, loudness: float) -> AudioStreamWAV:
+	var count := int(duration * RATE)
+	var data := PackedByteArray()
+	data.resize(count * 2)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 0x52414449
+	var lp := 0.0
+	var prev_lp := 0.0
+	var carrier_phase := 0.0
+	for i in count:
+		var t := float(i) / float(count)
+		var white := rng.randf_range(-1.0, 1.0)
+		lp = lerpf(lp, white, 0.42)
+		var band := lp - prev_lp * 0.65
+		prev_lp = lp
+		var crackle := 1.0 if rng.randf() > 0.015 else 1.8
+		var freq := 780.0 + 140.0 * sin(TAU * 3.5 * t)
+		carrier_phase = fmod(carrier_phase + freq / RATE, 1.0)
+		var carrier := 0.14 * sin(TAU * carrier_phase)
+		var env := minf(i / (ATTACK * 2.0), 1.0) * (1.0 - 0.35 * t) * minf((count - i) / (RELEASE * 4.0), 1.0)
+		var sample := clampf((band * crackle + carrier) * loudness * env, -1.0, 1.0)
+		data.encode_s16(i * 2, int(sample * 32767.0))
 	var wav := AudioStreamWAV.new()
 	wav.format = AudioStreamWAV.FORMAT_16_BITS
 	wav.mix_rate = RATE
