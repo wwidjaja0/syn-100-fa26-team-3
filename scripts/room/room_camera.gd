@@ -14,7 +14,8 @@ extends Node
 const EDGE := 48.0                      # px from the screen edge where the cursor starts pushing
 const PAN_SPEED := 2.6                  # m/s at full push
 const PAN_EASE := 8.0                   # how quickly the camera speeds up / settles (1/s)
-const CAM_MIN := -1.85                  # camera x limits: the left wall .. just past the speaker corner
+const CAM_MIN := -1.85 - preload("res://scripts/room/fish_tank.gd").EXTRA   # camera x limits: the left wall (moved out for
+                                        # the reef tank) .. just past the speaker corner
 const CAM_MAX := 3.0
 const LANDING_SWEEP := 0.39             # title-screen drift: this share of the left..right range each way
 const LANDING_PERIOD := 22.0            # ... and seconds per full sweep

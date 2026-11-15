@@ -19,6 +19,7 @@ const LABELS := {
 	"radio": "HAM RADIO (BROKEN)", "jar": "DRIED MUSHROOMS", "papers": "ROLLING PAPERS", "bench": "WORKBENCH",
 	"lantern": "LANTERN", "instruments": "WEATHER GAUGES", "power": "POWER STATION", "filter": "WATER FILTER",
 	"crates": "SUPPLY CRATES", "sandbags": "SANDBAGS", "flashlight": "FLASHLIGHT", "battery": "BATTERY",
+	"tank": "REEF TANK", "tank_gauges": "TANK GAUGES",
 }
 
 var _main: Node
@@ -78,7 +79,7 @@ func click(group: String) -> void:
 			pick_up("battery", "battery")
 		"bench":
 			_main.crafting.enter(clock)
-		"lantern", "instruments", "power", "filter", "crates", "sandbags", "flashlight":
+		"lantern", "instruments", "power", "filter", "crates", "sandbags", "flashlight", "tank", "tank_gauges":
 			_main.ui.dialogue.start("inspect_" + group)
 
 

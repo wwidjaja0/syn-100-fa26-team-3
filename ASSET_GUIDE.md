@@ -21,10 +21,10 @@ no narrator, so text on screen is only hover labels, item names and diegetic UI 
 | World units per pixel | 6.6 m / 480 = **1.375 cm** (ortho, same at every depth) | Details under ~4 cm (3 px) won't read |
 | Outline hull | 1.6 cm | Thin parts (<3 cm) turn into outline only |
 | Camera | ortho width 6.6 m, tilted 8° down, looking at the back wall | Front faces and tops show; backs never do |
-| Room (Blender coords) | back wall at y = 2.0; floor z = 0; ceiling beam z ≈ 3.05; x from -5.2 to 7.2 | Props live between y ≈ -1 and 2 |
-| Camera pan | x from -1.85 to 3.0, visible half-width 3.3 m | Anything outside x ≈ -5.1…6.3 is never seen |
+| Room (Blender coords) | back wall at y = 2.0; floor z = 0; ceiling beam z ≈ 3.05; x from -5.2 to 7.2 (the game extends it to -7.6 for the reef tank, `scripts/room/fish_tank.gd`) | Props live between y ≈ -1 and 2 |
+| Camera pan | x from -4.25 to 3.0, visible half-width 3.3 m | Anything outside x ≈ -7.5…6.3 is never seen |
 | Palette | 40 colours, `assets/palette.json` | Off-palette colours get dithered between neighbours |
-| Object groups | **max 17** (16 used) | Ids are encoded as `(id + 4) * 12` in one 8-bit channel |
+| Object groups | **max 21** (16 in the room + 3 added in code) | Ids are encoded as `(id + 4) * 10` in one 8-bit channel |
 
 ## 3. 3D props
 
@@ -180,7 +180,7 @@ Checklist:
 - [ ] The prop reads at 480x270: silhouette clear, no shimmering sub-pixel detail.
 - [ ] Colours land on the palette without ugly dithering (compare with nearby props).
 - [ ] Hovering it outlines **only** it, and the label is right, in **both** renderers.
-- [ ] `mask.png` red values are exact multiples of 12 (ids are intact).
+- [ ] `mask.png` red values are exact multiples of 10 (ids are intact).
 - [ ] Textures are imported **lossless** (Import dock > Compress > Mode: Lossless), never VRAM compressed.
       Compression smears pixel art and uses a different format on each platform.
 - [ ] The exports still build (commands in the README, "Exporting").

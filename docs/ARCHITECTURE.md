@@ -51,6 +51,7 @@ order every frame, and routes input. Each part is one file with one job.
 | `inventory/inventory_data.gd` | `InventoryData` resource: the list of carried items | |
 | `room/interactions.gd` | **The game rules:** hover labels and what clicking each object does | `LABELS`, `click(group)`, `use_item(item, group)`, `pick_up(group, item_id, hide)`, `say(id)`, `then_after_dialogue(action)` |
 | `room/placeholders.gd` | Stand-in boxes for props not modelled yet (the battery), each its own object group | `PROPS`, `add_all(room, meta)` |
+| `room/fish_tank.gd` | The reef tank and gauge board at the far left, built in code, and the cabin's 2.4 m extension that makes room for them; animates the fish, bubbles, kelp and needles | `build(main, room, meta, lights)`, `update()`, `EXTRA` |
 | `room/object_picker.gd` | Reads the mask render: which group is under the cursor | `hover`, `group_at(p)`, `group_of(node)`, `screen_point(group)` |
 | `room/room_materials.gd` | Replaces the room's imported materials with the toon shader | `set_param(material, param, value)` |
 | `room/shutters.gd` | Storm shutters swing open/shut; heat rises and falls | `toggle()`, `is_open`, `heat` |
@@ -117,19 +118,20 @@ At start-up:
 - `room_materials.gd` gives every mesh a material with `group_id` set to its group's number.
 
 `toon.gdshader` checks whether the camera drawing it is the mask camera (render layer 20). If so, it writes
-`(group_id + 4) * 12 / 255` into red instead of lighting the surface. `object_picker.gd` reads that pixel back and
+`(group_id + 4) * 10 / 255` into red instead of lighting the surface. `object_picker.gd` reads that pixel back and
 reverses the formula, and `post.gdshader` does the same to draw the outline. This encoding appears in three places,
 which must agree:
 
 | File | Constant |
 |---|---|
-| `shaders/toon.gdshader` | `ID_OFFSET = 4`, `* 12.0` |
-| `shaders/post.gdshader` | `ID_OFFSET = 4`, `/ 12.0` |
-| `scripts/room/object_picker.gd` | `MASK_ID_OFFSET = 4`, `ID_STEP = 12` |
+| `shaders/toon.gdshader` | `ID_OFFSET = 4`, `ID_STEP = 10.0` |
+| `shaders/post.gdshader` | `ID_OFFSET = 4`, `ID_STEP = 10.0` |
+| `scripts/room/object_picker.gd` | `MASK_ID_OFFSET = 4`, `ID_STEP = 10` |
 
-One 8-bit channel fits `(id + 4) * 12 ≤ 255`, so there's room for **17 groups**. All 17 are used: 16 from the room,
-plus the placeholder battery, which `room/placeholders.gd` adds at start-up (appending to `meta.groups` before the
-picker numbers them).
+One 8-bit channel fits `(id + 4) * 10 ≤ 255`, so there's room for **21 groups**. 19 are used: 16 from the room,
+plus three added in code at start-up (appending to `meta.groups` before the picker numbers them): the placeholder
+battery (`room/placeholders.gd`) and the reef tank and its gauges (`room/fish_tank.gd`). (The step was 12, room for
+17, until the tank needed more.)
 
 A group is only hoverable if `interactions.hoverable(group)` says so: it needs a label in `LABELS`. The window's
 `sky` group is the exception; it can be hovered only while the shutters are open.

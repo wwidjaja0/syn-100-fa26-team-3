@@ -8,6 +8,7 @@ render_mode specular_disabled, cull_back;
 
 const uint MASK_LAYER = 524288u;      // 1 << 19, render layer 20
 const int ID_OFFSET = 4;              // keep in step with post.gdshader and scripts/room/object_picker.gd
+const float ID_STEP = 10.0;           // ids are (id + ID_OFFSET) * ID_STEP / 255: room for 21 groups
 
 // 0 toon (lit), 1 emissive, 2 outline hull, 3 storm sky, 4 spinning globe screen (microfiche idle)
 uniform int kind = 0;
@@ -130,7 +131,7 @@ void fragment() {
 		// Compatibility loses precision near black; toon flag in blue
 		ALBEDO = vec3(0.0);
 		// stored as-is in the 8-bit target, so pass the inverse of what the renderer will do to it
-		vec3 id = vec3(float(group_id + ID_OFFSET) * 12.0 / 255.0, 0.0, kind == 0 ? 1.0 : 0.0);
+		vec3 id = vec3(float(group_id + ID_OFFSET) * ID_STEP / 255.0, 0.0, kind == 0 ? 1.0 : 0.0);
 		EMISSION = srgb_io ? id : srgb_to_linear(id);
 	} else if (kind == 0) {
 		ALBEDO = io(use_tex ? srgb_to_linear(texture(albedo_tex, UV).rgb) * albedo : albedo);

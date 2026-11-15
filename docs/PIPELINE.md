@@ -185,4 +185,4 @@ Then open Godot so it re-imports the changed files.
 - **Pipeline refactors** (no intended change): the output should be byte-identical. Copy `assets/shelter.glb` and
   `assets/scene_meta.json` aside, rebuild, and compare them with `cmp`. Do the same for the prop GLBs.
 - **Visual changes:** run the demo walkthrough (README, "Checking a change") in both renderers and compare the
-  screenshots. With `--raw` it also saves `mask.png`; its red values must be exact multiples of 12.
+  screenshots. With `--raw` it also saves `mask.png`; its red values must be exact multiples of 10.

@@ -12,6 +12,7 @@ extends Node
 ##   room/cabinet.gd          supply cabinet doors and interior light
 ##   room/ambience.gd         storm sky, PA light, lantern glow
 ##   room/placeholders.gd     stand-in boxes for props not modelled yet (the battery)
+##   room/fish_tank.gd        the reef tank and its gauges, and the cabin's extension to the left
 ##   room/room_camera.gd      panning, pixel snapping, hand-over to close-ups
 ##   room/post_process.gd     feeds the post shader
 ##   views/crafting_view.gd   close-up: straight down onto the workbench's cutting mat
@@ -44,6 +45,7 @@ const RadioView := preload("res://scripts/views/radio_view.gd")
 const Crafting := preload("res://scripts/crafting/crafting.gd")
 const RadioRepair := preload("res://scripts/radio/radio_repair.gd")
 const Placeholders := preload("res://scripts/room/placeholders.gd")
+const FishTank := preload("res://scripts/room/fish_tank.gd")
 const DebugMenu := preload("res://scripts/dev/debug_menu.gd")
 const Demo := preload("res://scripts/dev/demo.gd")
 
@@ -95,6 +97,7 @@ var crafting: CraftingView
 var radio_view: RadioView
 var workbench: Crafting                 # the crafting rules (crafting is the camera view)
 var radio_repair: RadioRepair
+var fish_tank: FishTank
 var views: Array[Node] = []             # every close-up view
 var debug_menu: DebugMenu
 var demo: Demo
@@ -107,6 +110,9 @@ func _ready() -> void:
 		if node:
 			node.visible = false
 	Placeholders.add_all(room, meta)     # adds their groups to meta.groups, so before the picker
+	fish_tank = FishTank.new()
+	_add(fish_tank, "FishTank")
+	fish_tank.build(self, room, meta, $WorldVP/Lights)   # likewise: groups, materials, the wider room
 
 	interactions = Interactions.new()
 	_add(interactions, "Interactions")
@@ -177,6 +183,7 @@ func _process(delta: float) -> void:
 			and active_view() == null
 	picker.update(cursor, step, room_hover)
 	ambience.update()
+	fish_tank.update()
 	post.update()
 	ui.queue_redraw()
 

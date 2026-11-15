@@ -13,7 +13,7 @@ extends Node
 ## ids are stored as (id + MASK_ID_OFFSET) * ID_STEP in the mask's red channel; keep in step with
 ## shaders/toon.gdshader and shaders/post.gdshader
 const MASK_ID_OFFSET := 4
-const ID_STEP := 12.0
+const ID_STEP := 10.0              # (id + 4) * 10 <= 255: room for 21 groups
 
 var group_names: Array[String] = []     # index + 1 = the group's mask id
 var group_ids := {}                     # group name -> mask id (1-based)

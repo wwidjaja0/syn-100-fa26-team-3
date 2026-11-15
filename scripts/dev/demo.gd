@@ -120,10 +120,14 @@ const STEPS := [
 	[1206, "point", Vector2(240, 255)], [1207, "click"], [1208, "radio_slot", "speaker"],
 	[1215, "shot", "38_hover_speaker_slot"], [1216, "click"], [1230, "shot", "39_radio_fixed"],
 	[1231, "point", Vector2(20, 12)], [1232, "click"], [1270, "shot", "40_back_from_radio"],
-	[1271, "debug"], [1280, "shot", "41_debug_menu"],
-	[1281, "dialogue", "hint_use_radio"], [1305, "shot", "42_dialogue_monologue"],
-	[1306, "radio_dialogue", "radio_aquarium_1"], [1330, "shot", "43_dialogue_radio"],
-	[1331, "quit"],
+	# the reef tank at the far left
+	[1271, "point", Vector2(240, 120)], [1275, "pan", "left"], [1330, "shot", "41_panning_to_tank"], [1470, "shot", "42_tank"],
+	[1471, "hover", "tank"], [1490, "shot", "43_hover_tank"],
+	[1491, "hover", "tank_gauges"], [1510, "shot", "44_hover_gauges"],
+	[1511, "debug"], [1520, "shot", "45_debug_menu"],
+	[1521, "dialogue", "hint_use_radio"], [1545, "shot", "46_dialogue_monologue"],
+	[1546, "radio_dialogue", "radio_aquarium_1"], [1570, "shot", "47_dialogue_radio"],
+	[1571, "quit"],
 ]
 
 

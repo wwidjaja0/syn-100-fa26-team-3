@@ -29,6 +29,7 @@ uniform float landing_amount = 0.0;   // cinematic title-screen grade and vignet
 
 const vec2 SIZE = vec2(480.0, 270.0);
 const int ID_OFFSET = 4;              // mask ids are stored 4 steps up (see toon.gdshader)
+const float ID_STEP = 10.0;           // and ID_STEP apart
 const float DITHER = 0.045;
 const float DRIFT = 0.016;
 const float SATURATION = 1.25;
@@ -61,7 +62,7 @@ vec3 toon_band(vec3 c) {
 }
 
 int id_at(vec2 px) {
-	return int(round(texture(mask_tex, px / SIZE).r * 255.0 / 12.0)) - ID_OFFSET;
+	return int(round(texture(mask_tex, px / SIZE).r * 255.0 / ID_STEP)) - ID_OFFSET;
 }
 
 float hash(vec2 p) {
@@ -141,7 +142,7 @@ void fragment() {
 	float drift = DRIFT * sin(0.09 * wx + 0.05 * y + 0.21 * f) * sin(0.06 * y - 0.07 * wx + 0.13 * f + 1.3);
 	float thr = bayer(vec2(wx, y)) * DITHER + drift + (hash(pix + floor(f)) - 0.5) * 0.010;
 
-	int id = int(round(m.r * 255.0 / 12.0)) - ID_OFFSET;
+	int id = int(round(m.r * 255.0 / ID_STEP)) - ID_OFFSET;
 	bool on_target = target_id > 0 && id == target_id;
 	if (on_target) {
 		float nearc = exp(-dot(pix - cursor, pix - cursor) / (2.0 * SHIMMER_RADIUS * SHIMMER_RADIUS));

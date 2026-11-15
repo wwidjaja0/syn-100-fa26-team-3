@@ -60,6 +60,9 @@ What's in the room so far:
   the PA speaker and the battery into them (or hold one and click its slot); click a filled slot to take the part
   back. Filling both fixes the radio. Using either part on the radio in the room opens the close-up. Talking on it
   isn't built yet.
+- **Reef tank** (far left; the cabin was extended for it): a small reef gone bone white from heat stress, a few fish,
+  and a dead chiller. Click it, or the gauge board above it (water temperature, pH, dissolved oxygen, all in the
+  red), for the player's thoughts on what's happening to the ocean. Built in code (`scripts/room/fish_tank.gd`).
 - **Microfiche map** (on the wall, left of the bench; it idles on a turning globe): a world map that starts blank
   except around the shelter (the Pacific Northwest). Every station you reach over the radio is marked and printed in;
   hover a mark to read that station's problems. Zoom goes 1/4, 1/2, full scale, then 4x, which is a printed area's

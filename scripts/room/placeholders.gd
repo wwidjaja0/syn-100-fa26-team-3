@@ -7,8 +7,8 @@ extends RefCounted
 ## with a real prop, model it (docs/HOW_TO.md, "Add a prop to the room"), add its group to GROUPS in
 ## pipeline/godot/export_glb.py, and delete its entry here.
 ##
-## The mask has room for 17 groups (see "Object groups and the mask" in docs/ARCHITECTURE.md); the
-## room uses 16, so there is space for exactly one placeholder.
+## The mask has room for 21 groups (see "Object groups and the mask" in docs/ARCHITECTURE.md); the
+## room uses 16, the battery and the reef tank (room/fish_tank.gd) 3 more.
 
 ## group name -> [box size (m), colour (sRGB), where its bottom centre stands (world, Godot metres)]
 const PROPS := {
