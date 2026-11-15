@@ -121,6 +121,7 @@
     "inspect_tank": {
       "style": "monologue",
       "speaker": "INTERNAL MONOLOGUE",
+      "once_flag": "dlg_tank_seen",
       "lines": [
         "MY LITTLE REEF. NEARLY EVERY CORAL IN THERE HAS GONE BONE WHITE.",
         "WHEN THE WATER STAYS TOO WARM, CORALS SPIT OUT THE ALGAE THAT FEED AND COLOUR THEM. THAT'S BLEACHING.",
@@ -131,6 +132,7 @@
     "inspect_tank_gauges": {
       "style": "monologue",
       "speaker": "INTERNAL MONOLOGUE",
+      "once_flag": "dlg_tank_gauges_seen",
       "lines": [
         "WATER TEMP: 31.4 C. MOST REEF CORALS START TO BLEACH AROUND 30.",
         "PH: 7.74. THE OCEANS WERE ABOUT 8.2 BEFORE WE STARTED BURNING COAL. CO2 MAKES SEAWATER MORE ACIDIC.",

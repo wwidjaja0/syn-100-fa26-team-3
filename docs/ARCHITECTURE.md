@@ -64,6 +64,8 @@ order every frame, and routes input. Each part is one file with one job.
 | `views/crafting_view.gd` | Close-up straight down onto the cutting mat; the build grid | `cell_at(p)`, `cell_rect`, `cell_world`, signals `cell_hovered`, `cell_clicked` |
 | `views/radio_view.gd` | Close-up of the ham radio's front panel | signal `clicked`, `screen_point(world)` |
 | `crafting/crafting.gd` | **The crafting rules** (`main.workbench`): items lying on the mat, `RECIPES`, making the result | `placed`, `item_at(cell)`, `result()`, `craft(from)`, signals `changed`, `crafted` |
+| `views/tank_view.gd` | Close-up of the reef tank, framed left of centre to leave room for its panel; first visit plays `interactions.inspect_tank()` | signal `clicked` |
+| `tank/tank_panel.gd` | The tank close-up's panel (`main.tank_panel`): live readings with safe bands, and item slots that take anything | `readings`, `live_value(i)`, `contents`, `click(p, held)`, `slot_rect(i)`, signal `changed` |
 | `radio/radio_repair.gd` | The radio close-up's slots for its missing parts (`main.radio_repair`); filling them all sets `radio_fixed` | `SLOTS`, `filled`, `showing()`, `slot_rect(id)`, `click(p, held)`, signal `changed` |
 | `ui/overlay.gd` | Draws all UI; gets every click first; owns the open panel | `panel`, `open_panel`, `close_panel`, `handle_click`, `over_ui` |
 | `ui/inventory_bar.gd` | The slots along the bottom, the held item, items flying in, dragging | `held`, `fly`, `has_room`, `click`, `drag_released(p)` |
@@ -203,6 +205,15 @@ to `radio_repair.click(p, held)`:
 - a filled slot clicked with nothing held flies its part back into the inventory;
 - once every slot is filled, `radio_fixed` is set. `main._check_dialogue_triggers()` then swaps in the repaired
   meshes (`start_hidden` grill on, the bare wires off), arms radio chatter and plays "radio_repaired".
+
+## The reef tank
+
+`room/fish_tank.gd` builds the tank, its gauge board and the cabin's extension in code (see its header). Clicking
+either opens `views/tank_view.gd`; the first time it settles, `interactions.inspect_tank()` plays "inspect_tank"
+then "inspect_tank_gauges" (both `once_flag`). While it's settled, `tank/tank_panel.gd` is up: `overlay.gd` draws its
+`readings` (each a value with a bar range and a safe band, wobbling slightly via `live_value(i)`) and its `SLOTS`
+item slots, and sends it clicks first. The slots take any item; nothing reads `contents` yet. To make items affect
+the tank, connect to `tank_panel.changed` and change a reading's `value`.
 
 ## Dragging items
 

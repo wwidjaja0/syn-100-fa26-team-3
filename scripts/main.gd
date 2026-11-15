@@ -17,8 +17,10 @@ extends Node
 ##   room/post_process.gd     feeds the post shader
 ##   views/crafting_view.gd   close-up: straight down onto the workbench's cutting mat
 ##   views/radio_view.gd      close-up: the ham radio's front panel
+##   views/tank_view.gd       close-up: the reef tank, with its panel beside it
 ##   crafting/crafting.gd     what lies on the cutting mat, the recipes, crafting   <- crafting rules
 ##   radio/radio_repair.gd    the radio close-up's slots for its missing speaker and battery
+##   tank/tank_panel.gd       the tank close-up's live readings and item slots
 ##   ui/overlay.gd            the pixel UI (its own node, UI/Overlay)
 ##   ui/start_menu.gd         the title screen (its own node, UI/StartMenu); calls start_game()
 ##   ui/pause_menu.gd         the pause / settings menu (its own node, UI/PauseMenu)
@@ -44,6 +46,8 @@ const CraftingView := preload("res://scripts/views/crafting_view.gd")
 const RadioView := preload("res://scripts/views/radio_view.gd")
 const Crafting := preload("res://scripts/crafting/crafting.gd")
 const RadioRepair := preload("res://scripts/radio/radio_repair.gd")
+const TankView := preload("res://scripts/views/tank_view.gd")
+const TankPanel := preload("res://scripts/tank/tank_panel.gd")
 const Placeholders := preload("res://scripts/room/placeholders.gd")
 const FishTank := preload("res://scripts/room/fish_tank.gd")
 const DebugMenu := preload("res://scripts/dev/debug_menu.gd")
@@ -95,8 +99,10 @@ var room_camera: RoomCamera
 var post: PostProcess
 var crafting: CraftingView
 var radio_view: RadioView
+var tank_view: TankView
 var workbench: Crafting                 # the crafting rules (crafting is the camera view)
 var radio_repair: RadioRepair
+var tank_panel: TankPanel
 var fish_tank: FishTank
 var views: Array[Node] = []             # every close-up view
 var debug_menu: DebugMenu
@@ -139,13 +145,20 @@ func _ready() -> void:
 	_add(radio_view, "RadioView")
 	radio_view.setup(meta, camera)
 	radio_view.entered.connect(_on_radio_view_entered)
-	views = [crafting, radio_view]
+	tank_view = TankView.new()
+	_add(tank_view, "TankView")
+	tank_view.setup()
+	tank_view.entered.connect(interactions.inspect_tank)
+	views = [crafting, radio_view, tank_view]
 	workbench = Crafting.new()
 	_add(workbench, "Workbench")
 	workbench.setup(self)
 	radio_repair = RadioRepair.new()
 	_add(radio_repair, "RadioRepair")
 	radio_repair.setup(self)
+	tank_panel = TankPanel.new()
+	_add(tank_panel, "TankPanel")
+	tank_panel.setup(self)
 	room_camera = RoomCamera.new()
 	_add(room_camera, "RoomCamera")
 	room_camera.setup(self, meta, room, camera, mask_cam)

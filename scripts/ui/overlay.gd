@@ -33,6 +33,8 @@ var dialogue: DialogueBox
 var panel_col: Color
 var panel_hi: Color
 var panel_lo: Color
+var warn_col: Color                     # readings outside their safe band
+var ok_col: Color                       # the safe band on a reading's bar
 
 var _panel_at := -1e9
 var _closing_at := -1e9
@@ -48,6 +50,8 @@ func _ready() -> void:
 	panel_col = Px.palette_color(pal, Color(0.09, 0.06, 0.08))
 	panel_hi = Px.palette_color(pal, Color(0.36, 0.24, 0.17))
 	panel_lo = Px.palette_color(pal, Color(0.03, 0.02, 0.03))
+	warn_col = Px.palette_color(pal, Color(0.92, 0.39, 0.09))
+	ok_col = Px.palette_color(pal, Color(0.39, 0.63, 0.68))
 	inventory = InventoryBar.new(self)
 	microfiche = MicrofichePanel.new(self, pal)
 	dialogue = DialogueBox.new(self, pal)
@@ -87,7 +91,7 @@ func panel_scale() -> float:
 ## is the cursor on a piece of UI (so the room shouldn't react to it)?
 func over_ui(p: Vector2) -> bool:
 	return main.debug_menu.open or dialogue.is_active() or inventory.slot_at(p) >= 0 or _over_back(p) \
-			or _over_result(p) or main.radio_repair.slot_at(p) != ""
+			or _over_result(p) or main.radio_repair.slot_at(p) != "" or main.tank_panel.over(p)
 
 
 func _over_result(p: Vector2) -> bool:
@@ -117,7 +121,7 @@ func handle_click(p: Vector2) -> bool:
 	if _over_result(p):
 		main.workbench.craft(RESULT.get_center())
 		return true
-	if main.radio_repair.click(p, inventory.held):
+	if main.radio_repair.click(p, inventory.held) or main.tank_panel.click(p, inventory.held):
 		return true
 	return inventory.click(p)
 
@@ -159,6 +163,10 @@ func _draw() -> void:
 		var craft_label := _draw_crafting(craft, cur)
 		ui_hover = ui_hover or craft_label != ""
 		label = craft_label
+	if main.tank_panel.showing():
+		var tank_label := _draw_tank_panel(cur)
+		ui_hover = ui_hover or tank_label != ""
+		label = tank_label
 	if main.radio_repair.showing():
 		var radio_label := _draw_radio_slots(cur)
 		ui_hover = ui_hover or radio_label != ""
@@ -214,6 +222,55 @@ func _draw() -> void:
 	draw_texture(HAND if hand else ARROW, at, Color(0.78, 0.78, 0.80) if pressed else Px.WHITE)
 	if inventory.held != null:
 		inventory.draw_icon(inventory.held, cur + Vector2(5, 8))
+
+
+## the tank close-up's panel (tank/tank_panel.gd): each reading's name and live value (orange when
+## outside its safe band), a bar with the safe band marked and a tick at the value, then the item
+## slots. Returns the hover label.
+func _draw_tank_panel(cur: Vector2) -> String:
+	var tank = main.tank_panel
+	var r: Rect2 = tank.PANEL
+	draw_rect(r, panel_col)
+	Px.frame(self, r.grow(1), Px.INK)
+	Px.frame(self, r, panel_hi)
+	Px.text(self, "REEF TANK", r.position + Vector2(8, 7), Px.WHITE, Px.INK)
+	for i in tank.readings.size():
+		var rd: Dictionary = tank.readings[i]
+		var v: float = tank.live_value(i)
+		var safe: bool = tank.in_safe_band(i)
+		var at: Vector2 = tank.row_pos(i)
+		Px.text(self, rd.name, at, Px.GREY, Px.INK)
+		var val: String = rd.format % v
+		Px.text(self, val, Vector2(r.end.x - 8 - Px.text_width(val), at.y), Px.WHITE if safe else warn_col, Px.INK)
+		var bar: Rect2 = tank.bar_rect(i)
+		var span: float = rd.max - rd.min
+		draw_rect(bar, panel_lo)
+		var s0: float = bar.position.x + bar.size.x * (rd.safe[0] - rd.min) / span
+		var s1: float = bar.position.x + bar.size.x * (rd.safe[1] - rd.min) / span
+		draw_rect(Rect2(s0, bar.position.y + 2, s1 - s0, bar.size.y - 4), ok_col)
+		Px.frame(self, bar, panel_hi)
+		var tx := floorf(bar.position.x + bar.size.x * clampf((v - rd.min) / span, 0.0, 1.0))
+		draw_rect(Rect2(tx - 1, bar.position.y - 2, 3, bar.size.y + 4), Px.INK)
+		draw_rect(Rect2(tx, bar.position.y - 1, 1, bar.size.y + 2), Px.WHITE if safe else warn_col)
+		if not safe:
+			Px.text(self, "OUT OF RANGE", at + Vector2(0, 21), warn_col, Px.INK)
+	var label := ""
+	Px.text(self, "SLOTS", tank.slot_rect(0).position + Vector2(0, -11), Px.GREY, Px.INK)
+	for i in tank.SLOTS:
+		var sr: Rect2 = tank.slot_rect(i)
+		var hot := sr.has_point(cur)
+		draw_rect(sr, panel_lo)
+		Px.frame(self, sr.grow(1), Px.INK)
+		Px.frame(self, sr, Px.WHITE if hot else panel_hi)
+		var item: ItemData = tank.contents[i]
+		if item != null:
+			if item.icon != null:
+				draw_texture_rect(item.icon, Rect2(sr.position + Vector2(2, 2), Vector2(24, 24)), false)
+			else:
+				Px.text(self, "?", sr.get_center() - Vector2(2, 3), Px.WHITE, Px.INK)
+		if hot:
+			label = tank.label(i, inventory.held)
+	return label
 
 
 ## the radio close-up's repair slots (radio/radio_repair.gd): a square per missing part, white when

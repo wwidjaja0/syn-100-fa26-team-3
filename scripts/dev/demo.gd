@@ -167,12 +167,16 @@ const STEPS := [
 	# the reef tank at the far left
 	[1271, "point", Vector2(240, 120)], [1275, "pan", "left"], [1330, "shot", "41_panning_to_tank"], [1470, "shot", "42_tank"],
 	[1471, "hover", "tank"], [1490, "shot", "43_hover_tank"],
-	[1491, "hover", "tank_gauges"], [1510, "shot", "44_hover_gauges"],
-	[1511, "debug"], [1520, "shot", "45_debug_menu"],
-	[1521, "dialogue", "hint_use_radio"], [1545, "shot", "46_dialogue_monologue"],
-	[1546, "radio_dialogue", "radio_aquarium_1"], [1570, "shot", "47_dialogue_radio"],
-	[1571, "dialogue_line", 3], [1580, "shot", "48_dialogue_reply"],
-	[1581, "quit"],
+	[1491, "hover", "tank_gauges"], [1510, "shot", "44_hover_gauges"], [1511, "click"],
+	[1550, "shot", "45_tank_view"],
+	[1551, "hold", "jar"], [1552, "tank_slot", 0], [1556, "shot", "46_tank_slot_hover"], [1557, "click"],
+	[1565, "shot", "47_tank_slot_filled"],
+	[1566, "point", Vector2(20, 12)], [1567, "click"], [1605, "shot", "48_back_from_tank"],
+	[1606, "debug"], [1615, "shot", "49_debug_menu"],
+	[1616, "dialogue", "hint_use_radio"], [1640, "shot", "50_dialogue_monologue"],
+	[1641, "radio_dialogue", "radio_aquarium_1"], [1665, "shot", "51_dialogue_radio"],
+	[1666, "dialogue_line", 3], [1675, "shot", "52_dialogue_reply"],
+	[1676, "quit"],
 ]
 
 
@@ -221,6 +225,8 @@ func _do(s: Array, out: String) -> void:
 			main.cursor_override = Vector2(main.crafting.cell_rect(s[2]).get_center())
 		"hold":                          # put an inventory item on the cursor, as clicking its slot does
 			main.ui.inventory.held = InventoryManager.get_item(s[2])
+		"tank_slot":                     # the middle of one of the tank panel's item slots
+			main.cursor_override = main.tank_panel.slot_rect(s[2]).get_center()
 		"radio_slot":                    # the middle of one of the radio close-up's repair slots
 			main.cursor_override = main.radio_repair.slot_rect(s[2]).get_center()
 		"release":                       # let go of the left button (ends a drag, as main.gd does)

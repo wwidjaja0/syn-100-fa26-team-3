@@ -79,7 +79,9 @@ func click(group: String) -> void:
 			pick_up("battery", "battery")
 		"bench":
 			_main.crafting.enter(clock)
-		"lantern", "instruments", "power", "filter", "crates", "sandbags", "flashlight", "tank", "tank_gauges":
+		"tank", "tank_gauges":
+			_main.tank_view.enter(clock)     # the first time, main.gd's hook plays inspect_tank()
+		"lantern", "instruments", "power", "filter", "crates", "sandbags", "flashlight":
 			_main.ui.dialogue.start("inspect_" + group)
 
 
@@ -90,6 +92,9 @@ func use_item(item: ItemData, group: String) -> bool:
 	if group == "radio" and not GameState.flag("radio_fixed"):
 		_main.radio_view.enter(_main.clock)    # its parts go in the close-up's slots
 		return true
+	if group in ["tank", "tank_gauges"]:
+		_main.tank_view.enter(_main.clock)     # items go in the close-up's slots
+		return true
 	return false
 
 
@@ -98,6 +103,13 @@ func use_item(item: ItemData, group: String) -> bool:
 func inspect_broken_radio() -> void:
 	GameState.set_flag("inspected_radio")
 	say("inspect_radio_broken")
+
+
+## the tank close-up has settled: the first time, the player's thoughts on the reef and then on its
+## readings (both once-only dialogues, so later visits go straight to the panel)
+func inspect_tank() -> void:
+	say("inspect_tank")
+	then_after_dialogue(say.bind("inspect_tank_gauges"))
 
 
 ## start a monologue from data/dialogue.json, unless the scripted demo is running
