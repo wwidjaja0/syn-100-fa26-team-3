@@ -272,7 +272,7 @@ func _draw_list(cur: Vector2) -> void:
 		Px.text(_overlay, speaker, Vector2(r.position.x + 18, r.position.y + 17), _pencil)
 
 		var lines: Array = entry.get("lines", [])
-		var preview: String = lines[0] if not lines.is_empty() else ""
+		var preview: String = _line_text(lines[0]) if not lines.is_empty() else ""
 		var max_preview_w := int(r.size.x) - 24
 		while Px.text_width(preview) > max_preview_w and preview.length() > 4:
 			preview = preview.substr(0, preview.length() - 4) + "..."
@@ -316,13 +316,17 @@ func _draw_detail(cur: Vector2) -> void:
 	var max_w := int(VIEW.size.x) - 20
 	var lines: Array = entry.get("lines", [])
 	for line in lines:
-		var wrapped := _wrap_text(str(line), max_w)
+		var wrapped := _wrap_text(_line_text(line), max_w)
 		for row in wrapped:
 			if y + LINE_SPACING > VIEW.end.y - 6:
 				break
 			Px.text(_overlay, row, Vector2(VIEW.position.x + 10, y), _ink)
 			y += LINE_SPACING
 		y += 4
+
+
+func _line_text(line) -> String:
+	return str(line.get("text", "")) if line is Dictionary else str(line)
 
 
 func _wrap_text(text: String, max_width: int) -> Array[String]:

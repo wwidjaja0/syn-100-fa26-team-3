@@ -70,7 +70,11 @@ func add_radio_log(entry: Dictionary) -> void:
 			if existing.get("id", "") == id:
 				return
 	var entry_lines: Array = entry.get("lines", []).duplicate()
-	var fallback_title: String = entry_lines[0] if not entry_lines.is_empty() else entry.get("speaker", "RADIO BROADCAST")
+	var first_text := ""
+	if not entry_lines.is_empty():
+		var first = entry_lines[0]
+		first_text = str(first.get("text", "")) if first is Dictionary else str(first)
+	var fallback_title: String = first_text if first_text != "" else entry.get("speaker", "RADIO BROADCAST")
 	if fallback_title.length() > 36:
 		fallback_title = fallback_title.substr(0, 33) + "..."
 	radio_log.append({

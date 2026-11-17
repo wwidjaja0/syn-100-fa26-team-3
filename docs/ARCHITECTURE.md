@@ -66,6 +66,8 @@ order every frame, and routes input. Each part is one file with one job.
 | `radio/radio_repair.gd` | The radio close-up's slots for its missing parts (`main.radio_repair`); filling them all sets `radio_fixed` | `SLOTS`, `filled`, `showing()`, `slot_rect(id)`, `click(p, held)`, signal `changed` |
 | `ui/overlay.gd` | Draws all UI; gets every click first; owns the open panel | `panel`, `open_panel`, `close_panel`, `handle_click`, `over_ui` |
 | `ui/inventory_bar.gd` | The slots along the bottom, the held item, items flying in, dragging | `held`, `fly`, `has_room`, `click`, `drag_released(p)` |
+| `ui/dialogue_box.gd` | The bottom dialogue box: speaker portraits (you left, the other speaker right), typewriter text, voice blips, random radio chatter. Text, characters and voices are in `data/dialogue.json` | `start(id)`, `speaking()`, `skip_or_advance`, `close`, `is_active` |
+| `ui/portraits.gd` | Placeholder pixel-map portraits (idle / talking / blinking / dimmed), or a character's PNG strip | `build(id, image_path, palette)` |
 | `ui/pixel_draw.gd` | Drawing helpers: pixel text, frames, rings, palette colours | static functions, `W`, `H`, `INK`, `WHITE` |
 | `ui/microfiche/microfiche_panel.gd` | The map panel: layout, mouse, marks, station cards | `update`, `press`, `release`, `wheel`, `draw` |
 | `ui/microfiche/microfiche_map.gd` | The map sheets, zoom levels and lat/lon maths (no drawing) | `zoom_by`, `center_on`, `sheet_latlon`, `area_at_latlon` |
