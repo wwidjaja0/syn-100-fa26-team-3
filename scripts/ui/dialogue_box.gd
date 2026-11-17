@@ -21,10 +21,10 @@ const PUNCTUATION_PAUSE := 4.0          # frames to pause on . , ! ? : -
 const OPEN_FRAMES := 5.0
 const CLOSE_FRAMES := 3.0
 
-const CHATTER_MIN_FRAMES := 480.0       # 20 seconds at 24 fps
-const CHATTER_MAX_FRAMES := 1080.0      # 45 seconds at 24 fps
-const CHATTER_FIRST_MIN := 240.0        # 10 seconds
-const CHATTER_FIRST_MAX := 432.0        # 18 seconds
+const CHATTER_MIN_FRAMES := 1440.0      # 60 seconds at 24 fps
+const CHATTER_MAX_FRAMES := 2880.0      # 120 seconds at 24 fps
+const CHATTER_FIRST_MIN := 480.0        # 20 seconds
+const CHATTER_FIRST_MAX := 720.0        # 30 seconds
 
 var active := false
 var closing := false
