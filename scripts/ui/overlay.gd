@@ -6,10 +6,11 @@ extends Control
 ##   edge chevrons while the view pans  - crafting, the tank and radio panels, BACK
 ##   inventory bar (inventory_bar.gd)  - hover label, items in flight, click ripples
 ##   then any popup sitting under the top one, a full-screen scrim, and the top popup
-##   (the microfiche, the dialogue box, or the F9 menu). Clicks never pass through the scrim.
+##   (the microfiche, the radio journal, the dialogue box, or the F9 menu). Clicks never pass
+##   through the scrim.
 ##   the cursor (arrow, or hand over anything clickable) with the held item on it
 ##
-## Panels: at most one is open at a time (`panel`); today only "fiche", the microfiche.
+## Panels: at most one is open at a time (`panel`): "fiche" (the microfiche) or "journal".
 ## main.gd sends every click here first (handle_click); the room only gets the ones the UI ignores.
 
 const Px := preload("res://scripts/ui/pixel_draw.gd")
@@ -25,7 +26,7 @@ const RESULT_SCALE := 3                 # the result's 12x12 icon, drawn 3x
 const PANEL_OPEN_FRAMES := 6.0
 const PANEL_CLOSE_FRAMES := 4.0
 const RIPPLE_FRAMES := 7.0
-## full-screen dim behind whichever popup is on top (dialogue, the map, the debug menu).
+## full-screen dim behind whichever popup is on top (dialogue, the map, the journal, the debug menu).
 ## Pause and the title screen draw the same shade themselves.
 const SCRIM := Color(0.015, 0.008, 0.012, 0.62)
 
@@ -97,15 +98,13 @@ func panel_scale() -> float:
 
 # ---------------------------------------------------------------- input
 ## the popup that owns the screen, or "". Lower UI and the room ignore the cursor until it closes.
-## Debug sits above dialogue, which sits above the microfiche.
+## Debug sits above dialogue, which sits above the open panel (the microfiche or the journal).
 func top_modal() -> String:
 	if main.debug_menu.open:
 		return "debug"
 	if dialogue.is_active():
 		return "dialogue"
-	if panel == "fiche":
-		return "fiche"
-	return ""
+	return panel
 
 
 func _scrim() -> void:
@@ -123,7 +122,7 @@ func _hover_label(text: String, cur: Vector2) -> void:
 func over_ui(p: Vector2) -> bool:
 	if top_modal() != "":
 		return true
-	return inventory.slot_at(p) >= 0 or _over_back(p) or _over_result(p) \
+	return journal.over_hud_button(p) or inventory.slot_at(p) >= 0 or _over_back(p) or _over_result(p) \
 			or main.radio_repair.slot_at(p) != "" or main.tank_panel.over(p)
 
 
@@ -152,6 +151,12 @@ func handle_click(p: Vector2) -> bool:
 			else:
 				microfiche.press(p)
 			return true
+		"journal":
+			if journal.over_close(p):
+				close_panel()
+			else:
+				journal.press(p)
+			return true
 	if journal.over_hud_button(p):
 		open_panel("journal", main.clock)
 		UiSounds.play("click")
@@ -177,7 +182,7 @@ func release_click(p: Vector2) -> void:
 func wheel(up: bool, p: Vector2) -> void:
 	if top_modal() == "fiche" and panel_scale() >= 1.0:
 		microfiche.wheel(up, p)
-	elif panel == "journal" and panel_scale() >= 1.0:
+	elif top_modal() == "journal" and panel_scale() >= 1.0:
 		journal.wheel(up)
 
 
@@ -229,27 +234,13 @@ func _draw() -> void:
 		label = slot_label
 	ui_hover = ui_hover or label != ""
 
-	if not main.landing_active and panel == "":
-		var hud_interactive: bool = not main.debug_menu.open and not dialogue.is_active()
-		if journal.draw_hud_button(now, cur, hud_interactive):
+	if not main.landing_active:
+		if journal.draw_hud_button(now, cur, live):
 			label = "RADIO JOURNAL (J)"
 			ui_hover = true
 
-	if panel == "fiche":
-		var sc := panel_scale()
-		microfiche.draw(sc, main.cursor)
-		if sc >= 1.0:
-			label = microfiche.hover_label(cur)
-			ui_hover = label != "" or microfiche.hover_station != ""
-	elif panel == "journal":
-		var sc := panel_scale()
-		journal.draw(sc, now, cur)
-		if sc >= 1.0:
-			label = journal.hover_label(cur)
-			ui_hover = label != ""
-
 	var hover: String = main.picker.hover
-	if label == "" and panel == "" and hover != "":
+	if live and label == "" and hover != "":
 		label = main.interactions.label_for(hover, inventory.held)
 	if label != "":
 		_hover_label(label, cur)
@@ -265,6 +256,8 @@ func _draw() -> void:
 	# popups under the top one stay visible, then one scrim, then the top popup
 	if panel == "fiche" and top != "fiche":
 		microfiche.draw(panel_scale(), Vector2(-999, -999))
+	elif panel == "journal" and top != "journal":
+		journal.draw(panel_scale(), now, Vector2(-999, -999))
 	if dialogue.is_active() and top != "dialogue":
 		dialogue.draw(now, Vector2(-999, -999))
 	if top != "":
@@ -277,6 +270,14 @@ func _draw() -> void:
 			ui_hover = fiche_label != "" or microfiche.hover_station != ""
 			if fiche_label != "":
 				_hover_label(fiche_label, cur)
+	elif top == "journal":
+		var sc := panel_scale()
+		journal.draw(sc, now, cur)
+		if sc >= 1.0:
+			var journal_label := journal.hover_label(cur)
+			ui_hover = journal_label != ""
+			if journal_label != "":
+				_hover_label(journal_label, cur)
 	elif top == "debug":
 		ui_hover = main.debug_menu.draw(self, cur)
 	elif top == "dialogue":
