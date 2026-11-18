@@ -164,19 +164,22 @@ const STEPS := [
 	[1206, "point", Vector2(240, 255)], [1207, "click"], [1208, "radio_slot", "speaker"],
 	[1215, "shot", "38_hover_speaker_slot"], [1216, "click"], [1230, "shot", "39_radio_fixed"],
 	[1231, "point", Vector2(20, 12)], [1232, "click"], [1270, "shot", "40_back_from_radio"],
-	# the reef tank at the far left
-	[1271, "point", Vector2(240, 120)], [1275, "pan", "left"], [1330, "shot", "41_panning_to_tank"], [1470, "shot", "42_tank"],
-	[1471, "hover", "tank"], [1490, "shot", "43_hover_tank"],
-	[1491, "hover", "tank_gauges"], [1510, "shot", "44_hover_gauges"], [1511, "click"],
-	[1550, "shot", "45_tank_view"],
-	[1551, "hold", "jar"], [1552, "tank_slot", 0], [1556, "shot", "46_tank_slot_hover"], [1557, "click"],
-	[1565, "shot", "47_tank_slot_filled"],
-	[1566, "point", Vector2(20, 12)], [1567, "click"], [1605, "shot", "48_back_from_tank"],
-	[1606, "debug"], [1615, "shot", "49_debug_menu"],
-	[1616, "dialogue", "hint_use_radio"], [1640, "shot", "50_dialogue_monologue"],
-	[1641, "radio_dialogue", "radio_aquarium_1"], [1665, "shot", "51_dialogue_radio"],
-	[1666, "dialogue_line", 3], [1675, "shot", "52_dialogue_reply"],
-	[1676, "quit"],
+  [1271, "point", Vector2(240, 120)], [1275, "pan", "left"], [1330, "shot", "41_panning_to_tank"], [1470, "shot", "42_tank"],
+  [1471, "hover", "tank"], [1490, "shot", "43_hover_tank"],
+  [1491, "hover", "tank_gauges"], [1510, "shot", "44_hover_gauges"], [1511, "click"],
+  [1550, "shot", "45_tank_view"],
+  [1551, "hold", "jar"], [1552, "tank_slot", 0], [1556, "shot", "46_tank_slot_hover"], [1557, "click"],
+  [1565, "shot", "47_tank_slot_filled"],
+  [1566, "point", Vector2(20, 12)], [1567, "click"], [1605, "shot", "48_back_from_tank"],
+
+  [1606, "debug"], [1615, "shot", "49_debug_menu"],
+  [1616, "dialogue", "hint_use_radio"], [1640, "shot", "50_dialogue_monologue"],
+  [1641, "radio_dialogue", "radio_aquarium_1"], [1665, "shot", "51_dialogue_radio"],
+  [1666, "dialogue_line", 3], [1675, "shot", "52_dialogue_reply"],
+  [1676, "finish_radio_dialogue"],
+  [1687, "open_journal"], [1700, "shot", "53_radio_journal"],
+  [1701, "point", Vector2(160, 60)], [1702, "click"], [1710, "shot", "54_radio_journal_detail"],
+  [1711, "quit"],
 ]
 
 
@@ -249,5 +252,12 @@ func _do(s: Array, out: String) -> void:
 		"dialogue_line":                 # jump the open dialogue to a line, fully shown
 			main.ui.dialogue.current_line_idx = s[2]
 			main.ui.dialogue._chars_shown = 999.0
+		"finish_radio_dialogue":
+			while main.ui.dialogue.is_active() and not main.ui.dialogue.closing:
+				main.ui.dialogue._chars_shown = 999.0
+				main.ui.dialogue.skip_or_advance()
+		"open_journal":
+			main.ui.open_panel("journal", main.clock)
+			main.cursor_override = Vector2(main.W / 2.0, main.H / 2.0)
 		"quit":
 			get_tree().quit()

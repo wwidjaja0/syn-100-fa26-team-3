@@ -15,6 +15,7 @@ extends Control
 const Px := preload("res://scripts/ui/pixel_draw.gd")
 const InventoryBar := preload("res://scripts/ui/inventory_bar.gd")
 const MicrofichePanel := preload("res://scripts/ui/microfiche/microfiche_panel.gd")
+const JournalPanel := preload("res://scripts/ui/journal_panel.gd")
 const DialogueBox := preload("res://scripts/ui/dialogue_box.gd")
 const ARROW := preload("res://ui/cursor_arrow.png")
 const HAND := preload("res://ui/cursor_hand.png")
@@ -28,9 +29,10 @@ const RIPPLE_FRAMES := 7.0
 ## Pause and the title screen draw the same shade themselves.
 const SCRIM := Color(0.015, 0.008, 0.012, 0.62)
 
-var panel := ""                         # the open panel: "" or "fiche"
+var panel := ""                         # the open panel: "", "fiche", or "journal"
 var inventory: InventoryBar
 var microfiche: MicrofichePanel
+var journal: JournalPanel
 var dialogue: DialogueBox
 # palette-snapped panel colours, shared by everything drawn here
 var panel_col: Color
@@ -57,6 +59,7 @@ func _ready() -> void:
 	ok_col = Px.palette_color(pal, Color(0.39, 0.63, 0.68))
 	inventory = InventoryBar.new(self)
 	microfiche = MicrofichePanel.new(self, pal)
+	journal = JournalPanel.new(self, pal)
 	dialogue = DialogueBox.new(self, pal)
 
 
@@ -74,6 +77,8 @@ func close_panel() -> void:
 		if panel == "fiche":
 			microfiche.release(Vector2(-99, -99))   # drop any drag
 			microfiche.leave_detail()               # next time it opens on the world sheet
+		elif panel == "journal":
+			journal.leave_detail()
 
 
 ## 0..1 how open the panel is: grows over PANEL_OPEN_FRAMES, shrinks over PANEL_CLOSE_FRAMES.
@@ -147,6 +152,10 @@ func handle_click(p: Vector2) -> bool:
 			else:
 				microfiche.press(p)
 			return true
+	if journal.over_hud_button(p):
+		open_panel("journal", main.clock)
+		UiSounds.play("click")
+		return true
 	if _over_back(p):
 		main.back()
 		return true
@@ -168,6 +177,8 @@ func release_click(p: Vector2) -> void:
 func wheel(up: bool, p: Vector2) -> void:
 	if top_modal() == "fiche" and panel_scale() >= 1.0:
 		microfiche.wheel(up, p)
+	elif panel == "journal" and panel_scale() >= 1.0:
+		journal.wheel(up)
 
 
 ## a little expanding ring where the player clicked
@@ -218,8 +229,27 @@ func _draw() -> void:
 		label = slot_label
 	ui_hover = ui_hover or label != ""
 
+	if not main.landing_active and panel == "":
+		var hud_interactive: bool = not main.debug_menu.open and not dialogue.is_active()
+		if journal.draw_hud_button(now, cur, hud_interactive):
+			label = "RADIO JOURNAL (J)"
+			ui_hover = true
+
+	if panel == "fiche":
+		var sc := panel_scale()
+		microfiche.draw(sc, main.cursor)
+		if sc >= 1.0:
+			label = microfiche.hover_label(cur)
+			ui_hover = label != "" or microfiche.hover_station != ""
+	elif panel == "journal":
+		var sc := panel_scale()
+		journal.draw(sc, now, cur)
+		if sc >= 1.0:
+			label = journal.hover_label(cur)
+			ui_hover = label != ""
+
 	var hover: String = main.picker.hover
-	if live and label == "" and hover != "":
+	if label == "" and panel == "" and hover != "":
 		label = main.interactions.label_for(hover, inventory.held)
 	if label != "":
 		_hover_label(label, cur)
