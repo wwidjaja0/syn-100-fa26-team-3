@@ -3,7 +3,7 @@ extends "res://scripts/views/close_view.gd"
 ## glass, with the tank on the left of the screen and room on the right for the tank's panel
 ## (readings and item slots: tank/tank_panel.gd, drawn by overlay.gd).
 ##
-## The tank is built in code (room/fish_tank.gd), so the view frames it from that script's constants
+## The tank is scenes/fish_tank.tscn; the view frames it from room/fish_tank.gd's constants
 ## rather than a scene_meta.json point.
 
 ## a click while the view is settled; held is the item on the cursor, or null

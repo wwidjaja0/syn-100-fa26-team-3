@@ -13,8 +13,7 @@ signal cell_hovered(cell: Vector2i)
 signal cell_clicked(cell: Vector2i, held: ItemData)
 
 const NO_CELL := Vector2i(-1, -1)
-const CAM_HEIGHT := 2.0                 # m above the mat: above the pendant shade, so the swing never runs through
-                                        # it, and under the ceiling (hidden during the swing anyway)
+const CAM_HEIGHT := 2.0                 # m above the mat: above the pendant shade and under the ceiling
 
 var cols: int
 var rows: int
@@ -44,6 +43,55 @@ func setup(meta: Dictionary, w: int, h: int) -> void:
 	# screen pixel edges fall at camera centre + whole pixels, so put the mat corner on one
 	_focus = _mat_corner + Vector3(w / 2 - mat_px.position.x, 0, h / 2 - mat_px.position.y) * _px
 	_pose = Transform3D(Basis.from_euler(Vector3(-PI / 2.0, 0, 0)), _focus + Vector3(0, CAM_HEIGHT, 0))
+
+
+## The original swing (close_view.gd), with the zoom and the pan onto the mat running a little
+## ahead of the tilt so the frame is already tight on the bench as it tips down.
+## Mid-swing the orthographic frame's top edge pokes up through the sloped ceiling, and the rays
+## from there show the roof boards from above. Sliding an orthographic camera along its view ray
+## doesn't change the picture, only what sits behind it, so the camera is pushed forward until
+## that edge is under the rafters.
+func camera_pose(room: Transform3D, room_size: float) -> Array:
+	if t <= 0.0:
+		return [room, room_size]
+	if t >= 1.0:
+		return [_pose, _size]
+	var e := smoothstep(0.0, 1.0, t)
+	var lead := smoothstep(0.0, 0.7, t)
+	var f0 := -room.basis.z
+	var d0 := (room.origin.z - _focus.z) / maxf(-f0.z, 1e-3)
+	var pivot0 := room.origin + f0 * d0
+	var d1 := (_pose.origin - _focus).length()
+	var b := Basis(room.basis.get_rotation_quaternion().slerp(_pose.basis.get_rotation_quaternion(), e))
+	var size := exp(lerpf(log(room_size), log(_size), lead))
+	var pivot := pivot0.lerp(_focus, lead)
+	var dist := _under_ceiling(pivot, b, size, exp(lerpf(log(d0), log(d1), e)))
+	return [Transform3D(b, pivot + b.z * dist), size]
+
+
+## the ceiling's underside (pipeline/scene/build_pixel_scene.py, in Godot axes): a plane rising
+## CEIL_SLOPE toward the front, from the back wall (z = CEIL_BACK) to the front edge (z = CEIL_FRONT),
+## lowered to the rafters' undersides plus a little clearance
+const CEIL_SLOPE := deg_to_rad(16.0)
+const CEIL_BACK := -2.0
+const CEIL_FRONT := 1.1
+const CEIL_AT_BACK := 3.2 - 0.14 - 0.06
+
+
+## dist, shortened if the top edge of the frame would start above the ceiling: the camera moves
+## up its own view ray to where that edge's ray comes out under the boards
+func _under_ceiling(pivot: Vector3, b: Basis, size: float, dist: float) -> float:
+	var k := tan(CEIL_SLOPE)
+	var top := pivot + b.y * (size * 270.0 / 480.0 / 2.0)
+	var climb := b.z.y - k * b.z.z                   # how fast the edge rises past the slope per m back
+	if climb <= 1e-4:
+		return dist
+	var level := CEIL_AT_BACK - k * CEIL_BACK          # underside: y - k z stays below this
+	var d := (level - (top.y - k * top.z)) / climb   # where the edge's ray crosses the underside
+	var cross := top + b.z * d
+	if d >= dist or cross.z < CEIL_BACK or cross.z > CEIL_FRONT:
+		return dist
+	return maxf(d, 0.3)
 
 
 func exit(now: float) -> void:

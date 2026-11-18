@@ -51,13 +51,13 @@ order every frame, and routes input. Each part is one file with one job.
 | `inventory/inventory_data.gd` | `InventoryData` resource: the list of carried items | |
 | `room/interactions.gd` | **The game rules:** hover labels and what clicking each object does | `LABELS`, `click(group)`, `use_item(item, group)`, `pick_up(group, item_id, hide)`, `say(id)`, `then_after_dialogue(action)` |
 | `room/placeholders.gd` | Stand-in boxes for props not modelled yet (the battery), each its own object group | `PROPS`, `add_all(room, meta)` |
-| `room/fish_tank.gd` | The reef tank and gauge board at the far left, built in code, and the cabin's 2.4 m extension that makes room for them; animates the fish, bubbles, kelp and needles | `build(main, room, meta, lights)`, `update()`, `EXTRA` |
+| `room/fish_tank.gd` | Wires up `scenes/fish_tank.tscn` (the reef tank and gauge board) and animates the fish, bubbles, kelp and needles. The cabin's widened left end is `scenes/room_left.tscn` | `build(main, room, meta, lights)`, `update()`, `EXTRA` |
 | `room/object_picker.gd` | Reads the mask render: which group is under the cursor | `hover`, `group_at(p)`, `group_of(node)`, `screen_point(group)` |
 | `room/room_materials.gd` | Replaces the room's imported materials with the toon shader | `set_param(material, param, value)` |
 | `room/shutters.gd` | Storm shutters swing open/shut; heat rises and falls | `toggle()`, `is_open`, `heat` |
 | `room/cabinet.gd` | Supply cabinet doors and the light inside | `toggle()` |
 | `room/ambience.gd` | Things that move on their own: storm sky, PA status light, lantern | |
-| `room/room_camera.gd` | Edge panning, pixel snapping, blending into close-up views, hiding the ceiling | `x`, `push`, `cam_px` |
+| `room/room_camera.gd` | Edge panning, pixel snapping, blending into close-up views | `x`, `push`, `cam_px` |
 | `room/post_process.gd` | Hooks the renders and palette into `post.gdshader`; updates its uniforms | |
 | `room/ease.gd` | Easing curves (`smooth`, `out_back`) | static functions |
 | `views/close_view.gd` | Base class for close-ups: camera eases from the room to a fixed pose and back | `enter(now)`, `exit(now)`, `settled()`, `active()`, signals `entered`, `exited` |
@@ -172,7 +172,7 @@ A close-up view (crafting, radio) extends `views/close_view.gd`. It sets three t
 transform), `_size` (orthographic width in metres) and `_focus` (the point it looks at). Then:
 - `enter(now)` and `exit(now)` start the camera move; `t` eases 0 → 1 over `MOVE_FRAMES`.
 - `room_camera.gd` asks the active view for `camera_pose(room_pose, room_size)` and uses it for both cameras.
-- While a view is active, room hover is off, the sloped ceiling hides (both cameras swing up through it), and the
+- While a view is active, room hover is off and the
   overlay shows BACK once `settled()`.
 - Clicks go to the view's `click(cursor, held)`. The views only *emit signals* (`cell_clicked`, `clicked`).
   `crafting/crafting.gd` listens to `cell_clicked` (see "Crafting" below). The radio's repair slots are UI, so
@@ -208,7 +208,7 @@ to `radio_repair.click(p, held)`:
 
 ## The reef tank
 
-`room/fish_tank.gd` builds the tank, its gauge board and the cabin's extension in code (see its header). Clicking
+The tank and its gauge board are `scenes/fish_tank.tscn`, and the widened left end of the cabin (stone wall, floor, ceiling) is `scenes/room_left.tscn`. Both are instanced under the room in `scenes/main.tscn`, and the left wall and its stones are shifted there too, so the editor matches the game. `room/fish_tank.gd` registers the tank's groups and materials and animates it (see its header). `scripts/dev/export_fish_tank.gd` rebuilds the tank scene from those builders. Clicking
 either opens `views/tank_view.gd`; the first time it settles, `interactions.inspect_tank()` plays "inspect_tank"
 then "inspect_tank_gauges" (both `once_flag`). While it's settled, `tank/tank_panel.gd` is up: `overlay.gd` draws its
 `readings` (each a value with a bar range and a safe band, wobbling slightly via `live_value(i)`) and its `SLOTS`

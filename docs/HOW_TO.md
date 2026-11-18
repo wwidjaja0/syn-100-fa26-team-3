@@ -172,7 +172,7 @@ A close-up view swings the camera from the room into a fixed pose (the workbench
    x.setup(meta)`), and add it to `views`.
 4. **Open it** from `interactions.gd`'s `click()`: `_main.shelf_view.enter(_main.clock)`.
 
-Esc, right-click and the BACK button already close any view. The ceiling hides while a view is active. Keep the camera
+Esc, right-click and the BACK button already close any view. Keep the camera
 path clear of the pendant lamp (see the asset guide).
 
 ## Add a crafting recipe

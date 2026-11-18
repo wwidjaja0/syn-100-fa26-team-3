@@ -12,7 +12,7 @@ extends Node
 ##   room/cabinet.gd          supply cabinet doors and interior light
 ##   room/ambience.gd         storm sky, PA light, lantern glow
 ##   room/placeholders.gd     stand-in boxes for props not modelled yet (the battery)
-##   room/fish_tank.gd        the reef tank and its gauges, and the cabin's extension to the left
+##   room/fish_tank.gd        wires up scenes/fish_tank.tscn (the widened cabin is scenes/room_left.tscn)
 ##   room/room_camera.gd      panning, pixel snapping, hand-over to close-ups
 ##   room/post_process.gd     feeds the post shader
 ##   views/crafting_view.gd   close-up: straight down onto the workbench's cutting mat

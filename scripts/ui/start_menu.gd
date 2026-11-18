@@ -159,7 +159,8 @@ func _return_from_settings() -> void:
 # ---------------------------------------------------------------- drawing
 func _draw() -> void:
 	var cur := get_local_mouse_position().floor()
-	draw_rect(Rect2(0, 0, W, H), Color(0.015, 0.008, 0.012, 0.42))
+	var shade := 0.62 if page == "how" else 0.42
+	draw_rect(Rect2(0, 0, W, H), Color(0.015, 0.008, 0.012, shade))
 	draw_rect(Rect2(0, 0, W, 7), Px.INK)             # letterbox bars
 	draw_rect(Rect2(0, H - 7, W, 7), Px.INK)
 	if page == "how":

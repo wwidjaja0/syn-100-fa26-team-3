@@ -4,11 +4,22 @@
 //  * the mask camera (layer 20 in its cull mask): flat object id, Cryptomatte-style,
 //    so the post shader knows what is under the cursor and where to draw the outline.
 shader_type spatial;
-render_mode specular_disabled, cull_back;
+render_mode specular_disabled, cull_back, depth_prepass_alpha;
 
 const uint MASK_LAYER = 524288u;      // 1 << 19, render layer 20
 const int ID_OFFSET = 4;              // keep in step with post.gdshader and scripts/room/object_picker.gd
 const float ID_STEP = 10.0;           // ids are (id + ID_OFFSET) * ID_STEP / 255: room for 21 groups
+
+// geometry about to cross the near plane dissolves with the same 4x4 Bayer the post pass uses,
+// instead of slicing off on a hard line. The close-up swing stays under the ceiling
+// (scripts/views/close_view.gd); this catches whatever the lens still meets. Both the beauty and
+// the mask pass discard the same pixels, so the id under a hole is whatever is behind it.
+// The band sits just outside the cameras' near plane (0.05). Anything merely near the framing,
+// like a rafter the swing passes under, stays solid. The mat is 2m below and the radio panel
+// is 1.2m away, so a settled close-up never reaches it.
+const float NEAR_FADE_IN = 0.07;
+const float NEAR_FADE_OUT = 0.16;
+const float BAYER[16] = float[](0., 8., 2., 10., 12., 4., 14., 6., 3., 11., 1., 9., 15., 7., 13., 5.);
 
 // 0 toon (lit), 1 emissive, 2 outline hull, 3 storm sky, 4 spinning globe screen (microfiche idle)
 uniform int kind = 0;
@@ -126,6 +137,16 @@ vec3 globe_screen(float t) {
 }
 
 void fragment() {
+	// alpha scissor (not a bare discard) so the depth prepass drops the same pixels and the
+	// room behind a dissolving rafter or cord actually shows through
+	ALPHA_SCISSOR_THRESHOLD = 0.5;
+	ALPHA = 1.0;
+	float depth = -VERTEX.z;
+	if (depth < NEAR_FADE_OUT) {
+		ivec2 cell = ivec2(mod(floor(FRAGCOORD.xy), 4.0));
+		if (smoothstep(NEAR_FADE_IN, NEAR_FADE_OUT, depth) < BAYER[cell.y * 4 + cell.x] / 16.0)
+			ALPHA = 0.0;
+	}
 	if ((CAMERA_VISIBLE_LAYERS & MASK_LAYER) != 0u) {
 		// id in red: steps of 12 so rounding never confuses neighbours, offset by 4 steps because
 		// Compatibility loses precision near black; toon flag in blue

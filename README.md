@@ -64,7 +64,7 @@ What's in the room so far:
   and a dead chiller. Clicking it (or the gauge board above it) opens a close-up: the tank on the left, and a panel
   with its live readings (water temperature, pH, dissolved oxygen, each with its safe band, all out of range) and three
   item slots that take anything for now. The first visit plays the player's thoughts on what's happening to the
-  ocean. Built in code (`scripts/room/fish_tank.gd`, `scripts/views/tank_view.gd`, `scripts/tank/tank_panel.gd`).
+  ocean. The tank is `scenes/fish_tank.tscn` (`scripts/room/fish_tank.gd`, `scripts/views/tank_view.gd`, `scripts/tank/tank_panel.gd`).
 - **Microfiche map** (on the wall, left of the bench; it idles on a turning globe): a world map that starts blank
   except around the shelter (the Pacific Northwest). Every station you reach over the radio is marked and printed in;
   hover a mark to read that station's problems. Zoom goes 1/4, 1/2, full scale, then 4x, which is a printed area's

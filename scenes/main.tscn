@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
 [ext_resource type="PackedScene" path="res://assets/shelter.glb" id="2_room"]
@@ -6,6 +6,8 @@
 [ext_resource type="Script" path="res://scripts/ui/overlay.gd" id="4_ui"]
 [ext_resource type="Script" path="res://scripts/ui/pause_menu.gd" id="5_pause"]
 [ext_resource type="Script" path="res://scripts/ui/start_menu.gd" id="6_start"]
+[ext_resource type="PackedScene" path="res://scenes/fish_tank.tscn" id="7_tank"]
+[ext_resource type="PackedScene" path="res://scenes/room_left.tscn" id="8_left"]
 
 [sub_resource type="Environment" id="Environment_world"]
 background_mode = 1
@@ -35,12 +37,61 @@ render_target_update_mode = 4
 
 [node name="Room" parent="WorldVP" instance=ExtResource("2_room")]
 
+[node name="FishTank" parent="WorldVP/Room" instance=ExtResource("7_tank")]
+
+[node name="RoomLeft" parent="WorldVP/Room" instance=ExtResource("8_left")]
+
+[node name="left_wall" parent="WorldVP/Room"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4, 0, 0)
+
+[node name="stone_0_0" parent="WorldVP/Room"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4, 0, 0)
+
+[node name="stone_0_3" parent="WorldVP/Room"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4, 0, 0)
+
+[node name="stone_1_2" parent="WorldVP/Room"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4, 0, 0)
+
+[node name="stone_2_1" parent="WorldVP/Room"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4, 0, 0)
+
+[node name="stone_2_4" parent="WorldVP/Room"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4, 0, 0)
+
+[node name="stone_3_0" parent="WorldVP/Room"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4, 0, 0)
+
+[node name="stone_3_3" parent="WorldVP/Room"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4, 0, 0)
+
+[node name="stone_4_2" parent="WorldVP/Room"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4, 0, 0)
+
+[node name="stone_5_1" parent="WorldVP/Room"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4, 0, 0)
+
+[node name="stone_5_4" parent="WorldVP/Room"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4, 0, 0)
+
+[node name="stone_6_0" parent="WorldVP/Room"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4, 0, 0)
+
+[node name="stone_6_3" parent="WorldVP/Room"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4, 0, 0)
+
+[node name="stone_7_2" parent="WorldVP/Room"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4, 0, 0)
+
+[node name="ceiling_panel_00" parent="WorldVP/Room"]
+visible = false
+
 [node name="Camera" type="Camera3D" parent="WorldVP"]
 transform = Transform3D(1.00000, 0.00000, 0.00000, 0.00000, 0.99027, 0.13917, 0.00000, -0.13917, 0.99027, 2.60000, 3.22008, 9.88322)
 projection = 1
 keep_aspect = 0
 size = 6.6
-near = 0.1
+near = 0.05
 far = 40.0
 cull_mask = 524287
 current = true
@@ -125,7 +176,7 @@ transform = Transform3D(1.00000, 0.00000, 0.00000, 0.00000, 0.99027, 0.13917, 0.
 projection = 1
 keep_aspect = 0
 size = 6.6
-near = 0.1
+near = 0.05
 far = 40.0
 cull_mask = 1048575
 environment = SubResource("Environment_mask")

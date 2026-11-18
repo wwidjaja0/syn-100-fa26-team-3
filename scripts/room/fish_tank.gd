@@ -1,12 +1,15 @@
 extends Node
-## The reef tank at the cabin's left end, the gauge board above it, and the extension of the cabin
-## that makes room for them. main.gd creates it as `main.fish_tank` and calls build() before the
-## picker and the materials are set up, then update() every frame.
+## The reef tank at the cabin's left end and the gauge board above it. The tank is scenes/fish_tank.tscn
+## and the widened left end of the cabin is scenes/room_left.tscn, both instanced under the room in
+## scenes/main.tscn, so the editor shows them the way the game does. main.gd creates this as
+## `main.fish_tank` and calls build() before the picker and the materials are set up, then update()
+## every frame. build() only registers the tank; it does not create meshes or move the room.
 ##
-## Everything here is built in code from boxes, cylinders and spheres (no Blender on hand), in the
-## same look as the pipeline's props: one flat colour per part, and an inverted-hull outline
-## (a second, slightly bigger surface with its faces turned inside out, kind "outline") on the
-## parts that face the room. Inside the tank parts have no hull, so the bleached corals read bright.
+## The scene is boxes, cylinders and spheres (no Blender on hand), in the same look as the
+## pipeline's props: one flat colour per part, and an inverted-hull outline (a second, slightly
+## bigger surface with its faces turned inside out, kind "outline") on the parts that face the
+## room. Inside the tank parts have no hull, so the bleached corals read bright. Rebuild it with
+## scripts/dev/export_fish_tank.gd after changing the builders below.
 ##
 ## The story it tells is the ocean's, in miniature: the water is too warm (corals bleach white
 ## once they're stressed by heat), too acidic (dissolved CO2) and short of oxygen (warm water holds
@@ -14,13 +17,8 @@ extends Node
 ##
 ## Two object groups: "tank" (stand, tank, contents, chiller) and "tank_gauges" (the board). Their
 ## labels and monologues are in room/interactions.gd and data/dialogue.json.
-##
-## To move it later into the art pipeline: model the tank as a prop (docs/HOW_TO.md, "Add a prop to
-## the room"), widen the room in pipeline/scene/build_pixel_scene.py, and delete this script.
 
-const EXTRA := 2.4                      # m the cabin grows to the left (room_camera.gd's CAM_MIN moves with it)
-const OLD_LEFT := -5.2                  # the left wall's inner face before, and after:
-const NEW_LEFT := OLD_LEFT - EXTRA
+const EXTRA := 2.4                      # m the cabin's left end was widened (room_camera.gd's CAM_MIN uses it)
 const WALL_Z := -2.0                    # the back wall's face (Godot z; the room faces +z)
 const HULL := 0.016                     # outline hull thickness, as the pipeline's (ASSET_GUIDE.md)
 
@@ -31,6 +29,7 @@ const TANK_Z := WALL_Z + 0.08 + 0.24    # tank centre z: 8 cm off the wall
 const BOTTOM := STAND_H + 0.02          # the tank's glass floor
 const WATER_TOP := STAND_H + 0.53
 const BOARD_Y := 2.02                   # gauge board centre height
+const MODEL := "res://scenes/fish_tank.tscn"
 
 var _main: Node
 var _fish: Array = []                   # [pivot, tail, centre x, swim half-range, speed, phase, y, z]
@@ -41,40 +40,63 @@ var _mats := {}                         # key -> StandardMaterial3D
 var _meta: Dictionary
 
 
-## builds the room extension, the tank and the gauges, and registers their groups and materials in
-## meta (main.gd's scene_meta.json) so the picker numbers them and room_materials.gd styles them
-func build(main: Node, room: Node3D, meta: Dictionary, lights: Node3D) -> void:
+## registers the tank scene's groups and materials in meta (main.gd's scene_meta.json) so the
+## picker numbers them and room_materials.gd styles them
+func build(main: Node, room: Node3D, meta: Dictionary, _lights: Node3D) -> void:
 	_main = main
 	_meta = meta
-	_extend_room(room)
-	var tank := _group(room, "tank")
+	var model := room.get_node_or_null("FishTank") as Node3D
+	if model == null:
+		model = (load(MODEL) as PackedScene).instantiate()
+		model.name = "FishTank"
+		room.add_child(model)
+	_register(model)
+	_bind(model)
+
+
+## the tank, its gauges and its lights. export_fish_tank.gd saves what this returns; the game loads
+## that scene instead of calling this.
+func build_model() -> Node3D:
+	var root := Node3D.new()
+	root.name = "FishTank"
+	var tank := _group(root, "tank")
 	_build_stand(tank)
 	_build_tank(tank)
 	_build_contents(tank)
 	_build_chiller(tank)
-	_build_gauges(_group(room, "tank_gauges"))
+	_build_gauges(_group(root, "tank_gauges"))
+	_add_lights(root)
+	_apply_motion(0.0)                  # the pose the editor shows, and the game's first frame
+	return root
 
+
+func _add_lights(root: Node3D) -> void:
 	var glow := OmniLight3D.new()       # the hood's lamp, lighting the reef and the wall around it
 	glow.name = "tank_glow"
 	glow.light_color = Color(0.55, 0.85, 1.0)
 	glow.light_energy = 1.6
 	glow.omni_range = 3.5
 	glow.omni_attenuation = 2.0
-	lights.add_child(glow)
-	glow.global_position = Vector3(TX, WATER_TOP - 0.02, TANK_Z + 0.35)
+	glow.position = Vector3(TX, WATER_TOP - 0.02, TANK_Z + 0.35)
+	root.add_child(glow)
 	var fill := OmniLight3D.new()       # a little warm light spilling over from the room, so the stand reads
 	fill.name = "tank_corner_fill"
 	fill.light_color = Color(1.0, 0.78, 0.55)
 	fill.light_energy = 2.6
 	fill.omni_range = 6.0
 	fill.omni_attenuation = 2.0
-	lights.add_child(fill)
-	fill.global_position = Vector3(TX + 0.6, 1.6, TANK_Z + 2.6)
+	fill.position = Vector3(TX + 0.6, 1.6, TANK_Z + 2.6)
+	root.add_child(fill)
 
 
 ## per frame: fish swim, bubbles rise, kelp sways, needles twitch, the chiller's fault light blinks
 func update() -> void:
-	var t: float = _main.clock
+	_apply_motion(_main.clock)
+	var blink := 1.0 if fmod(_main.clock, 36.0) < 18.0 else 0.0
+	_main.materials.set_param("fishtank_chiller_fault", "emission_energy", 4.0 * blink)
+
+
+func _apply_motion(t: float) -> void:
 	for f in _fish:
 		var pivot: Node3D = f[0]
 		var s: float = sin(t * f[4] + f[5])
@@ -89,67 +111,6 @@ func update() -> void:
 		k[0].rotation.z = 0.12 * sin(t * 0.05 + k[1])
 	for n in _needles:
 		n[0].rotation.z = n[1] + 0.03 * sin(t * 0.37 + n[2]) + 0.015 * sin(t * 1.3 + n[2] * 3.0)
-	var blink := 1.0 if fmod(t, 36.0) < 18.0 else 0.0
-	_main.materials.set_param("fishtank_chiller_fault", "emission_energy", 4.0 * blink)
-
-
-# ---------------------------------------------------------------- the room extension
-## the left wall (and the stones on it) moves out by EXTRA; the back wall, baseboard, beams,
-## floor and sloped ceiling get copies stretched or repeated into the new strip
-func _extend_room(room: Node3D) -> void:
-	var left_wall: Node3D = room.find_child("left_wall", true, false)
-	var shelter := left_wall.get_parent()
-	for n: Node in shelter.get_children():
-		if n is MeshInstance3D and (n.name == "left_wall" or (n.name.begins_with("stone_") and _aabb(n).end.x < OLD_LEFT + 0.1)):
-			n.global_position.x -= EXTRA
-	for name in ["back_wall", "baseboard", "ceiling_beam", "upper_wall"]:
-		_stretch_copy(shelter.get_node(name), NEW_LEFT, OLD_LEFT)
-	_stretch_copy(shelter.get_node("subfloor"), NEW_LEFT - 0.3, _aabb(shelter.get_node("subfloor")).position.x)
-	var plank0 := _aabb(shelter.get_node("floor_plank_00")).position.x
-	for k in int(ceil(EXTRA / 0.3)):
-		var src: Node3D = shelter.get_node("floor_plank_%02d" % (k % 4))
-		var d := _copy(src, "floor_plank_x%02d" % k)
-		d.global_position.x += NEW_LEFT + 0.3 * k - plank0 - (_aabb(src).position.x - plank0)
-	# ceiling boards: the stub at the old wall goes (it would overlap), the boards and rafters repeat
-	var p1: Node3D = shelter.get_node("ceiling_panel_01")
-	var p2: Node3D = shelter.get_node("ceiling_panel_02")
-	var pitch := _aabb(p2).position.x - _aabb(p1).position.x
-	var stub: Node3D = shelter.get_node("ceiling_panel_00")
-	stub.get_parent().remove_child(stub)
-	stub.queue_free()
-	var rafter: Node3D = shelter.get_node("ceiling_rafter_00")
-	for k in range(1, int(ceil(EXTRA / pitch)) + 2):
-		var odd := k % 2 == 1               # alternate the two board colours
-		var d := _copy(p2 if odd else p1, "ceiling_panel_x%d" % k)
-		d.global_position.x -= pitch * (k + 1 if odd else k)
-		var r := _copy(rafter, "ceiling_rafter_x%d" % k)
-		r.global_position.x -= pitch * k
-
-
-func _copy(n: Node3D, name: String) -> Node3D:
-	var d: Node3D = n.duplicate()
-	d.name = name
-	n.get_parent().add_child(d)
-	d.global_transform = n.global_transform
-	return d
-
-
-## a copy of n squeezed or stretched along x to span x0..x1
-func _stretch_copy(n: Node3D, x0: float, x1: float) -> void:
-	var b := _aabb(n)
-	var s := (x1 - x0) / b.size.x
-	var d := _copy(n, String(n.name) + "_ext")
-	d.global_transform = Transform3D(Basis.from_scale(Vector3(s, 1, 1)), Vector3(x0 - s * b.position.x, 0, 0)) * n.global_transform
-
-
-static func _aabb(n: Node3D) -> AABB:
-	var box := AABB()
-	var first := true
-	for mi: MeshInstance3D in ([n] if n is MeshInstance3D else []) + n.find_children("*", "MeshInstance3D", true, false):
-		var b := mi.global_transform * mi.get_aabb()
-		box = b if first else box.merge(b)
-		first = false
-	return box
 
 
 # ---------------------------------------------------------------- the tank
@@ -224,6 +185,8 @@ func _build_contents(g: Node3D) -> void:
 	# kelp, swaying
 	for k in [[TX - 0.48, 0.0], [TX - 0.42, 1.9]]:
 		var strand := Node3D.new()
+		strand.name = "Kelp%d" % (_kelp.size() + 1)
+		strand.set_meta("kelp_phase", k[1])
 		g.add_child(strand)
 		strand.position = Vector3(k[0], floor_y, TANK_Z - 0.17)
 		for s in 4:
@@ -237,22 +200,30 @@ func _build_contents(g: Node3D) -> void:
 			[Color(0.26, 0.56, 0.98), false, 0.025, 5.2, BOTTOM + 0.26, TANK_Z + 0.14, 0.24]]:
 		var body := _mat("fish_%d" % _fish.size(), f[0])
 		var pivot := Node3D.new()
+		pivot.name = "Fish%d" % (_fish.size() + 1)
 		g.add_child(pivot)
 		_part(pivot, "fish_body", "box", Vector3(0.10, 0.055, 0.03), Vector3.ZERO, body, Vector3.ZERO, false)
 		if f[1]:
 			_part(pivot, "fish_stripe", "box", Vector3(0.016, 0.057, 0.032), Vector3(0.016, 0, 0), white, Vector3.ZERO, false)
 		var tail := Node3D.new()
+		tail.name = "Tail"
 		pivot.add_child(tail)
 		tail.position = Vector3(-0.05, 0, 0)
 		_part(tail, "fish_tail", "box", Vector3(0.034, 0.046, 0.012), Vector3(-0.015, 0, 0), body, Vector3.ZERO, false)
 		var swim: float = TANK.x / 2.0 - 0.14
-		_fish.append([pivot, tail, TX + (0.06 if _fish.size() % 2 == 0 else -0.06), swim * (0.6 + 0.12 * _fish.size()), f[2], f[3], f[4], f[5]])
+		var centre := TX + (0.06 if _fish.size() % 2 == 0 else -0.06)
+		var reach := swim * (0.6 + 0.12 * _fish.size())
+		pivot.set_meta("fish", {"cx": centre, "range": reach, "speed": f[2], "phase": f[3], "y": f[4], "z": f[5]})
+		_fish.append([pivot, tail, centre, reach, f[2], f[3], f[4], f[5]])
 	# bubbles from an airstone in the back left corner
 	var bubble := _mat("bubble", Color(0.85, 0.97, 1.0), "emit", 1.2)
 	_part(g, "airstone", "box", Vector3(0.05, 0.025, 0.03), Vector3(TX - 0.50, floor_y + 0.012, TANK_Z - 0.12), _mat("airstone", Color(0.70, 0.66, 0.62)), Vector3.ZERO, false)
 	for i in 5:
 		var b := _part(g, "bubble", "box", Vector3(0.016, 0.016, 0.016), Vector3.ZERO, bubble, Vector3.ZERO, false)
-		_bubbles.append([b, TX - 0.50, TANK_Z - 0.12, i / 5.0])
+		b.name = "Bubble%d" % (i + 1)
+		var phase := i / 5.0
+		b.set_meta("bubble", {"x": TX - 0.50, "z": TANK_Z - 0.12, "phase": phase})
+		_bubbles.append([b, TX - 0.50, TANK_Z - 0.12, phase])
 
 
 ## the dead chiller on the floor beside the stand, its hoses running up into the tank
@@ -288,35 +259,82 @@ func _build_gauges(g: Node3D) -> void:
 			var r := deg_to_rad(a)
 			_part(g, "gauge_red", "box", Vector3(0.035, 0.022, 0.006), c + Vector3(cos(r), sin(r), 0) * 0.08 + Vector3(0, 0, 0.022), red, Vector3(0, 0, a), false)
 		var pivot := Node3D.new()
+		pivot.name = "Needle%d" % (_needles.size() + 1)
+		var angle := deg_to_rad(d[3])
+		var phase: float = d[0] * 7.0
+		pivot.set_meta("needle", {"angle": angle, "phase": phase})
 		g.add_child(pivot)
 		pivot.position = c + Vector3(0, 0, 0.026)
 		_part(pivot, "gauge_needle", "box", Vector3(0.085, 0.012, 0.004), Vector3(0.036, 0, 0), ink, Vector3.ZERO, false)
-		_needles.append([pivot, deg_to_rad(d[3]), d[0] * 7.0])
+		_needles.append([pivot, angle, phase])
 		_part(g, "gauge_cap", "cyl", Vector3(0.03, 0.01, 0.03), c + Vector3(0, 0, 0.03), _mat("gauge_cap_%d" % _needles.size(), d[1]), Vector3(90, 0, 0), false)
 		_part(g, "gauge_readout", "box", Vector3(0.15, 0.045, 0.01), Vector3(d[0], BOARD_Y - 0.15, z + 0.02), _mat("gauge_readout_%d" % _needles.size(), d[2], "emit", 2.5))
 
 
 # ---------------------------------------------------------------- building blocks
-## a new object group: a grp_<name> node in the room, added to meta.groups for the picker
-func _group(room: Node3D, name: String) -> Node3D:
+## a new object group: a grp_<name> node. build() adds the name to meta.groups for the picker.
+func _group(parent: Node3D, name: String) -> Node3D:
 	var g := Node3D.new()
 	g.name = "grp_" + name
-	room.add_child(g)
-	if not name in _meta.groups:
-		_meta.groups.append(name)
+	parent.add_child(g)
 	return g
 
 
-## a flat-colour material room_materials.gd turns into the toon shader: registered in
-## meta.materials under fishtank_<key> (kind "toon" or "emit"; colours given in sRGB)
+## groups and materials the scene carries, written into meta the way the builders used to
+func _register(root: Node) -> void:
+	for group_name in ["tank", "tank_gauges"]:
+		if not group_name in _meta.groups:
+			_meta.groups.append(group_name)
+	for mi: MeshInstance3D in root.find_children("*", "MeshInstance3D", true, false):
+		if mi.mesh == null:
+			continue
+		for i in mi.mesh.get_surface_count():
+			var mat := mi.mesh.surface_get_material(i)
+			if mat == null:
+				continue
+			var mat_name := mat.resource_name
+			if mat_name == "" or _meta.materials.has(mat_name):
+				continue
+			var lin := Color.WHITE
+			if mat is StandardMaterial3D:
+				lin = mat.albedo_color.srgb_to_linear()
+			_meta.materials[mat_name] = {
+				"kind": mat.get_meta("kind", "toon"),
+				"color": [lin.r, lin.g, lin.b],
+				"strength": float(mat.get_meta("strength", 0.0)),
+			}
+
+
+## the nodes update() moves, found by the metadata build_model() stored on them
+func _bind(root: Node) -> void:
+	_fish.clear()
+	_bubbles.clear()
+	_kelp.clear()
+	_needles.clear()
+	for n in root.find_children("*", "", true, false):
+		if n.has_meta("fish"):
+			var fish: Dictionary = n.get_meta("fish")
+			_fish.append([n, n.get_node("Tail"), fish.cx, fish.range, fish.speed, fish.phase, fish.y, fish.z])
+		elif n.has_meta("bubble"):
+			var bubble: Dictionary = n.get_meta("bubble")
+			_bubbles.append([n, bubble.x, bubble.z, bubble.phase])
+		elif n.has_meta("kelp_phase"):
+			_kelp.append([n, float(n.get_meta("kelp_phase"))])
+		elif n.has_meta("needle"):
+			var needle: Dictionary = n.get_meta("needle")
+			_needles.append([n, needle.angle, needle.phase])
+
+
+## a flat-colour material. Its name, kind and strength are saved on it; build() copies them into
+## meta.materials so room_materials.gd can turn it into the toon shader.
 func _mat(key: String, srgb: Color, kind := "toon", strength := 0.0) -> StandardMaterial3D:
 	var name := "fishtank_" + key
 	if not _mats.has(name):
-		var lin := srgb.srgb_to_linear()
-		_meta.materials[name] = {"kind": kind, "color": [lin.r, lin.g, lin.b], "strength": strength}
 		var m := StandardMaterial3D.new()
 		m.resource_name = name
 		m.albedo_color = srgb
+		m.set_meta("kind", kind)
+		m.set_meta("strength", strength)
 		_mats[name] = m
 	return _mats[name]
 
@@ -354,7 +372,12 @@ func _part(parent: Node3D, name: String, shape: String, size: Vector3, pos: Vect
 		mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, _hull(arrays, shape))
 		mesh.surface_set_material(1, _outline())
 	var mi := MeshInstance3D.new()
-	mi.name = "fishtank_" + name
+	var unique := "fishtank_" + name
+	var n := 2
+	while parent.get_node_or_null(NodePath(unique)) != null:
+		unique = "fishtank_%s_%d" % [name, n]
+		n += 1
+	mi.name = unique
 	mi.mesh = mesh
 	parent.add_child(mi)
 	mi.position = pos
@@ -393,5 +416,6 @@ func _outline() -> StandardMaterial3D:
 	if not _mats.has("toon_outline"):
 		var m := StandardMaterial3D.new()
 		m.resource_name = "toon_outline"
+		m.set_meta("kind", "outline")
 		_mats["toon_outline"] = m
 	return _mats["toon_outline"]

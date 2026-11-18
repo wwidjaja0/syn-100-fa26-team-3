@@ -117,6 +117,13 @@ func _exit_tree() -> void:
 
 
 ## QUIT TO DESKTOP is only in the in-game pause menu, and never on the web
+## a popup on the game UI is up (dialogue, the map, the debug menu). The pause button
+## sits under that scrim and must not open on top of it.
+func _blocked_by_modal() -> bool:
+	var ui = game_ui
+	return ui.top_modal() != ""
+
+
 func _has_quit() -> bool:
 	return not title_context and not OS.has_feature("web")
 
@@ -169,7 +176,7 @@ func _input(event: InputEvent) -> void:
 	var p := get_local_mouse_position()
 	if event.pressed:
 		if not is_paused:
-			if pause_button_enabled and PAUSE_BUTTON.has_point(p):
+			if pause_button_enabled and not _blocked_by_modal() and PAUSE_BUTTON.has_point(p):
 				UiSounds.play("click")
 				open_pause()
 				get_viewport().set_input_as_handled()
@@ -221,6 +228,8 @@ func _handle_press(p: Vector2) -> void:
 ## "to_title", "quit", "pause" (the corner button), or ""
 func _hot_at(p: Vector2) -> String:
 	if not is_paused:
+		if _blocked_by_modal():
+			return ""
 		return "pause" if pause_button_enabled and visible and PAUSE_BUTTON.has_point(p) else ""
 	if Menu.close_rect(_menu).has_point(p):
 		return "close"
@@ -324,7 +333,7 @@ func _draw() -> void:
 			Menu.button(self, PAUSE_BUTTON, "PAUSE", hot == "pause")
 		return
 
-	draw_rect(Rect2(0, 0, Px.W, Px.H), Color(0.02, 0.01, 0.02, 0.34))
+	draw_rect(Rect2(0, 0, Px.W, Px.H), Color(0.015, 0.008, 0.012, 0.62))
 	Menu.panel(self, _menu, "SETTINGS" if title_context else "PAUSED", hot == "close")
 	for s in SLIDERS:
 		var r: Rect2 = _slider[s]

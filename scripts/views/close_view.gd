@@ -4,7 +4,7 @@ extends Node
 ##
 ## crafting_view.gd (straight down onto the workbench's cutting mat) and radio_view.gd (the ham
 ## radio's front panel) extend this. While a view is active, room_camera.gd blends it into the room
-## camera, the room's hover is off, the ceiling hides, and overlay.gd shows a BACK button once it
+## camera, the room's hover is off, and overlay.gd shows a BACK button once it
 ## has settled. Esc, right-click and BACK all call exit().
 ##
 ## To add a view: extend this script, set _pose (camera transform), _size (orthographic width in
@@ -70,7 +70,8 @@ func click(_cursor: Vector2, _held: ItemData) -> void:
 
 
 ## blend the room camera into the close-up: both look at a pivot at the focus's depth, and the
-## pivot, view direction, distance and zoom all ease across together
+## pivot, view direction, distance and zoom all ease across together.
+## Crafting overrides this to keep the roof out of its swing (see crafting_view.gd).
 func camera_pose(room: Transform3D, room_size: float) -> Array:
 	if t <= 0.0:
 		return [room, room_size]

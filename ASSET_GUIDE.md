@@ -21,7 +21,7 @@ no narrator, so text on screen is only hover labels, item names and diegetic UI 
 | World units per pixel | 6.6 m / 480 = **1.375 cm** (ortho, same at every depth) | Details under ~4 cm (3 px) won't read |
 | Outline hull | 1.6 cm | Thin parts (<3 cm) turn into outline only |
 | Camera | ortho width 6.6 m, tilted 8° down, looking at the back wall | Front faces and tops show; backs never do |
-| Room (Blender coords) | back wall at y = 2.0; floor z = 0; ceiling beam z ≈ 3.05; x from -5.2 to 7.2 (the game extends it to -7.6 for the reef tank, `scripts/room/fish_tank.gd`) | Props live between y ≈ -1 and 2 |
+| Room (Blender coords) | back wall at y = 2.0; floor z = 0; ceiling beam z ≈ 3.05; x from -5.2 to 7.2, widened to -7.6 on the left by `scenes/room_left.tscn` | Props live between y ≈ -1 and 2 |
 | Camera pan | x from -4.25 to 3.0, visible half-width 3.3 m | Anything outside x ≈ -7.5…6.3 is never seen |
 | Palette | 40 colours, `assets/palette.json` | Off-palette colours get dithered between neighbours |
 | Object groups | **max 21** (16 in the room + 3 added in code) | Ids are encoded as `(id + 4) * 10` in one 8-bit channel |
@@ -74,9 +74,7 @@ Godot reads the size, centre and grid from the `craft` block in `scene_meta.json
 a fixed pose and back (`scripts/views/close_view.gd`). To add another one (a shelf, a gauge), extend
 `close_view.gd`, set `_pose`, `_size` (ortho width in m) and `_focus` (the point it looks at) in a
 `setup()`, and add it to `views` in `scripts/main.gd` (step by step in `docs/HOW_TO.md`). Export the point you look at from `export_glb.py`
-(`points`), like `radio_front`, rather than hard-coding coordinates. The sloped ceiling (`ceiling_panel_*`, `ceiling_rafter_*`
-from `build_pixel_scene.py`) hides while any close-up is active, because the cameras swing up through
-it. Keep the pendant lamp clear of the crafting camera's path: it hangs left of the bench (`PENDANT_X`)
+(`points`), like `radio_front`, rather than hard-coding coordinates. Keep the pendant lamp clear of the crafting camera's path: it hangs left of the bench (`PENDANT_X`)
 and the top-down camera sits above it (`CAM_HEIGHT` in `crafting_view.gd`).
 
 **The microfiche display** hangs on the wall where the paper map used to be (`14_microfiche_reader`): a map-sized

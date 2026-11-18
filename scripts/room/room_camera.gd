@@ -7,7 +7,7 @@ extends Node
 ##     browser page) it pans at full speed; A/D or the arrow keys pan at full speed too;
 ##   * the position is snapped to whole screen pixels, so the pixel art never shimmers;
 ##   * when a close-up view (scripts/views/) is opening or open, its camera pose is blended in
-##     instead, and the sloped ceiling hides (both close-up cameras swing up through it).
+##     instead. The ceiling stays where it is. A popup (dialogue, the map) stops the pan.
 ##   * while the title screen is up (main.landing_active) it drifts slowly side to side instead.
 ## `push` (-1..1) tells overlay.gd to draw the edge chevrons.
 
@@ -37,12 +37,11 @@ var _z: float
 var _size: float
 var _edge_hold := false                 # after a panel or close-up the cursor may sit in an edge band
                                         # (BACK is top-left): no edge-push until it has left the band
-var _ceiling: Array[Node3D] = []
 var _web_out := Vector2.ZERO            # web: which way the pointer left the page
 var _web_callbacks := []                # keeps the JavaScript callbacks alive
 
 
-func setup(main: Node, meta: Dictionary, room: Node3D, camera: Camera3D, mask_cam: Camera3D) -> void:
+func setup(main: Node, meta: Dictionary, _room: Node3D, camera: Camera3D, mask_cam: Camera3D) -> void:
 	_main = main
 	_cameras = [camera, mask_cam]
 	_pix = ORTHO_WIDTH / main.W
@@ -53,9 +52,6 @@ func setup(main: Node, meta: Dictionary, room: Node3D, camera: Camera3D, mask_ca
 	_y = camera.position.y
 	_z = camera.position.z
 	_size = camera.size
-	for n in room.find_children("ceiling_*", "", true, false):
-		if n.name.begins_with("ceiling_panel") or n.name.begins_with("ceiling_rafter"):
-			_ceiling.append(n)
 	if OS.has_feature("web"):
 		_watch_web_mouse()
 
@@ -79,9 +75,6 @@ func update(delta: float) -> void:
 	for cam in _cameras:
 		cam.transform = pose[0]
 		cam.size = pose[1]
-	var in_room: bool = _main.active_view() == null
-	for c in _ceiling:
-		c.visible = in_room
 
 
 func panning() -> bool:
@@ -103,7 +96,7 @@ func _update_push() -> void:
 		velocity = 0.0
 		return
 	var ui = _main.ui
-	if _main.active_view() != null or ui.panel != "":
+	if _main.active_view() != null or ui.top_modal() != "":
 		_edge_hold = true
 		return
 	var cursor: Vector2 = _main.cursor
