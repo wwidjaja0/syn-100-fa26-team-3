@@ -30,8 +30,8 @@ Every clickable thing is an **object group**: a set of meshes that hover, outlin
    'kettle': kids('15_kettle'),          # every mesh under the imported prop
    # or: 'kettle': named('kettle_'),      # every mesh whose name starts with kettle_
    ```
-   A mesh belongs to the first group that lists it. There's room for 17 groups and all 17 are used (the 17th is the
-   placeholder battery from `scripts/room/placeholders.gd`; modelling it frees that slot). To go past that,
+   A mesh belongs to the first group that lists it. There's room for 21 groups and 19 are used (16 from the room,
+   plus the placeholder battery and the reef tank's two, added in code). To go past that,
    see "Object groups and the mask" in [`ARCHITECTURE.md`](ARCHITECTURE.md).
 2. **Re-export** the room (`export_glb.py`, see [`PIPELINE.md`](PIPELINE.md) step 5) and let Godot re-import.
 3. **Label it.** In `scripts/room/interactions.gd`, add the hover text to `LABELS`:
@@ -172,7 +172,7 @@ A close-up view swings the camera from the room into a fixed pose (the workbench
    x.setup(meta)`), and add it to `views`.
 4. **Open it** from `interactions.gd`'s `click()`: `_main.shelf_view.enter(_main.clock)`.
 
-Esc, right-click and the BACK button already close any view. The ceiling hides while a view is active. Keep the camera
+Esc, right-click and the BACK button already close any view. Keep the camera
 path clear of the pendant lamp (see the asset guide).
 
 ## Add a crafting recipe

@@ -3,10 +3,10 @@ extends Control
 ## (the UI/Overlay node in scenes/main.tscn).
 ##
 ## Draws, in this order (later on top):
-##   edge chevrons while the view pans  - crafting: items on the mat, the cell highlight, the
-##   result slot  - BACK button (close-ups)
-##   inventory bar (inventory_bar.gd)   - the microfiche panel (microfiche/microfiche_panel.gd)
-##   hover label - items flying into the bar - click ripples - F9 menu (dev/debug_menu.gd)
+##   edge chevrons while the view pans  - crafting, the tank and radio panels, BACK
+##   inventory bar (inventory_bar.gd)  - hover label, items in flight, click ripples
+##   then any popup sitting under the top one, a full-screen scrim, and the top popup
+##   (the microfiche, the dialogue box, or the F9 menu). Clicks never pass through the scrim.
 ##   the cursor (arrow, or hand over anything clickable) with the held item on it
 ##
 ## Panels: at most one is open at a time (`panel`); today only "fiche", the microfiche.
@@ -25,6 +25,9 @@ const RESULT_SCALE := 3                 # the result's 12x12 icon, drawn 3x
 const PANEL_OPEN_FRAMES := 6.0
 const PANEL_CLOSE_FRAMES := 4.0
 const RIPPLE_FRAMES := 7.0
+## full-screen dim behind whichever popup is on top (dialogue, the map, the debug menu).
+## Pause and the title screen draw the same shade themselves.
+const SCRIM := Color(0.015, 0.008, 0.012, 0.62)
 
 var panel := ""                         # the open panel: "", "fiche", or "journal"
 var inventory: InventoryBar
@@ -35,6 +38,8 @@ var dialogue: DialogueBox
 var panel_col: Color
 var panel_hi: Color
 var panel_lo: Color
+var warn_col: Color                     # readings outside their safe band
+var ok_col: Color                       # the safe band on a reading's bar
 
 var _panel_at := -1e9
 var _closing_at := -1e9
@@ -50,6 +55,8 @@ func _ready() -> void:
 	panel_col = Px.palette_color(pal, Color(0.09, 0.06, 0.08))
 	panel_hi = Px.palette_color(pal, Color(0.36, 0.24, 0.17))
 	panel_lo = Px.palette_color(pal, Color(0.03, 0.02, 0.03))
+	warn_col = Px.palette_color(pal, Color(0.92, 0.39, 0.09))
+	ok_col = Px.palette_color(pal, Color(0.39, 0.63, 0.68))
 	inventory = InventoryBar.new(self)
 	microfiche = MicrofichePanel.new(self, pal)
 	journal = JournalPanel.new(self, pal)
@@ -89,11 +96,35 @@ func panel_scale() -> float:
 
 
 # ---------------------------------------------------------------- input
+## the popup that owns the screen, or "". Lower UI and the room ignore the cursor until it closes.
+## Debug sits above dialogue, which sits above the microfiche.
+func top_modal() -> String:
+	if main.debug_menu.open:
+		return "debug"
+	if dialogue.is_active():
+		return "dialogue"
+	if panel == "fiche":
+		return "fiche"
+	return ""
+
+
+func _scrim() -> void:
+	draw_rect(Rect2(0, 0, Px.W, Px.H), SCRIM)
+
+
+func _hover_label(text: String, cur: Vector2) -> void:
+	var tw := Px.text_width(text)
+	var lx := mini(int(cur.x) + 10, Px.W - tw - 3)
+	var ly := maxi(int(cur.y) - 13, 3)
+	Px.text(self, text, Vector2(lx, ly), Px.WHITE, Px.INK)
+
+
 ## is the cursor on a piece of UI (so the room shouldn't react to it)?
 func over_ui(p: Vector2) -> bool:
-	return main.debug_menu.open or dialogue.is_active() or panel != "" or journal.over_hud_button(p) \
-			or inventory.slot_at(p) >= 0 or _over_back(p) \
-			or _over_result(p) or main.radio_repair.slot_at(p) != ""
+	if top_modal() != "":
+		return true
+	return inventory.slot_at(p) >= 0 or _over_back(p) or _over_result(p) \
+			or main.radio_repair.slot_at(p) != "" or main.tank_panel.over(p)
 
 
 func _over_result(p: Vector2) -> bool:
@@ -106,21 +137,21 @@ func _over_back(p: Vector2) -> bool:
 
 
 ## the left button went down. True when the UI took the click and the room should ignore it.
+## A popup eats every click: only its own controls run, and nothing under the scrim does.
 func handle_click(p: Vector2) -> bool:
-	if main.debug_menu.open:
-		main.debug_menu.click(p)
-		return true
-	if dialogue.is_active():
-		dialogue.skip_or_advance()
-		return true
-	if panel == "fiche":
-		if microfiche.over_close(p) or not microfiche.press(p):
-			close_panel()
-		return true
-	if panel == "journal":
-		if journal.over_close(p) or not journal.press(p):
-			close_panel()
-		return true
+	match top_modal():
+		"debug":
+			main.debug_menu.click(p)
+			return true
+		"dialogue":
+			dialogue.skip_or_advance()
+			return true
+		"fiche":
+			if microfiche.over_close(p):
+				close_panel()
+			else:
+				microfiche.press(p)
+			return true
 	if journal.over_hud_button(p):
 		open_panel("journal", main.clock)
 		UiSounds.play("click")
@@ -131,20 +162,20 @@ func handle_click(p: Vector2) -> bool:
 	if _over_result(p):
 		main.workbench.craft(RESULT.get_center())
 		return true
-	if main.radio_repair.click(p, inventory.held):
+	if main.radio_repair.click(p, inventory.held) or main.tank_panel.click(p, inventory.held):
 		return true
 	return inventory.click(p)
 
 
 ## the left button came up (ends a drag on the microfiche, or zooms if it was a click)
 func release_click(p: Vector2) -> void:
-	if panel == "fiche":
+	if top_modal() == "fiche":
 		microfiche.release(p)
 
 
-## mouse wheel: zooms the microfiche while it is open
+## mouse wheel: zooms the microfiche while it is the top popup
 func wheel(up: bool, p: Vector2) -> void:
-	if panel == "fiche" and panel_scale() >= 1.0:
+	if top_modal() == "fiche" and panel_scale() >= 1.0:
 		microfiche.wheel(up, p)
 	elif panel == "journal" and panel_scale() >= 1.0:
 		journal.wheel(up)
@@ -169,25 +200,31 @@ func _draw() -> void:
 	elif push > 0.0:
 		_chevron(1, push > 0.5, now)
 
-	# close-ups: the crafting mat (items on it, the hovered cell, the result slot) and BACK
+	# close-ups and the inventory stay on screen under a popup, but they don't highlight or take clicks
+	var top := top_modal()
+	var live := top == ""
 	var craft = main.crafting
 	if craft.settled():
-		var craft_label := _draw_crafting(craft, cur)
+		var craft_label := _draw_crafting(craft, cur, live)
 		ui_hover = ui_hover or craft_label != ""
 		label = craft_label
+	if main.tank_panel.showing():
+		var tank_label := _draw_tank_panel(cur, live)
+		ui_hover = ui_hover or tank_label != ""
+		label = tank_label
 	if main.radio_repair.showing():
-		var radio_label := _draw_radio_slots(cur)
+		var radio_label := _draw_radio_slots(cur, live)
 		ui_hover = ui_hover or radio_label != ""
 		label = radio_label
 	var view = main.active_view()
 	if view != null and view.settled():
-		var hot := BACK.has_point(cur)
+		var hot := live and BACK.has_point(cur)
 		draw_rect(BACK, panel_col)
 		Px.frame(self, BACK, Px.WHITE if hot else panel_hi)
 		Px.text(self, "BACK", BACK.position + Vector2(5, 4), Px.WHITE, Px.INK)
 		ui_hover = ui_hover or hot
 
-	var slot_label := inventory.draw_slots(cur, panel == "")
+	var slot_label := inventory.draw_slots(cur, live)
 	if slot_label != "":
 		label = slot_label
 	ui_hover = ui_hover or label != ""
@@ -214,11 +251,8 @@ func _draw() -> void:
 	var hover: String = main.picker.hover
 	if label == "" and panel == "" and hover != "":
 		label = main.interactions.label_for(hover, inventory.held)
-	if label != "" and not main.debug_menu.open and not dialogue.is_active():
-		var tw := Px.text_width(label)
-		var lx := mini(int(cur.x) + 10, Px.W - tw - 3)
-		var ly := maxi(int(cur.y) - 13, 3)
-		Px.text(self, label, Vector2(lx, ly), Px.WHITE, Px.INK)
+	if label != "":
+		_hover_label(label, cur)
 
 	inventory.draw_flights(now)
 
@@ -228,14 +262,29 @@ func _draw() -> void:
 			Px.ring(self, r[0], 3.0 + k * 1.6, Px.WHITE)
 	_ripples = _ripples.filter(func(r): return now - r[1] < RIPPLE_FRAMES)
 
-	if main.debug_menu.open:
+	# popups under the top one stay visible, then one scrim, then the top popup
+	if panel == "fiche" and top != "fiche":
+		microfiche.draw(panel_scale(), Vector2(-999, -999))
+	if dialogue.is_active() and top != "dialogue":
+		dialogue.draw(now, Vector2(-999, -999))
+	if top != "":
+		_scrim()
+	if top == "fiche":
+		var sc := panel_scale()
+		microfiche.draw(sc, cur)
+		if sc >= 1.0:
+			var fiche_label := microfiche.hover_label(cur)
+			ui_hover = fiche_label != "" or microfiche.hover_station != ""
+			if fiche_label != "":
+				_hover_label(fiche_label, cur)
+	elif top == "debug":
 		ui_hover = main.debug_menu.draw(self, cur)
-
-	if dialogue.is_active():
+	elif top == "dialogue":
 		dialogue.draw(now, cur)
+		ui_hover = true
 
 	# the cursor: a hand over anything clickable, pressed in while a click is fresh
-	var hand: bool = hover != "" or ui_hover or inventory.held != null or craft.hover_cell != craft.NO_CELL or dialogue.is_active()
+	var hand: bool = ui_hover or (live and (hover != "" or inventory.held != null or craft.hover_cell != craft.NO_CELL))
 	var hs: Array = _hotspots["hand" if hand else "arrow"]
 	var pressed: bool = main.clicking()
 	var at := cur - Vector2(hs[0], hs[1]) + Vector2(0, 1 if pressed else 0)
@@ -244,14 +293,63 @@ func _draw() -> void:
 		inventory.draw_icon(inventory.held, cur + Vector2(5, 8))
 
 
+## the tank close-up's panel (tank/tank_panel.gd): each reading's name and live value (orange when
+## outside its safe band), a bar with the safe band marked and a tick at the value, then the item
+## slots. Returns the hover label.
+func _draw_tank_panel(cur: Vector2, live: bool) -> String:
+	var tank = main.tank_panel
+	var r: Rect2 = tank.PANEL
+	draw_rect(r, panel_col)
+	Px.frame(self, r.grow(1), Px.INK)
+	Px.frame(self, r, panel_hi)
+	Px.text(self, "REEF TANK", r.position + Vector2(8, 7), Px.WHITE, Px.INK)
+	for i in tank.readings.size():
+		var rd: Dictionary = tank.readings[i]
+		var v: float = tank.live_value(i)
+		var safe: bool = tank.in_safe_band(i)
+		var at: Vector2 = tank.row_pos(i)
+		Px.text(self, rd.name, at, Px.GREY, Px.INK)
+		var val: String = rd.format % v
+		Px.text(self, val, Vector2(r.end.x - 8 - Px.text_width(val), at.y), Px.WHITE if safe else warn_col, Px.INK)
+		var bar: Rect2 = tank.bar_rect(i)
+		var span: float = rd.max - rd.min
+		draw_rect(bar, panel_lo)
+		var s0: float = bar.position.x + bar.size.x * (rd.safe[0] - rd.min) / span
+		var s1: float = bar.position.x + bar.size.x * (rd.safe[1] - rd.min) / span
+		draw_rect(Rect2(s0, bar.position.y + 2, s1 - s0, bar.size.y - 4), ok_col)
+		Px.frame(self, bar, panel_hi)
+		var tx := floorf(bar.position.x + bar.size.x * clampf((v - rd.min) / span, 0.0, 1.0))
+		draw_rect(Rect2(tx - 1, bar.position.y - 2, 3, bar.size.y + 4), Px.INK)
+		draw_rect(Rect2(tx, bar.position.y - 1, 1, bar.size.y + 2), Px.WHITE if safe else warn_col)
+		if not safe:
+			Px.text(self, "OUT OF RANGE", at + Vector2(0, 21), warn_col, Px.INK)
+	var label := ""
+	Px.text(self, "SLOTS", tank.slot_rect(0).position + Vector2(0, -11), Px.GREY, Px.INK)
+	for i in tank.SLOTS:
+		var sr: Rect2 = tank.slot_rect(i)
+		var hot := live and sr.has_point(cur)
+		draw_rect(sr, panel_lo)
+		Px.frame(self, sr.grow(1), Px.INK)
+		Px.frame(self, sr, Px.WHITE if hot else panel_hi)
+		var item: ItemData = tank.contents[i]
+		if item != null:
+			if item.icon != null:
+				draw_texture_rect(item.icon, Rect2(sr.position + Vector2(2, 2), Vector2(24, 24)), false)
+			else:
+				Px.text(self, "?", sr.get_center() - Vector2(2, 3), Px.WHITE, Px.INK)
+		if hot:
+			label = tank.label(i, inventory.held)
+	return label
+
+
 ## the radio close-up's repair slots (radio/radio_repair.gd): a square per missing part, white when
 ## hovered, with the part's icon at 2x once it's in. Returns the hover label.
-func _draw_radio_slots(cur: Vector2) -> String:
+func _draw_radio_slots(cur: Vector2, live: bool) -> String:
 	var repair = main.radio_repair
 	var label := ""
 	for id: String in repair.SLOTS:
 		var r: Rect2 = repair.slot_rect(id)
-		var hot := r.has_point(cur)
+		var hot := live and r.has_point(cur)
 		draw_rect(r, panel_col)
 		Px.frame(self, r.grow(1), Px.INK)
 		Px.frame(self, r, Px.WHITE if hot else panel_hi)
@@ -269,12 +367,12 @@ func _draw_radio_slots(cur: Vector2) -> String:
 ## the crafting view's UI: the items lying on the mat, the hovered cell (2 px white on its grid
 ## lines, inked outside) and the result slot (empty until the mat holds a recipe; crafting/crafting.gd).
 ## Returns the hover label.
-func _draw_crafting(craft, cur: Vector2) -> String:
+func _draw_crafting(craft, cur: Vector2, live: bool) -> String:
 	var bench = main.workbench
 	var label := ""
 	for cell: Vector2i in bench.placed:
 		inventory.draw_icon(bench.placed[cell], Vector2(craft.cell_rect(cell).position) + Vector2(5, 5))
-	if craft.hover_cell != craft.NO_CELL:
+	if live and craft.hover_cell != craft.NO_CELL:
 		var cr := Rect2(craft.cell_rect(craft.hover_cell))
 		Px.frame(self, cr.grow(1), Px.INK)
 		Px.frame(self, cr, Px.WHITE)
@@ -283,7 +381,7 @@ func _draw_crafting(craft, cur: Vector2) -> String:
 		if on != null and inventory.held == null:
 			label = "TAKE " + on.name
 	var out: String = bench.result()
-	var hot := out != "" and RESULT.has_point(cur)
+	var hot := live and out != "" and RESULT.has_point(cur)
 	draw_rect(RESULT, panel_col)
 	Px.frame(self, RESULT.grow(1), Px.INK)
 	Px.frame(self, RESULT, Px.WHITE if hot else panel_hi)

@@ -1,145 +1,205 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene format=3 uid="uid://ugxjt4vkpytt"]
 
-[ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
-[ext_resource type="PackedScene" path="res://assets/shelter.glb" id="2_room"]
-[ext_resource type="Shader" path="res://shaders/post.gdshader" id="3_post"]
-[ext_resource type="Script" path="res://scripts/ui/overlay.gd" id="4_ui"]
-[ext_resource type="Script" path="res://scripts/ui/pause_menu.gd" id="5_pause"]
-[ext_resource type="Script" path="res://scripts/ui/start_menu.gd" id="6_start"]
+[ext_resource type="Script" uid="uid://d18ogp0knnct4" path="res://scripts/main.gd" id="1_main"]
+[ext_resource type="PackedScene" uid="uid://cdq2vue20yyvd" path="res://assets/shelter.glb" id="2_room"]
+[ext_resource type="Shader" uid="uid://cqkbqk7okq3mb" path="res://shaders/post.gdshader" id="3_post"]
+[ext_resource type="Script" uid="uid://dbrp66bp7t8rr" path="res://scripts/ui/overlay.gd" id="4_ui"]
+[ext_resource type="Script" uid="uid://dldleynxqrk7v" path="res://scripts/ui/pause_menu.gd" id="5_pause"]
+[ext_resource type="Script" uid="uid://b0g3a56wmt35b" path="res://scripts/ui/start_menu.gd" id="6_start"]
+[ext_resource type="PackedScene" path="res://scenes/fish_tank.tscn" id="7_tank"]
+[ext_resource type="PackedScene" path="res://scenes/room_left.tscn" id="8_left"]
 
 [sub_resource type="Environment" id="Environment_world"]
 background_mode = 1
-background_color = Color(0.1121, 0.2060, 0.2717, 1)
+background_color = Color(0.1121, 0.206, 0.2717, 1)
 ambient_light_source = 2
-ambient_light_color = Color(0.1121, 0.2060, 0.2717, 1)
-ambient_light_energy = 1.0
+ambient_light_color = Color(0.1121, 0.206, 0.2717, 1)
 reflected_light_source = 1
-tonemap_mode = 0
 
 [sub_resource type="Environment" id="Environment_mask"]
 background_mode = 1
-background_color = Color(0, 0, 0, 1)
 ambient_light_source = 1
 reflected_light_source = 1
-tonemap_mode = 0
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_post"]
 shader = ExtResource("3_post")
+shader_parameter/palette = PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/frame = 0.0
+shader_parameter/cam_px = 0.0
+shader_parameter/noise_seed = 0.0
+shader_parameter/target_id = 0
+shader_parameter/build = 0.0
+shader_parameter/cursor = Vector2(240, 135)
+shader_parameter/shimmer_off = Vector2(0, 0)
+shader_parameter/outline_px = 2
+shader_parameter/heat = 0.0
+shader_parameter/heat_focus = 1.0
+shader_parameter/shutter = 0.0
+shader_parameter/window_px = Vector2(240, 136)
+shader_parameter/dim = 0.0
+shader_parameter/fade = 0.0
+shader_parameter/pause_amount = 0.0
+shader_parameter/brightness = 1.0
+shader_parameter/landing_amount = 0.0
 
-[node name="Main" type="Node"]
+[node name="Main" type="Node" unique_id=276474082]
 script = ExtResource("1_main")
 
-[node name="WorldVP" type="SubViewport" parent="."]
+[node name="WorldVP" type="SubViewport" parent="." unique_id=390885164]
 size = Vector2i(480, 270)
 render_target_update_mode = 4
 
-[node name="Room" parent="WorldVP" instance=ExtResource("2_room")]
+[node name="Room" parent="WorldVP" unique_id=1273237820 instance=ExtResource("2_room")]
 
-[node name="Camera" type="Camera3D" parent="WorldVP"]
-transform = Transform3D(1.00000, 0.00000, 0.00000, 0.00000, 0.99027, 0.13917, 0.00000, -0.13917, 0.99027, 2.60000, 3.22008, 9.88322)
-projection = 1
+[node name="left_wall" parent="WorldVP/Room" index="59" unique_id=1845494258]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4, 0, 0)
+
+[node name="stone_0_0" parent="WorldVP/Room" index="62" unique_id=541319337]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4, 0, 0)
+
+[node name="stone_0_3" parent="WorldVP/Room" index="63" unique_id=347760397]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4, 0, 0)
+
+[node name="stone_1_2" parent="WorldVP/Room" index="64" unique_id=749693895]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4, 0, 0)
+
+[node name="stone_2_1" parent="WorldVP/Room" index="65" unique_id=1742531695]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4, 0, 0)
+
+[node name="stone_2_4" parent="WorldVP/Room" index="66" unique_id=2004765185]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4, 0, 0)
+
+[node name="stone_3_0" parent="WorldVP/Room" index="67" unique_id=951744832]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4, 0, 0)
+
+[node name="stone_3_3" parent="WorldVP/Room" index="68" unique_id=1694749680]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4, 0, 0)
+
+[node name="stone_4_2" parent="WorldVP/Room" index="69" unique_id=1889342835]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4, 0, 0)
+
+[node name="stone_5_1" parent="WorldVP/Room" index="70" unique_id=333033881]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4, 0, 0)
+
+[node name="stone_5_4" parent="WorldVP/Room" index="71" unique_id=1993655603]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4, 0, 0)
+
+[node name="stone_6_0" parent="WorldVP/Room" index="72" unique_id=1776162854]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4, 0, 0)
+
+[node name="stone_6_3" parent="WorldVP/Room" index="73" unique_id=2047509671]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4, 0, 0)
+
+[node name="stone_7_2" parent="WorldVP/Room" index="74" unique_id=1416171615]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4, 0, 0)
+
+[node name="ceiling_panel_00" parent="WorldVP/Room" index="75" unique_id=1127972922]
+visible = false
+
+[node name="FishTank" parent="WorldVP/Room" unique_id=1060994649 instance=ExtResource("7_tank")]
+
+[node name="RoomLeft" parent="WorldVP/Room" unique_id=657231426 instance=ExtResource("8_left")]
+
+[node name="Camera" type="Camera3D" parent="WorldVP" unique_id=593352594]
+transform = Transform3D(1, 0, 0, 0, 0.99027, 0.13917, 0, -0.13917, 0.99027, 2.6, 3.22008, 9.88322)
 keep_aspect = 0
-size = 6.6
-near = 0.1
-far = 40.0
 cull_mask = 524287
+projection = 1
 current = true
+size = 6.6
+far = 40.0
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="WorldVP"]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="WorldVP" unique_id=1099536930]
 environment = SubResource("Environment_world")
 
-[node name="Lights" type="Node3D" parent="WorldVP"]
+[node name="Lights" type="Node3D" parent="WorldVP" unique_id=1717179474]
 
-[node name="cabinet_fill" type="OmniLight3D" parent="WorldVP/Lights"]
-transform = Transform3D(1.00000, 0.00000, 0.00000, 0.00000, 1.00000, 0.00000, 0.00000, 0.00000, 1.00000, 4.25000, 1.50000, -0.10000)
-light_color = Color(1.0000, 0.8095, 0.6012, 1)
+[node name="cabinet_fill" type="OmniLight3D" parent="WorldVP/Lights" unique_id=958585887]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.25, 1.5, -0.1)
+light_color = Color(1, 0.8095, 0.6012, 1)
 light_energy = 2.7863
-light_size = 0.300
+light_size = 0.3
 omni_range = 9.0
 omni_attenuation = 2.0
 
-[node name="cabinet_interior" type="OmniLight3D" parent="WorldVP/Lights"]
-transform = Transform3D(1.00000, 0.00000, 0.00000, 0.00000, 1.00000, 0.00000, 0.00000, 0.00000, 1.00000, 4.35000, 1.55000, -0.75000)
-light_color = Color(1.0000, 0.8650, 0.6800, 1)
-light_energy = 0.0000
-light_size = 0.200
+[node name="cabinet_interior" type="OmniLight3D" parent="WorldVP/Lights" unique_id=1961683060]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.35, 1.55, -0.75)
+light_color = Color(1, 0.865, 0.68, 1)
+light_energy = 0.0
+light_size = 0.2
 omni_range = 9.0
 omni_attenuation = 2.0
 
-[node name="cool_front_fill" type="SpotLight3D" parent="WorldVP/Lights"]
-transform = Transform3D(0.97281, 0.07144, -0.22029, -0.00000, 0.95123, 0.30849, 0.23159, -0.30010, 0.92537, -1.00000, 2.20000, 3.00000)
+[node name="cool_front_fill" type="SpotLight3D" parent="WorldVP/Lights" unique_id=1404883470]
+transform = Transform3D(0.97281, 0.07144, -0.22029, 0, 0.95123, 0.30849, 0.23159, -0.3001, 0.92537, -1, 2.2, 3)
 light_color = Color(0.5838, 0.7674, 0.9547, 1)
 light_energy = 16.2114
-light_size = 1.000
+light_size = 1.0
 spot_range = 14.0
 spot_attenuation = 2.0
 spot_angle = 80.0
-spot_angle_attenuation = 1.0
 
-[node name="lantern_glow" type="OmniLight3D" parent="WorldVP/Lights"]
-transform = Transform3D(1.00000, 0.00000, 0.00000, 0.00000, 1.00000, 0.00000, 0.00000, 0.00000, 1.00000, 3.52750, 1.33510, -1.78000)
-light_color = Color(1.0000, 0.7674, 0.5064, 1)
+[node name="lantern_glow" type="OmniLight3D" parent="WorldVP/Lights" unique_id=228425673]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5275, 1.3351, -1.78)
+light_color = Color(1, 0.7674, 0.5064, 1)
 light_energy = 2.3073
-light_size = 0.050
+light_size = 0.05
 omni_range = 9.0
 omni_attenuation = 2.0
 
-[node name="pendant_key" type="OmniLight3D" parent="WorldVP/Lights"]
-transform = Transform3D(1.00000, 0.00000, 0.00000, 0.00000, 1.00000, 0.00000, 0.00000, 0.00000, 1.00000, 2.40000, 2.30000, -0.75000)
-light_color = Color(1.0000, 0.8543, 0.6500, 1)
+[node name="pendant_key" type="OmniLight3D" parent="WorldVP/Lights" unique_id=1145747562]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.4, 2.3, -0.75)
+light_color = Color(1, 0.8543, 0.65, 1)
 light_energy = 10.1321
-light_size = 0.100
+light_size = 0.1
+shadow_enabled = true
 omni_range = 16.0
 omni_attenuation = 2.0
-shadow_enabled = true
 
-[node name="radio_glow" type="OmniLight3D" parent="WorldVP/Lights"]
-transform = Transform3D(1.00000, 0.00000, 0.00000, 0.00000, 1.00000, 0.00000, 0.00000, 0.00000, 1.00000, 2.53150, 1.20500, -1.22100)
-light_color = Color(0.7014, 1.0000, 0.8543, 1)
-light_energy = 0.0000
-light_size = 0.150
+[node name="radio_glow" type="OmniLight3D" parent="WorldVP/Lights" unique_id=637849915]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5315, 1.205, -1.221)
+light_color = Color(0.7014, 1, 0.8543, 1)
+light_energy = 0.0
+light_size = 0.15
 omni_range = 9.0
 omni_attenuation = 2.0
 
-[node name="storm_moon_rim" type="DirectionalLight3D" parent="WorldVP/Lights"]
-transform = Transform3D(-0.76607, 0.36869, -0.52651, 0.00000, 0.81913, 0.57361, 0.64276, 0.43942, -0.62751, 0.00000, 5.00000, -0.00000)
-light_color = Color(0.6262, 0.8267, 1.0000, 1)
+[node name="storm_moon_rim" type="DirectionalLight3D" parent="WorldVP/Lights" unique_id=1362113614]
+transform = Transform3D(-0.76607, 0.36869, -0.52651, 0, 0.81913, 0.57361, 0.64276, 0.43942, -0.62751, 0, 5, 0)
+light_color = Color(0.6262, 0.8267, 1, 1)
 light_energy = 0.5093
 
-[node name="storm_window" type="SpotLight3D" parent="WorldVP/Lights"]
-transform = Transform3D(-0.98837, -0.07720, 0.13100, 0.00000, 0.86153, 0.50771, -0.15206, 0.50180, -0.85151, -1.50000, 1.55000, -1.60000)
-light_color = Color(0.5064, 0.7977, 1.0000, 1)
+[node name="storm_window" type="SpotLight3D" parent="WorldVP/Lights" unique_id=661221758]
+transform = Transform3D(-0.98837, -0.0772, 0.131, 0, 0.86153, 0.50771, -0.15206, 0.5018, -0.85151, -1.5, 1.55, -1.6)
+light_color = Color(0.5064, 0.7977, 1, 1)
 light_energy = 42.5549
-light_size = 1.000
+light_size = 1.0
 spot_range = 14.0
 spot_attenuation = 2.0
 spot_angle = 80.0
-spot_angle_attenuation = 1.0
 
-[node name="MaskVP" type="SubViewport" parent="."]
+[node name="MaskVP" type="SubViewport" parent="." unique_id=1236409816]
 size = Vector2i(480, 270)
 render_target_update_mode = 4
 
-[node name="MaskCam" type="Camera3D" parent="MaskVP"]
-transform = Transform3D(1.00000, 0.00000, 0.00000, 0.00000, 0.99027, 0.13917, 0.00000, -0.13917, 0.99027, 2.60000, 3.22008, 9.88322)
-projection = 1
+[node name="MaskCam" type="Camera3D" parent="MaskVP" unique_id=326941879]
+transform = Transform3D(1, 0, 0, 0, 0.99027, 0.13917, 0, -0.13917, 0.99027, 2.6, 3.22008, 9.88322)
 keep_aspect = 0
-size = 6.6
-near = 0.1
-far = 40.0
-cull_mask = 1048575
 environment = SubResource("Environment_mask")
+projection = 1
 current = true
+size = 6.6
+far = 40.0
 
-[node name="Screen" type="TextureRect" parent="."]
+[node name="Screen" type="TextureRect" parent="." unique_id=2100637595]
 material = SubResource("ShaderMaterial_post")
 offset_right = 480.0
 offset_bottom = 270.0
 mouse_filter = 2
 
-[node name="UI" type="CanvasLayer" parent="."]
+[node name="UI" type="CanvasLayer" parent="." unique_id=1531927608]
 
-[node name="Overlay" type="Control" parent="UI"]
+[node name="Overlay" type="Control" parent="UI" unique_id=1158747824]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -149,7 +209,7 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("4_ui")
 
-[node name="PauseMenu" type="Control" parent="UI"]
+[node name="PauseMenu" type="Control" parent="UI" unique_id=714664895]
 process_mode = 3
 layout_mode = 3
 anchors_preset = 15
@@ -160,7 +220,7 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("5_pause")
 
-[node name="StartMenu" type="Control" parent="UI"]
+[node name="StartMenu" type="Control" parent="UI" unique_id=849214613]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -169,3 +229,5 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("6_start")
+
+[editable path="WorldVP/Room"]

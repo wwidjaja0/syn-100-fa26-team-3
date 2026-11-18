@@ -51,18 +51,21 @@ order every frame, and routes input. Each part is one file with one job.
 | `inventory/inventory_data.gd` | `InventoryData` resource: the list of carried items | |
 | `room/interactions.gd` | **The game rules:** hover labels and what clicking each object does | `LABELS`, `click(group)`, `use_item(item, group)`, `pick_up(group, item_id, hide)`, `say(id)`, `then_after_dialogue(action)` |
 | `room/placeholders.gd` | Stand-in boxes for props not modelled yet (the battery), each its own object group | `PROPS`, `add_all(room, meta)` |
+| `room/fish_tank.gd` | Wires up `scenes/fish_tank.tscn` (the reef tank and gauge board) and animates the fish, bubbles, kelp and needles. The cabin's widened left end is `scenes/room_left.tscn` | `build(main, room, meta, lights)`, `update()`, `EXTRA` |
 | `room/object_picker.gd` | Reads the mask render: which group is under the cursor | `hover`, `group_at(p)`, `group_of(node)`, `screen_point(group)` |
 | `room/room_materials.gd` | Replaces the room's imported materials with the toon shader | `set_param(material, param, value)` |
 | `room/shutters.gd` | Storm shutters swing open/shut; heat rises and falls | `toggle()`, `is_open`, `heat` |
 | `room/cabinet.gd` | Supply cabinet doors and the light inside | `toggle()` |
 | `room/ambience.gd` | Things that move on their own: storm sky, PA status light, lantern | |
-| `room/room_camera.gd` | Edge panning, pixel snapping, blending into close-up views, hiding the ceiling | `x`, `push`, `cam_px` |
+| `room/room_camera.gd` | Edge panning, pixel snapping, blending into close-up views | `x`, `push`, `cam_px` |
 | `room/post_process.gd` | Hooks the renders and palette into `post.gdshader`; updates its uniforms | |
 | `room/ease.gd` | Easing curves (`smooth`, `out_back`) | static functions |
 | `views/close_view.gd` | Base class for close-ups: camera eases from the room to a fixed pose and back | `enter(now)`, `exit(now)`, `settled()`, `active()`, signals `entered`, `exited` |
 | `views/crafting_view.gd` | Close-up straight down onto the cutting mat; the build grid | `cell_at(p)`, `cell_rect`, `cell_world`, signals `cell_hovered`, `cell_clicked` |
 | `views/radio_view.gd` | Close-up of the ham radio's front panel | signal `clicked`, `screen_point(world)` |
 | `crafting/crafting.gd` | **The crafting rules** (`main.workbench`): items lying on the mat, `RECIPES`, making the result | `placed`, `item_at(cell)`, `result()`, `craft(from)`, signals `changed`, `crafted` |
+| `views/tank_view.gd` | Close-up of the reef tank, framed left of centre to leave room for its panel; first visit plays `interactions.inspect_tank()` | signal `clicked` |
+| `tank/tank_panel.gd` | The tank close-up's panel (`main.tank_panel`): live readings with safe bands, and item slots that take anything | `readings`, `live_value(i)`, `contents`, `click(p, held)`, `slot_rect(i)`, signal `changed` |
 | `radio/radio_repair.gd` | The radio close-up's slots for its missing parts (`main.radio_repair`); filling them all sets `radio_fixed` | `SLOTS`, `filled`, `showing()`, `slot_rect(id)`, `click(p, held)`, signal `changed` |
 | `ui/overlay.gd` | Draws all UI; gets every click first; owns the open panel | `panel`, `open_panel`, `close_panel`, `handle_click`, `over_ui` |
 | `ui/inventory_bar.gd` | The slots along the bottom, the held item, items flying in, dragging | `held`, `fly`, `has_room`, `click`, `drag_released(p)` |
@@ -119,19 +122,20 @@ At start-up:
 - `room_materials.gd` gives every mesh a material with `group_id` set to its group's number.
 
 `toon.gdshader` checks whether the camera drawing it is the mask camera (render layer 20). If so, it writes
-`(group_id + 4) * 12 / 255` into red instead of lighting the surface. `object_picker.gd` reads that pixel back and
+`(group_id + 4) * 10 / 255` into red instead of lighting the surface. `object_picker.gd` reads that pixel back and
 reverses the formula, and `post.gdshader` does the same to draw the outline. This encoding appears in three places,
 which must agree:
 
 | File | Constant |
 |---|---|
-| `shaders/toon.gdshader` | `ID_OFFSET = 4`, `* 12.0` |
-| `shaders/post.gdshader` | `ID_OFFSET = 4`, `/ 12.0` |
-| `scripts/room/object_picker.gd` | `MASK_ID_OFFSET = 4`, `ID_STEP = 12` |
+| `shaders/toon.gdshader` | `ID_OFFSET = 4`, `ID_STEP = 10.0` |
+| `shaders/post.gdshader` | `ID_OFFSET = 4`, `ID_STEP = 10.0` |
+| `scripts/room/object_picker.gd` | `MASK_ID_OFFSET = 4`, `ID_STEP = 10` |
 
-One 8-bit channel fits `(id + 4) * 12 ≤ 255`, so there's room for **17 groups**. All 17 are used: 16 from the room,
-plus the placeholder battery, which `room/placeholders.gd` adds at start-up (appending to `meta.groups` before the
-picker numbers them).
+One 8-bit channel fits `(id + 4) * 10 ≤ 255`, so there's room for **21 groups**. 19 are used: 16 from the room,
+plus three added in code at start-up (appending to `meta.groups` before the picker numbers them): the placeholder
+battery (`room/placeholders.gd`) and the reef tank and its gauges (`room/fish_tank.gd`). (The step was 12, room for
+17, until the tank needed more.)
 
 A group is only hoverable if `interactions.hoverable(group)` says so: it needs a label in `LABELS`. The window's
 `sky` group is the exception; it can be hovered only while the shutters are open.
@@ -168,7 +172,7 @@ A close-up view (crafting, radio) extends `views/close_view.gd`. It sets three t
 transform), `_size` (orthographic width in metres) and `_focus` (the point it looks at). Then:
 - `enter(now)` and `exit(now)` start the camera move; `t` eases 0 → 1 over `MOVE_FRAMES`.
 - `room_camera.gd` asks the active view for `camera_pose(room_pose, room_size)` and uses it for both cameras.
-- While a view is active, room hover is off, the sloped ceiling hides (both cameras swing up through it), and the
+- While a view is active, room hover is off and the
   overlay shows BACK once `settled()`.
 - Clicks go to the view's `click(cursor, held)`. The views only *emit signals* (`cell_clicked`, `clicked`).
   `crafting/crafting.gd` listens to `cell_clicked` (see "Crafting" below). The radio's repair slots are UI, so
@@ -201,6 +205,15 @@ to `radio_repair.click(p, held)`:
 - a filled slot clicked with nothing held flies its part back into the inventory;
 - once every slot is filled, `radio_fixed` is set. `main._check_dialogue_triggers()` then swaps in the repaired
   meshes (`start_hidden` grill on, the bare wires off), arms radio chatter and plays "radio_repaired".
+
+## The reef tank
+
+The tank and its gauge board are `scenes/fish_tank.tscn`, and the widened left end of the cabin (stone wall, floor, ceiling) is `scenes/room_left.tscn`. Both are instanced under the room in `scenes/main.tscn`, and the left wall and its stones are shifted there too, so the editor matches the game. `room/fish_tank.gd` registers the tank's groups and materials and animates it (see its header). `scripts/dev/export_fish_tank.gd` rebuilds the tank scene from those builders. Clicking
+either opens `views/tank_view.gd`; the first time it settles, `interactions.inspect_tank()` plays "inspect_tank"
+then "inspect_tank_gauges" (both `once_flag`). While it's settled, `tank/tank_panel.gd` is up: `overlay.gd` draws its
+`readings` (each a value with a bar range and a safe band, wobbling slightly via `live_value(i)`) and its `SLOTS`
+item slots, and sends it clicks first. The slots take any item; nothing reads `contents` yet. To make items affect
+the tank, connect to `tank_panel.changed` and change a reading's `value`.
 
 ## Dragging items
 
