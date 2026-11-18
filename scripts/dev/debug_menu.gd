@@ -33,7 +33,7 @@ func commands() -> Array:
 		["7", "OPEN / CLOSE SHUTTERS", func(): _main.shutters.toggle(); say("SHUTTERS")],
 		["8", "OPEN / CLOSE CABINET", func(): _main.cabinet.toggle(); say("CABINET")],
 		["9", "NEXT DAY", func(): GameState.day += 1; say("DAY %d" % GameState.day)],
-		["0", "TRIGGER RADIO CHATTER" if GameState.flag("radio_fixed") else "FIX THE RADIO", _trigger_radio_chatter],
+		["0", "LIGHT UP RADIO SIGNAL" if GameState.flag("radio_fixed") else "FIX THE RADIO", _trigger_radio_chatter],
 	]
 
 
@@ -168,8 +168,8 @@ func _trigger_radio_chatter() -> void:
 		GameState.set_flag("radio_fixed", true)
 		say("RADIO FIXED")
 		return
-	var ok: bool = _main.ui.dialogue.trigger_random_radio(_main.clock)
+	var ok: bool = _main.ui.dialogue.arm_incoming_radio(_main.clock)
 	if ok:
-		say("RADIO TRANSMISSION")
+		say("RADIO SIGNAL INCOMING")
 	else:
 		say("RADIO SILENT")

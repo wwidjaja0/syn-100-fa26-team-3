@@ -168,7 +168,9 @@ const STEPS := [
 	[1281, "dialogue", "hint_use_radio"], [1305, "shot", "42_dialogue_monologue"],
 	[1306, "radio_dialogue", "radio_aquarium_1"], [1330, "shot", "43_dialogue_radio"],
 	[1331, "dialogue_line", 3], [1340, "shot", "44_dialogue_reply"],
-	[1341, "quit"],
+	[1341, "finish_radio_dialogue"], [1352, "open_journal"], [1365, "shot", "45_radio_journal"],
+	[1366, "point", Vector2(160, 60)], [1367, "click"], [1375, "shot", "46_radio_journal_detail"],
+	[1376, "quit"],
 ]
 
 
@@ -239,5 +241,12 @@ func _do(s: Array, out: String) -> void:
 		"dialogue_line":                 # jump the open dialogue to a line, fully shown
 			main.ui.dialogue.current_line_idx = s[2]
 			main.ui.dialogue._chars_shown = 999.0
+		"finish_radio_dialogue":
+			while main.ui.dialogue.is_active() and not main.ui.dialogue.closing:
+				main.ui.dialogue._chars_shown = 999.0
+				main.ui.dialogue.skip_or_advance()
+		"open_journal":
+			main.ui.open_panel("journal", main.clock)
+			main.cursor_override = Vector2(main.W / 2.0, main.H / 2.0)
 		"quit":
 			get_tree().quit()

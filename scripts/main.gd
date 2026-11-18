@@ -244,6 +244,12 @@ func _unhandled_input(event: InputEvent) -> void:
 					pause_menu.open_pause()
 			KEY_F9:
 				debug_menu.toggle()
+			KEY_J:
+				if ui.panel == "journal":
+					ui.close_panel()
+				elif GameState.flag("radio_fixed") and ui.panel == "" and active_view() == null:
+					ui.open_panel("journal", clock)
+					UiSounds.play("click")
 			KEY_MINUS, KEY_KP_SUBTRACT:
 				if ui.panel == "fiche":
 					ui.microfiche.zoom_by(-1, cursor)
@@ -339,6 +345,9 @@ func back(full := true) -> void:
 		ui.dialogue.close()
 	elif ui.panel == "fiche" and not full and ui.microfiche.zoomed():
 		ui.microfiche.leave_detail()
+		UiSounds.play("tick")
+	elif ui.panel == "journal" and not full and ui.journal.in_detail():
+		ui.journal.leave_detail()
 		UiSounds.play("tick")
 	elif ui.panel != "":
 		ui.close_panel()

@@ -8,6 +8,11 @@ extends Node
 ## this there, a value fitted against Forward+ screenshots.
 const COMPAT_SHADOW_LIGHT_SCALE := 0.2
 const LANTERN_SWING := 0.04             # the lantern breathes +/- 4 % around its set brightness
+const RADIO_LCD_MATS := [
+	"mat_lcd_glass_39",
+	"mat_lcd_digit_40", "mat_lcd_digit_41", "mat_lcd_digit_42",
+	"mat_lcd_digit_43", "mat_lcd_digit_44", "mat_lcd_digit_45",
+]
 
 var _main: Node
 var _materials: Node
@@ -36,9 +41,14 @@ func update() -> void:
 	var n := sin(clock * 0.045) * 0.6 + sin(clock * 0.11 + 1.7) * 0.4
 	_lantern.light_energy = _lantern_energy * (1.0 + LANTERN_SWING * n)
 
+	var radio_lit: bool = _main.ui.dialogue != null and _main.ui.dialogue.is_radio_lit()
+	var lcd_energy := 3.0 * (0.82 + 0.18 * sin(clock * 0.75)) if radio_lit else 0.0
+	for m: String in RADIO_LCD_MATS:
+		_materials.set_param(m, "emission_energy", lcd_energy)
+
 	if _radio_glow != null:
-		var radio_active: bool = _main.ui.dialogue != null and _main.ui.dialogue.is_radio_talking()
-		if radio_active:
-			_radio_glow.light_energy = lerpf(_radio_glow.light_energy, 1.4 + 0.6 * sin(clock * 0.4), 0.2)
+		if radio_lit:
+			var target_glow := 1.6 + 0.6 * sin(clock * 0.65) + 0.25 * sin(clock * 1.9)
+			_radio_glow.light_energy = lerpf(_radio_glow.light_energy, target_glow, 0.2)
 		else:
 			_radio_glow.light_energy = lerpf(_radio_glow.light_energy, 0.0, 0.15)

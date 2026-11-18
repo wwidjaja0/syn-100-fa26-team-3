@@ -39,10 +39,10 @@ const PUNCTUATION_PAUSE := 4.0          # frames to pause on . , ! ? : -
 const OPEN_FRAMES := 5.0
 const CLOSE_FRAMES := 3.0
 
-const CHATTER_MIN_FRAMES := 480.0       # 20 seconds at 24 fps
-const CHATTER_MAX_FRAMES := 1080.0      # 45 seconds at 24 fps
-const CHATTER_FIRST_MIN := 240.0        # 10 seconds
-const CHATTER_FIRST_MAX := 432.0        # 18 seconds
+const CHATTER_MIN_FRAMES := 1440.0      # 60 seconds at 24 fps
+const CHATTER_MAX_FRAMES := 2880.0      # 120 seconds at 24 fps
+const CHATTER_FIRST_MIN := 480.0        # 20 seconds
+const CHATTER_FIRST_MAX := 720.0        # 30 seconds
 
 var active := false
 var closing := false
@@ -71,6 +71,8 @@ var _close_clock := 0.0
 var _next_chatter_clock := 999999.0
 var _chatter_armed := false
 var _first_chatter_done := false
+var _pending_radio: Dictionary = {}
+var _current_entry: Dictionary = {}
 
 var _overlay: Control
 var _palette: Array
@@ -127,6 +129,14 @@ func is_radio_talking() -> bool:
 	return active and not closing and style == "radio"
 
 
+func has_pending_radio() -> bool:
+	return GameState.flag("radio_fixed") and not _pending_radio.is_empty()
+
+
+func is_radio_lit() -> bool:
+	return GameState.flag("radio_fixed") and (not _pending_radio.is_empty() or is_radio_talking())
+
+
 ## the character id saying the current line ("" when the box is shut)
 func speaking() -> String:
 	if not active or current_line_idx >= line_who.size():
@@ -150,18 +160,26 @@ func start(id: String) -> bool:
 	return false
 
 
-func start_entry(entry: Dictionary, _id := "") -> bool:
-	if entry.get("style", "monologue") == "radio" and not GameState.flag("radio_fixed"):
+func start_entry(entry: Dictionary, id := "") -> bool:
+	var entry_style: String = entry.get("style", "monologue")
+	if entry_style == "radio" and not GameState.flag("radio_fixed"):
 		return false
-	if entry.has("once_flag") and GameState.flag(entry.once_flag):
-		return false
-	if entry.has("once_flag"):
-		GameState.set_flag(entry.once_flag)
+
+	var seen_flag: String = entry.get("once_flag", "")
+	if seen_flag == "" and entry_style == "monologue" and not entry.get("repeatable", false) and id != "":
+		seen_flag = "dlg_seen_" + id
+	if seen_flag != "":
+		if GameState.flag(seen_flag):
+			return false
+		GameState.set_flag(seen_flag)
 
 	active = true
 	closing = false
+	_current_entry = entry.duplicate()
+	if id != "" and not _current_entry.has("id"):
+		_current_entry["id"] = id
 	_start_clock = _overlay.main.clock
-	style = entry.get("style", "monologue")
+	style = entry_style
 	speaker = entry.get("speaker", "INTERNAL MONOLOGUE")
 	var said_by: String = entry.get("character", PLAYER)
 	lines = []
@@ -194,6 +212,7 @@ func close() -> void:
 	if active and not closing:
 		closing = true
 		_close_clock = _overlay.main.clock
+		_current_entry = {}
 		UiSounds.play("back")
 
 
@@ -214,6 +233,9 @@ func skip_or_advance() -> void:
 		# advance to next line
 		current_line_idx += 1
 		if current_line_idx >= lines.size():
+			if style == "radio" and not _current_entry.is_empty():
+				GameState.add_radio_log(_current_entry)
+				_current_entry = {}
 			close()
 		else:
 			_chars_shown = 0.0
@@ -222,9 +244,9 @@ func skip_or_advance() -> void:
 			UiSounds.play("click")
 
 
-func trigger_random_radio(clock: float) -> bool:
+func _pick_next_radio_entry() -> Dictionary:
 	if not GameState.flag("radio_fixed") or _radio_chatter_pool.is_empty():
-		return false
+		return {}
 
 	# 1. Check priority (unseen story messages)
 	var unseen_priority: Array = []
@@ -250,9 +272,37 @@ func trigger_random_radio(clock: float) -> bool:
 		chosen = unseen_priority[0]
 		_first_chatter_done = true
 
+	return chosen
+
+
+func arm_incoming_radio(_clock: float) -> bool:
+	if not GameState.flag("radio_fixed") or _radio_chatter_pool.is_empty():
+		return false
+	if not _pending_radio.is_empty():
+		UiSounds.play("radio_static")
+		return true
+	var chosen := _pick_next_radio_entry()
 	if chosen.is_empty():
 		return false
+	_pending_radio = chosen
+	UiSounds.play("radio_static")
+	return true
 
+
+func answer_pending_radio(clock: float) -> bool:
+	if not has_pending_radio():
+		return false
+	var entry := _pending_radio
+	_pending_radio = {}
+	var ok := start_entry(entry)
+	_next_chatter_clock = clock + randf_range(CHATTER_MIN_FRAMES, CHATTER_MAX_FRAMES)
+	return ok
+
+
+func trigger_random_radio(clock: float) -> bool:
+	var chosen := _pick_next_radio_entry()
+	if chosen.is_empty():
+		return false
 	var ok := start_entry(chosen)
 	_next_chatter_clock = clock + randf_range(CHATTER_MIN_FRAMES, CHATTER_MAX_FRAMES)
 	return ok
@@ -263,12 +313,10 @@ func update(clock: float, step: float) -> void:
 	if not GameState.flag("radio_fixed"):
 		_chatter_armed = false
 		_first_chatter_done = false
-	elif _chatter_armed and clock >= _next_chatter_clock:
-		var can_chatter: bool = not active and _overlay.panel == "" and _overlay.main.active_view() == null \
-				and not _overlay.main.landing_active and not _overlay.main.debug_menu.open \
-				and _overlay.inventory.held == null and not _overlay.main.room_camera.panning()
-		if can_chatter:
-			trigger_random_radio(clock)
+		_pending_radio = {}
+	elif _chatter_armed and _pending_radio.is_empty() and not active and clock >= _next_chatter_clock:
+		if not _overlay.main.landing_active and not _overlay.main.suppress_auto_dialogue:
+			arm_incoming_radio(clock)
 
 	if not active:
 		return
