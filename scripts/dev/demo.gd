@@ -180,7 +180,23 @@ const STEPS := [
   [1676, "finish_radio_dialogue"],
   [1687, "open_journal"], [1700, "shot", "53_radio_journal"],
   [1701, "point", Vector2(160, 60)], [1702, "click"], [1710, "shot", "54_radio_journal_detail"],
-  [1711, "quit"],
+  # the battery dock left of the power station: the battery back in it, charging (the green light
+  # blinks, so two shots half a blink apart), then charged, then taken; the radio's red light
+  [1711, "close_panel"], [1712, "look", 1.2], [1713, "battery", "charging"], [1714, "point", Vector2(240, 60)],
+  [1750, "shot", "55_dock_charging_a"], [1762, "shot", "55_dock_charging_b"],
+  [1763, "battery", "charged"], [1770, "shot", "56_dock_charged"],
+  [1771, "hover", "battery"], [1785, "shot", "57_hover_battery"],
+  [1786, "battery", "taken"], [1795, "shot", "58_dock_empty"],
+  # the weather outside: shutters open, looking out of the window, one shot per weather
+  [1796, "shutters", true], [1797, "look", -1.0], [1798, "point", Vector2(240, 250)],
+  [1830, "weather", "storm"], [1844, "shot", "60_weather_storm"],
+  [1846, "weather", "rain"], [1860, "shot", "61_weather_rain"],
+  [1862, "weather", "overcast"], [1876, "shot", "62_weather_overcast"],
+  [1878, "weather", "marine fog"], [1892, "shot", "63_weather_marine_fog"],
+  [1894, "weather", "clear"], [1908, "shot", "64_weather_clear"],
+  [1910, "weather", "wildfire smoke"], [1924, "shot", "65_weather_wildfire_smoke"],
+  [1926, "look", 2.0], [1946, "shot", "66_weather_smoke_bench_view"],
+  [1947, "quit"],
 ]
 
 
@@ -260,5 +276,23 @@ func _do(s: Array, out: String) -> void:
 		"open_journal":
 			main.ui.open_panel("journal", main.clock)
 			main.cursor_override = Vector2(main.W / 2.0, main.H / 2.0)
+		"close_panel":                   # shut whatever panel or close-up is open
+			main.ui.close_panel()
+			for v in main.views:
+				v.exit(main.clock)
+		"look":                          # jump the room camera to x (m)
+			main.room_camera.x = s[2]
+			main.room_camera.velocity = 0.0
+		"battery":                       # the lead-acid battery: "charging", "charged" or "taken"
+			main.picker.groups.battery.visible = s[2] != "taken"
+			GameState.set_flag("took_battery", s[2] == "taken")
+			GameState.set_flag("battery_charged", s[2] == "charged")
+		"shutters":                      # open (true) or close the storm shutters
+			if main.shutters.is_open != s[2]:
+				main.shutters.toggle()
+		"weather":                       # switch the weather outside straight away; the open
+			main.weather.set_weather(s[2])   # window's heat is full at once, so each shot shows its heat
+			main.shutters._heat_from = main.shutters.MAX_HEAT
+			main.shutters._heat_at = -1e9
 		"quit":
 			get_tree().quit()

@@ -11,6 +11,7 @@
 *.blend1
 /pipeline/scene/story/
 /pipeline/scene/render_*.png
+/pipeline/scene/data/terrain_cache/
 __pycache__/
 
 # exports (see README > Exporting; CI builds them in .github/workflows/build.yml)

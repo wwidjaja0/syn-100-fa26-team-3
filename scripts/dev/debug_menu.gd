@@ -21,7 +21,7 @@ func setup(main: Node) -> void:
 	_main = main
 
 
-## the menu's lines: [key shown, label, action]. Keys 1..9 then 0 run them in this order.
+## the menu's lines: [key shown, label, action]. Keys 1..9, W, then 0 run them in this order.
 func commands() -> Array:
 	return [
 		["1", "CONTACT NEXT STATION", _contact_next],
@@ -33,6 +33,7 @@ func commands() -> Array:
 		["7", "OPEN / CLOSE SHUTTERS", func(): _main.shutters.toggle(); say("SHUTTERS")],
 		["8", "OPEN / CLOSE CABINET", func(): _main.cabinet.toggle(); say("CABINET")],
 		["9", "NEXT DAY", func(): GameState.day += 1; say("DAY %d" % GameState.day)],
+		["W", "WEATHER: " + _main.weather.current.to_upper() + " (NEXT)", _next_weather],
 		["0", "LIGHT UP RADIO SIGNAL" if GameState.flag("radio_fixed") else "FIX THE RADIO", _trigger_radio_chatter],
 	]
 
@@ -59,7 +60,9 @@ func say(msg: String) -> void:
 func key(code: int) -> void:
 	var n := _digit(code)
 	if n >= 0:
-		run((n + 9) % 10)                # 1 -> first line ... 0 -> tenth
+		run((n + 9) % 10 + (1 if n == 0 else 0))   # 1 -> first line ... 9 -> ninth, 0 -> the line after W
+	elif code == KEY_W:
+		run(9)
 	elif code in [KEY_ESCAPE, KEY_F9]:
 		open = false
 
@@ -119,6 +122,12 @@ static func _digit(code: int) -> int:
 
 
 # ---------------------------------------------------------------- commands
+func _next_weather() -> void:
+	var w: String = _main.weather.after(_main.weather.current)
+	_main.weather.set_weather(w)
+	say("WEATHER: " + w.to_upper())
+
+
 func _contact_next() -> void:
 	for id in GameState.stations:
 		if not GameState.is_contacted(id):

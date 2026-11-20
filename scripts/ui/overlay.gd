@@ -395,19 +395,35 @@ func _draw_crafting(craft, cur: Vector2, live: bool) -> String:
 	return label
 
 
-## a red ! just above the radio. Story guidance only: an incoming call, or the radio itself
-## once the cabin has pointed the player at it and it is still broken. Hidden parts stay unmarked.
+## a red ! sign pointing straight down at the radio. Story guidance only: an incoming call, or the
+## radio itself once the cabin has pointed the player at it and it is still broken. Hidden parts
+## stay unmarked.
 func _draw_radio_alert(now: float) -> void:
 	if main.landing_active or not main.interactions.radio_alert():
 		return
-	var p: Vector2 = main.picker.screen_point("radio")
-	var x := clampf(p.x, 12.0, Px.W - 20.0)
-	var y := clampf(p.y - 34.0, 6.0, Px.H - 22.0)
-	var bob := int(fmod(now / 7.0, 2.0))
-	var badge := Rect2(floorf(x) - 4, floorf(y) + bob, 9, 13)
-	draw_rect(badge, ALERT)
-	Px.frame(self, badge, Px.INK)
-	Px.text(self, "!", badge.position + Vector2(2, 3), Px.WHITE, Px.INK)
+	var top: Vector2 = main.picker.screen_top("radio")
+	var bob := int(fmod(now / 8.0, 2.0))
+	var tip := Vector2i(int(clampf(top.x, 7.0, Px.W - 8.0)), int(clampf(top.y - 3.0 - bob, 16.0, Px.H - 4.0)))
+	_alert_badge(tip)
+
+
+## half-widths of the alert sign's rows, top to bottom: a 9 x 11 sign with clipped corners, then a
+## point three rows long whose last pixel is the tip
+const ALERT_ROWS := [3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 2, 1, 0]
+
+
+## the alert sign with its tip at `tip`: ink round the outside, red, a bold white !
+func _alert_badge(tip: Vector2i) -> void:
+	var top := tip.y - (ALERT_ROWS.size() - 1)
+	for r in ALERT_ROWS.size():
+		var h: int = ALERT_ROWS[r]
+		draw_rect(Rect2(tip.x - h - 1, top + r - 1, 2 * h + 3, 3), Px.INK)
+	for r in ALERT_ROWS.size():
+		var h: int = ALERT_ROWS[r]
+		draw_rect(Rect2(tip.x - h, top + r, 2 * h + 1, 1), ALERT)
+	draw_rect(Rect2(tip.x - 1, top + 2, 3, 4), Px.WHITE)     # the bar, tapering
+	draw_rect(Rect2(tip.x, top + 6, 1, 1), Px.WHITE)
+	draw_rect(Rect2(tip.x - 1, top + 8, 3, 2), Px.WHITE)     # the dot
 
 
 ## a little pixel chevron at the left (side -1) or right (+1) edge, bobbing toward that side

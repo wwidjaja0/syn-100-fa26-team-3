@@ -18,6 +18,7 @@ extends Node
 ## shaders/toon.gdshader and shaders/post.gdshader
 const MASK_ID_OFFSET := 4
 const ID_STEP := 10.0              # (id + 4) * 10 <= 255: room for 21 groups
+const LEADS := ["coax", "cord", "cable", "wire"]   # thin parts screen_top() leaves out
 const WINDOW_FRAME := ["window_sill", "window_lintel", "window_jamb_l", "window_jamb_r", "window_mullion", "window_transom"]
 
 var group_names: Array[String] = []     # index + 1 = the group's mask id
@@ -124,3 +125,20 @@ func screen_point(name: String) -> Vector2:
 		box = b if first else box.merge(b)
 		first = false
 	return _camera.unproject_position(box.get_center())
+
+
+## the screen point just above a group's top: the middle of the back edge of its highest face, the
+## highest part of it the room camera sees. Leads hanging off an object (the radio's coax up the
+## wall, the hand mic's cord) are left out, so a marker sits on the object itself.
+func screen_top(name: String) -> Vector2:
+	var box := AABB()
+	var first := true
+	for mi: MeshInstance3D in groups[name].find_children("*", "MeshInstance3D", true, false):
+		if not mi.is_visible_in_tree() or LEADS.any(func(w): return w in String(mi.name)):
+			continue
+		var b := mi.global_transform * mi.get_aabb()
+		box = b if first else box.merge(b)
+		first = false
+	var c := box.get_center()
+	return _camera.unproject_position(Vector3(c.x, box.end.y, box.position.z))
+

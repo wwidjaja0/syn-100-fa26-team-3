@@ -40,6 +40,7 @@ trimesh is pinned because newer versions export without the single `world` root 
 | `12_supply_cabinet_open` | the cabinet open, with supplies inside | 2.0 m high |
 | `13_storm_shutters_stowed` | the shutters parked to the sides | 5.4 m across |
 | `14_microfiche_reader` | the wall-mounted map display in a wooden frame, control strip below | map-sized |
+| `15_battery_charger` | lead-acid battery (`leadacid_*`, the `battery` group) in a charging dock (`charger_*`, LED `charge_led`) on a supply crate | 0.7 m high |
 
 The open/closed pairs (`03`/`12`, `05`/`13`) give the Blender scene both states. In the game, the shutters and
 cabinet doors swing on hinges instead (see `pipeline/scene/story_parts/story_3_rigs_and_camera.py`).

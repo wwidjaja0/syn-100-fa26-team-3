@@ -15,7 +15,8 @@
   "filter",
   "crates",
   "sandbags",
-  "flashlight"
+  "flashlight",
+  "battery"
  ],
  "group_roots": {
   "shutters": [
@@ -81,6 +82,37 @@
   ],
   "flashlight": [
    "11_flashlight"
+  ],
+  "battery": [
+   "leadacid_case_0020",
+   "leadacid_label_0039",
+   "leadacid_label_band_0040",
+   "leadacid_label_text_0041",
+   "leadacid_label_text_0042",
+   "leadacid_lid_0021",
+   "leadacid_lid_step_0022",
+   "leadacid_mark_minus_0035",
+   "leadacid_mark_plus_0033",
+   "leadacid_mark_plus_0034",
+   "leadacid_rib_0043",
+   "leadacid_rib_0044",
+   "leadacid_rib_0045",
+   "leadacid_rib_0046",
+   "leadacid_rib_0047",
+   "leadacid_rib_0048",
+   "leadacid_strap_0038",
+   "leadacid_strap_lug_0036",
+   "leadacid_strap_lug_0037",
+   "leadacid_terminal_collar_0029",
+   "leadacid_terminal_collar_0031",
+   "leadacid_terminal_post_0030",
+   "leadacid_terminal_post_0032",
+   "leadacid_vent_cap_0023",
+   "leadacid_vent_cap_0024",
+   "leadacid_vent_cap_0025",
+   "leadacid_vent_cap_0026",
+   "leadacid_vent_cap_0027",
+   "leadacid_vent_cap_0028"
   ]
  },
  "start_hidden": [
@@ -107,6 +139,24 @@
     0.28999999165534973,
     0.17000000178813934,
     0.09000000357627869
+   ],
+   "strength": 0.0
+  },
+  "charger_cord": {
+   "kind": "toon",
+   "color": [
+    0.019999999552965164,
+    0.02500000037252903,
+    0.029999999329447746
+   ],
+   "strength": 0.0
+  },
+  "charger_plug": {
+   "kind": "toon",
+   "color": [
+    0.05000000074505806,
+    0.05999999865889549,
+    0.07000000029802322
    ],
    "strength": 0.0
   },
@@ -1170,6 +1220,438 @@
     0.19607843458652496,
     0.22745098173618317,
     0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_charge_led_13": {
+   "kind": "emit",
+   "color": [
+    0.07999999821186066,
+    1.0,
+    0.11999999731779099
+   ],
+   "strength": 4.0
+  },
+  "mat_charger_body_9": {
+   "kind": "toon",
+   "color": [
+    0.3803921639919281,
+    0.4627451002597809,
+    0.3921568691730499
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_body_cap_10": {
+   "kind": "toon",
+   "color": [
+    0.2549019753932953,
+    0.3333333432674408,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_cord_exit_19": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_cradle_back_7": {
+   "kind": "toon",
+   "color": [
+    0.2549019753932953,
+    0.3333333432674408,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_cradle_front_6": {
+   "kind": "toon",
+   "color": [
+    0.2549019753932953,
+    0.3333333432674408,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_cradle_side_8": {
+   "kind": "toon",
+   "color": [
+    0.2549019753932953,
+    0.3333333432674408,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_face_11": {
+   "kind": "toon",
+   "color": [
+    0.14901961386203766,
+    0.18039216101169586,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_foot_2": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_foot_3": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_foot_4": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_foot_5": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_label_14": {
+   "kind": "toon",
+   "color": [
+    0.886274516582489,
+    0.843137264251709,
+    0.7450980544090271
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_label_bolt_15": {
+   "kind": "toon",
+   "color": [
+    0.658823549747467,
+    0.3176470696926117,
+    0.2666666805744171
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_led_bezel_12": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_stand_bottom_49": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_stand_corner_rivet_66": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_stand_corner_rivet_67": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_stand_corner_rivet_69": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_stand_corner_rivet_70": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_stand_corner_rivet_72": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_stand_corner_rivet_73": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_stand_corner_rivet_75": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_stand_corner_rivet_76": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5960784554481506,
+    0.33725491166114807
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_stand_diagonal_reinforcement_77": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_stand_front_back_plank_51": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_stand_front_back_plank_52": {
+   "kind": "toon",
+   "color": [
+    0.658823549747467,
+    0.4627451002597809,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_stand_front_back_plank_53": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_stand_front_back_plank_54": {
+   "kind": "toon",
+   "color": [
+    0.658823549747467,
+    0.4627451002597809,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_stand_front_back_plank_55": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_stand_front_back_plank_56": {
+   "kind": "toon",
+   "color": [
+    0.658823549747467,
+    0.4627451002597809,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_stand_front_back_plank_57": {
+   "kind": "toon",
+   "color": [
+    0.7411764860153198,
+    0.5411764979362488,
+    0.3450980484485626
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_stand_front_back_plank_58": {
+   "kind": "toon",
+   "color": [
+    0.658823549747467,
+    0.4627451002597809,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_stand_lid_50": {
+   "kind": "toon",
+   "color": [
+    0.7333333492279053,
+    0.5254902243614197,
+    0.3490196168422699
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_stand_metal_corner_65": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_stand_metal_corner_68": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_stand_metal_corner_71": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_stand_metal_corner_74": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_stand_side_plank_59": {
+   "kind": "toon",
+   "color": [
+    0.6666666865348816,
+    0.45098039507865906,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_stand_side_plank_60": {
+   "kind": "toon",
+   "color": [
+    0.6666666865348816,
+    0.45098039507865906,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_stand_side_plank_61": {
+   "kind": "toon",
+   "color": [
+    0.6666666865348816,
+    0.45098039507865906,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_stand_side_plank_62": {
+   "kind": "toon",
+   "color": [
+    0.6666666865348816,
+    0.45098039507865906,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_stand_side_plank_63": {
+   "kind": "toon",
+   "color": [
+    0.6666666865348816,
+    0.45098039507865906,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_stand_side_plank_64": {
+   "kind": "toon",
+   "color": [
+    0.6666666865348816,
+    0.45098039507865906,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_tray_1": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_vent_16": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_vent_17": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_charger_vent_18": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
    ],
    "strength": 0.0
   },
@@ -2676,6 +3158,267 @@
    ],
    "strength": 3.0
   },
+  "mat_leadacid_case_20": {
+   "kind": "toon",
+   "color": [
+    0.7882353067398071,
+    0.7333333492279053,
+    0.6274510025978088
+   ],
+   "strength": 0.0
+  },
+  "mat_leadacid_label_39": {
+   "kind": "toon",
+   "color": [
+    0.8941176533699036,
+    0.7568627595901489,
+    0.4431372582912445
+   ],
+   "strength": 0.0
+  },
+  "mat_leadacid_label_band_40": {
+   "kind": "toon",
+   "color": [
+    0.658823549747467,
+    0.3176470696926117,
+    0.2666666805744171
+   ],
+   "strength": 0.0
+  },
+  "mat_leadacid_label_text_41": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_leadacid_label_text_42": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_leadacid_lid_21": {
+   "kind": "toon",
+   "color": [
+    0.14901961386203766,
+    0.18039216101169586,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_leadacid_lid_step_22": {
+   "kind": "toon",
+   "color": [
+    0.14901961386203766,
+    0.18039216101169586,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_leadacid_mark_minus_35": {
+   "kind": "toon",
+   "color": [
+    0.529411792755127,
+    0.5686274766921997,
+    0.5843137502670288
+   ],
+   "strength": 0.0
+  },
+  "mat_leadacid_mark_plus_33": {
+   "kind": "toon",
+   "color": [
+    0.7803921699523926,
+    0.46666666865348816,
+    0.3803921639919281
+   ],
+   "strength": 0.0
+  },
+  "mat_leadacid_mark_plus_34": {
+   "kind": "toon",
+   "color": [
+    0.7803921699523926,
+    0.46666666865348816,
+    0.3803921639919281
+   ],
+   "strength": 0.0
+  },
+  "mat_leadacid_rib_43": {
+   "kind": "toon",
+   "color": [
+    0.7098039388656616,
+    0.6549019813537598,
+    0.5411764979362488
+   ],
+   "strength": 0.0
+  },
+  "mat_leadacid_rib_44": {
+   "kind": "toon",
+   "color": [
+    0.7098039388656616,
+    0.6549019813537598,
+    0.5411764979362488
+   ],
+   "strength": 0.0
+  },
+  "mat_leadacid_rib_45": {
+   "kind": "toon",
+   "color": [
+    0.7098039388656616,
+    0.6549019813537598,
+    0.5411764979362488
+   ],
+   "strength": 0.0
+  },
+  "mat_leadacid_rib_46": {
+   "kind": "toon",
+   "color": [
+    0.7098039388656616,
+    0.6549019813537598,
+    0.5411764979362488
+   ],
+   "strength": 0.0
+  },
+  "mat_leadacid_rib_47": {
+   "kind": "toon",
+   "color": [
+    0.7098039388656616,
+    0.6549019813537598,
+    0.5411764979362488
+   ],
+   "strength": 0.0
+  },
+  "mat_leadacid_rib_48": {
+   "kind": "toon",
+   "color": [
+    0.7098039388656616,
+    0.6549019813537598,
+    0.5411764979362488
+   ],
+   "strength": 0.0
+  },
+  "mat_leadacid_strap_38": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_leadacid_strap_lug_36": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_leadacid_strap_lug_37": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_leadacid_terminal_collar_29": {
+   "kind": "toon",
+   "color": [
+    0.658823549747467,
+    0.3176470696926117,
+    0.2666666805744171
+   ],
+   "strength": 0.0
+  },
+  "mat_leadacid_terminal_collar_31": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_leadacid_terminal_post_30": {
+   "kind": "toon",
+   "color": [
+    0.6980392336845398,
+    0.7058823704719543,
+    0.6784313917160034
+   ],
+   "strength": 0.0
+  },
+  "mat_leadacid_terminal_post_32": {
+   "kind": "toon",
+   "color": [
+    0.6980392336845398,
+    0.7058823704719543,
+    0.6784313917160034
+   ],
+   "strength": 0.0
+  },
+  "mat_leadacid_vent_cap_23": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_leadacid_vent_cap_24": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_leadacid_vent_cap_25": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_leadacid_vent_cap_26": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_leadacid_vent_cap_27": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_leadacid_vent_cap_28": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
   "mat_lens_metal_bezel_4": {
    "kind": "emit",
    "color": [
@@ -3395,6 +4138,24 @@
     0.24313725531101227
    ],
    "strength": 0.0
+  },
+  "mat_radio_lamp_bezel_80": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_radio_led_81": {
+   "kind": "emit",
+   "color": [
+    1.0,
+    0.05999999865889549,
+    0.05000000074505806
+   ],
+   "strength": 4.0
   },
   "mat_readout_bezel_38": {
    "kind": "toon",

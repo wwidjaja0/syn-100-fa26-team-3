@@ -47,12 +47,18 @@ You don't need Blender or Python unless you change the room, the props or the ge
 | F9 | The debug menu (see below). |
 
 What's in the room so far:
-- **Storm shutters:** open and close; heat floods in while they're open.
+- **Storm shutters:** open and close. Heat creeps in round the edges of the screen (a warm shimmer), more while
+  they're open, and how much depends on the weather: hardly any in rain, most under wildfire smoke. Behind them, the view from the cabin's
+  summit: the Oregon coast from Neahkahnie Mountain (real terrain, `make_window_view.py`), under changing weather
+  (`scripts/room/weather.gd`): storm, rain, overcast, the coast's marine fog filling the valleys below, clear
+  skies, and wildfire smoke. Each holds a couple of minutes, then fades into the next; the window's light into
+  the room follows it. F9's W line jumps to the next one.
 - **Supply cabinet:** opens and closes.
 - **Dried mushrooms, rolling papers, PA speaker, battery:** click to pick them up into the inventory (the speaker
-  gets a line of thought first, then goes into the inventory once it closes). The battery is a yellow
-  pack with a lightning bolt, plugged into the front of the power station (`scripts/room/placeholders.gd`)
-  until it's modelled.
+  gets a line of thought first, then goes into the inventory once it closes). The battery is a lead-acid
+  battery standing in a charging dock on a crate, left of the power station: the dock's light blinks green while
+  it charges and stays green once it's full. The ham radio has a red light: dark while it's broken, red once it
+  has power, blinking while a call waits.
 - **Workbench:** the crafting view, looking straight down on the cutting mat. Hold an item and click a cell to put it
   on the mat; click it again to take it back. When the mat holds exactly a recipe's ingredients, the result appears in
   the big slot right of the mat; click it to make it. There are no recipes yet (`RECIPES` in
@@ -106,7 +112,7 @@ scripts/
   dev/                              the F9 debug menu and the scripted screenshot demo
 shaders/
   toon.gdshader                     every 3D surface, plus the object-id mask pass
-  post.gdshader                     toon banding, dither, 40-colour palette, hover outline, heat
+  post.gdshader                     toon banding, dither, 42-colour palette, hover outline, heat
 items/                              one ItemData .tres per item (jar, papers, cig, speaker, battery)
 data/stations.json                  radio stations and the map areas printed at the start (placeholders)
 assets/                             shelter.glb (the room), scene_meta.json, palette.json   [generated]

@@ -3,8 +3,8 @@ extends Node
 ##
 ## Two hinged panels (the shutter_hinge_L / _R nodes, made in
 ## pipeline/scene/story_parts/story_3_rigs_and_camera.py) swing open with a little overshoot and close
-## with a thud. While they are open, `heat` climbs, which the
-## post shader turns into a shimmer around the window. `value` is the swing: 0 closed .. 1 open
+## with a thud. While they are open, `heat` climbs: how much of the weather's heat gets in
+## (room/weather.gd's heat(); the post shader shimmers and warms the screen's edges with it). `value` is the swing: 0 closed .. 1 open
 ## (it overshoots slightly). Timings are in 24 fps frames (main.gd's clock).
 
 const Ease := preload("res://scripts/room/ease.gd")

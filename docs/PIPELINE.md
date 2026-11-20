@@ -38,6 +38,7 @@ Blender settings and add-ons can't change the result.
                                                assets/shelter.glb, assets/scene_meta.json
 
  pipeline/scene/fetch_geo.py ──► data/world_geo.json ──► pipeline/scene/make_fiche.py ──► fiche_*.png, fiche_meta.json, globe
+ terrain tiles (downloaded) ──► pipeline/scene/make_window_view.py ──► window_view*.png, window_view_meta.json ─┤
  pipeline/scene/pixui.py (font, icons, cursors) ─┐                                              │
  pipeline/scene/palette.json ────────────────────┴──► pipeline/godot/make_ui_assets.py ◄────────┘
                                                                  │
@@ -136,6 +137,22 @@ python3 pipeline/scene/make_fiche.py
 
 Re-run it (then step 7) whenever you edit `data/stations.json`.
 
+### 6b. The view out of the window: `pipeline/scene/make_window_view.py`
+
+```sh
+python3 pipeline/scene/make_window_view.py                       # Neahkahnie Mountain, the default
+python3 pipeline/scene/make_window_view.py --site marys --preview /tmp/view.png
+```
+
+The cabin sits on a summit on the Oregon coast. This ray-marches real terrain (the open AWS Terrain Tiles, which
+include the sea floor) into a 160-degree panorama from just above the summit: forested ridges, the beach and surf,
+the Pacific to the curved horizon, and a fringe of fir tops below the window. The sky is left transparent and the
+alpha is the haze. `window_view_depth.png` holds each pixel's distance, ground height and a water flag, which the
+game's weather uses (`scripts/room/weather.gd`: thicker or thinner haze, a marine layer filling everything below
+its top). Colours are picked to land on the palette's teals, blues and creams (it has no greens). `SITES` lists
+other summits to try; the heading is the direction the window faces. Tiles are cached in `data/terrain_cache/`
+(git-ignored). Then run step 7.
+
 ### 7. UI art: `pipeline/godot/make_ui_assets.py`
 
 ```sh
@@ -143,7 +160,8 @@ python3 pipeline/godot/make_ui_assets.py
 ```
 
 Turns `pipeline/scene/pixui.py` (the 5x7 font `_G`, the item `ICONS`, the cursors) into `ui/pixel_font.png/.fnt`,
-`ui/cursor_*.png` and `ui/icon_*.png`. It also copies the microfiche images into `ui/` and `palette.json` into `assets/`.
+`ui/cursor_*.png` and `ui/icon_*.png`. It also copies the microfiche images and the window view into `ui/`, and
+`palette.json` into `assets/`.
 
 ### 8. (Rarely) the main scene: `pipeline/godot/make_main_scene.py`
 
@@ -165,6 +183,7 @@ blender -b --factory-startup --python pipeline/scene/build_pixel_scene.py -- --n
 blender -b --factory-startup pipeline/scene/climate_shelter_pixel.blend --python pipeline/scene/build_story.py
 blender -b --factory-startup pipeline/scene/climate_shelter_story.blend --python pipeline/godot/export_glb.py
 python3 pipeline/scene/make_fiche.py
+python3 pipeline/scene/make_window_view.py
 python3 pipeline/godot/make_ui_assets.py
 ```
 
@@ -174,6 +193,7 @@ You only need the steps after the one you changed, for example:
 - a story prop or hinge: from `build_story.py` on;
 - groups or start-hidden parts: `export_glb.py` only;
 - stations: `make_fiche.py`, then `make_ui_assets.py`;
+- the view out of the window: `make_window_view.py`, then `make_ui_assets.py`;
 - font, icons, cursors: `make_ui_assets.py` only.
 
 Then open Godot so it re-imports the changed files.

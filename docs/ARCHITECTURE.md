@@ -50,13 +50,13 @@ order every frame, and routes input. Each part is one file with one job.
 | `inventory/item_data.gd` | `ItemData` resource: `id`, `name`, `icon` | one `.tres` per item in `items/` |
 | `inventory/inventory_data.gd` | `InventoryData` resource: the list of carried items | |
 | `room/interactions.gd` | **The game rules:** hover labels and what clicking each object does | `LABELS`, `click(group)`, `use_item(item, group)`, `pick_up(group, item_id, hide)`, `say(id)`, `then_after_dialogue(action)` |
-| `room/placeholders.gd` | Stand-in props not modelled yet (the battery, docked on the power station) | `add_all(room, meta)` |
 | `room/fish_tank.gd` | Wires up `scenes/fish_tank.tscn` (the reef tank and gauge board) and animates the fish, bubbles, kelp and needles. The cabin's widened left end is `scenes/room_left.tscn` | `build(main, room, meta, lights)`, `update()`, `EXTRA` |
 | `room/object_picker.gd` | Reads the mask render: which group is under the cursor | `hover`, `group_at(p)`, `group_of(node)`, `screen_point(group)` |
 | `room/room_materials.gd` | Replaces the room's imported materials with the toon shader | `set_param(material, param, value)` |
-| `room/shutters.gd` | Storm shutters swing open/shut; heat rises and falls | `toggle()`, `is_open`, `heat` |
+| `room/shutters.gd` | Storm shutters swing open/shut; how much heat gets in rises and falls | `toggle()`, `is_open`, `heat` |
 | `room/cabinet.gd` | Supply cabinet doors and the light inside | `toggle()` |
-| `room/ambience.gd` | Things that move on their own: storm sky, PA status light, lantern | |
+| `room/weather.gd` | The weather outside the window: presets (storm, rain, overcast, marine fog, clear, wildfire smoke) cross-faded on a cycle, lightning, and the window lights' colour to match | `set_weather(name)`, `after(name)`, `update(delta, clock)` |
+| `room/ambience.gd` | Things that move on their own: storm sky, PA status light, lantern, the battery dock's green light (blinks while charging, solid when full, flag `battery_charged`) and the radio's red one | |
 | `room/room_camera.gd` | Edge panning, pixel snapping, blending into close-up views | `x`, `push`, `cam_px` |
 | `room/post_process.gd` | Hooks the renders and palette into `post.gdshader`; updates its uniforms | |
 | `room/ease.gd` | Easing curves (`smooth`, `out_back`) | static functions |
@@ -133,9 +133,9 @@ which must agree:
 | `shaders/post.gdshader` | `ID_OFFSET = 4`, `ID_STEP = 10.0` |
 | `scripts/room/object_picker.gd` | `MASK_ID_OFFSET = 4`, `ID_STEP = 10` |
 
-One 8-bit channel fits `(id + 4) * 10 ≤ 255`, so there's room for **21 groups**. 19 are used: 16 from the room,
-plus three added in code at start-up (appending to `meta.groups` before the picker numbers them): the placeholder
-battery (`room/placeholders.gd`) and the reef tank and its gauges (`room/fish_tank.gd`). (The step was 12, room for
+One 8-bit channel fits `(id + 4) * 10 ≤ 255`, so there's room for **21 groups**. 19 are used: 17 from the room
+(the battery is the last), plus two added in code at start-up (appending to `meta.groups` before the picker
+numbers them): the reef tank and its gauges (`room/fish_tank.gd`). (The step was 12, room for
 17, until the tank needed more.)
 
 A group is only hoverable if `interactions.hoverable(group)` says so: it needs a label in `LABELS`. The window's
@@ -150,11 +150,29 @@ shell round each prop) or `sky` (the animated storm). `room_materials.gd` builds
 can't do instance uniforms, which is why there are copies. Scripts that animate a material, such as the PA light
 blinking, use `materials.set_param(name, param, value)`.
 
-`toon.gdshader` kinds: 0 toon, 1 emissive, 2 outline hull, 3 storm sky, 4 the microfiche's idle globe.
+**Outlines in close-ups.** The hull is baked in Blender at a fixed thickness (3 mm to 1.6 cm), right for the room
+view but a thick black slab once a close-up magnifies it. At load, `room_materials.gd` (`_scalable_hull`) moves
+every hull vertex back onto its part and stores the push (direction in `NORMAL`, length in `UV2.x`);
+`toon.gdshader` redoes the push times `outline_scale`, which `room_camera.gd` sets each frame to the close-up's
+zoom (1 in the room, so the room is unchanged), never thinner than a pixel.
 
-The post shader then does, in order: heat-haze warp, toon banding, colour punch and warm grade, world-locked Bayer
-dither (it moves with `cam_px`, so it doesn't swim when the camera pans), hover shimmer, palette snap to the 40
-colours in `assets/palette.json`, and the hover outline. The UI is drawn *after* this, so UI colours aren't snapped.
+**Status lights.** The battery dock's `charge_led` and the radio's `radio_led` glow in the palette's two LED
+colours (green, red). Those two palette entries are reserved: the mask pass writes a flag in its green channel
+for these materials only (`status_light`), and the post shader only snaps flagged pixels to them, so nothing
+else in the room drifts onto pure green or red.
+
+`toon.gdshader` kinds: 0 toon, 1 emissive, 2 outline hull, 3 the window, 4 the microfiche's idle globe.
+
+**The window.** Kind 3 shows `ui/window_view.png`, a real panorama from the cabin's summit
+(`pipeline/scene/make_window_view.py`), looked into from the camera's position with the angles scaled up
+(`VIEW_ZOOM` in `room_materials.gd`), so panning the room swings the view like a real window. Its sky is
+transparent; the sky drawn there, the haze, the marine layer (from `window_view_depth.png`'s heights), the rain
+on the glass and lightning all come from the `w_*` uniforms, which `room/weather.gd` blends between presets.
+
+The post shader then does, in order: heat-haze warp round the screen's edges (`heat`, from `weather.heat()`: the
+weather's `heat_in` with the shutters shut, up to its `heat` once they've been open a while; the middle stays clear), toon banding, colour punch and warm grade, world-locked Bayer
+dither (it moves with `cam_px`, so it doesn't swim when the camera pans), hover shimmer, palette snap to the 42
+colours in `assets/palette.json` (40, plus the two LED colours only for status lights), and the hover outline. The UI is drawn *after* this, so UI colours aren't snapped.
 `pixel_draw.gd`'s `palette_color()` snaps them by hand.
 
 ### Two renderers
@@ -208,7 +226,9 @@ to `radio_repair.click(p, held)`:
   meshes (`start_hidden` grill on, the bare wires off), arms radio chatter and plays "radio_repaired".
   After that, a click answers a waiting call (a red ! above the radio) or opens the cabin log. J and L open
   the log too. Every monologue and call is stored there when its box closes (`GameState.cabin_log`). The !
-  also marks the broken radio once the story has pointed at it; the battery and speaker stay unmarked.
+  also marks the broken radio once the story has pointed at it; the battery and speaker stay unmarked. The !
+  is a red sign with a point, drawn right above the top of the radio's case (`picker.screen_top()`, which
+  leaves out the coax and cords hanging off it).
 
 ## The reef tank
 

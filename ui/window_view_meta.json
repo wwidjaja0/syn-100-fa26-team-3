@@ -1,0 +1,14 @@
+{
+ "site": "neahkahnie",
+ "note": "Neahkahnie Mountain, Oregon: the coast running south past Nehalem Bay",
+ "lat": 45.7444101688825,
+ "lon": -123.94046064829854,
+ "heading_deg": 185.0,
+ "eye_m": 493,
+ "hfov_deg": 160.0,
+ "pitch_top_deg": 20.0,
+ "pitch_bottom_deg": -35.0,
+ "depth_near_m": 15.0,
+ "depth_far_m": 120000.0,
+ "depth_top_m": 1000.0
+}

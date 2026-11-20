@@ -6,6 +6,7 @@ python3 pipeline/godot/make_ui_assets.py      (reads pipeline/scene)
   ui/cursor_arrow.png, ui/cursor_hand.png
   ui/icon_<item>.png         12x12 item icons
   ui/fiche_*.png, fiche_meta.json, globe_equirect.png   the microfiche and its idle globe (make_fiche.py)
+  ui/window_view.png, window_view_depth.png, window_view_meta.json   the view out of the window (make_window_view.py)
   assets/palette.json
 """
 import json, shutil, sys
@@ -67,7 +68,7 @@ for old in UI.glob('fiche_*.png'):                 # e.g. areas removed from dat
     if not (PIXEL / old.name).exists():
         old.unlink()
         old.with_suffix('.png.import').unlink(missing_ok=True)
-for f in ['fiche_meta.json', 'globe_equirect.png', *(p.name for p in PIXEL.glob('fiche_*.png'))]:
+for f in ['fiche_meta.json', 'globe_equirect.png', 'window_view.png', 'window_view_depth.png', 'window_view_meta.json', *(p.name for p in PIXEL.glob('fiche_*.png'))]:
     shutil.copy(PIXEL / f, UI / f)
 shutil.copy(PIXEL / 'palette.json', GODOT / 'assets' / 'palette.json')
 (UI / 'cursor_hotspots.json').write_text(json.dumps({k: v[1] for k, v in SPRITES.items()}))

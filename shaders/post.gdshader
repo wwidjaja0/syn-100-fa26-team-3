@@ -1,11 +1,11 @@
 // The pixel look, ported from the Blender-video compositor. Runs on the 480x270 world
-// render: heat-haze warp, toon banding, colour punch, warm grade, world-locked Bayer
-// dither with a slow drift, hover shimmer, 40-colour palette snap, hover outline.
+// render: heat-haze warp round the screen's edges, toon banding, colour punch, warm grade, world-locked Bayer
+// dither with a slow drift, hover shimmer, 42-colour palette snap, hover outline.
 shader_type canvas_item;
 
 uniform sampler2D scene_tex : filter_linear, repeat_disable;
 uniform sampler2D mask_tex : filter_nearest, repeat_disable;
-uniform vec3 palette[40];
+uniform vec3 palette[42];   // 40 from the Blender look, then two status-light colours (LED green, LED red)
 
 uniform float frame = 0.0;            // 24 fps clock, like the video frames
 uniform float cam_px = 0.0;           // camera pan in whole pixels (keeps the dither on the world)
@@ -17,10 +17,7 @@ uniform vec2 cursor = vec2(240.0, 135.0);
 uniform vec2 shimmer_off = vec2(0.0);
 uniform int outline_px = 2;
 
-uniform float heat = 0.0;
-uniform float heat_focus = 1.0;
-uniform float shutter = 0.0;
-uniform vec2 window_px = vec2(240.0, 136.0);
+uniform float heat = 0.0;             // 0..1: the heat creeping in round the screen's edges (post_process.gd)
 uniform float dim = 0.0;              // darken behind panels
 uniform float fade = 0.0;             // to black
 uniform float pause_amount = 0.0;     // blur and dim behind the pause menu
@@ -28,6 +25,7 @@ uniform float brightness = 1.0;       // user setting, 0.5 .. 1.5
 uniform float landing_amount = 0.0;   // cinematic title-screen grade and vignette
 
 const vec2 SIZE = vec2(480.0, 270.0);
+const float HEAT_EDGE_PX = 70.0;        // how far in from the edges the heat reaches at full heat (about)
 const int ID_OFFSET = 4;              // mask ids are stored 4 steps up (see toon.gdshader)
 const float ID_STEP = 10.0;           // and ID_STEP apart
 const float DITHER = 0.045;
@@ -69,10 +67,14 @@ float hash(vec2 p) {
 	return fract(sin(dot(p, vec2(12.9898, 78.233)) + noise_seed) * 43758.5453);
 }
 
-vec3 quantize(vec3 c) {
+// the last two entries (LED green and red) only for status-light pixels (the mask's green channel),
+// so nothing else in the room drifts onto them
+const int PALETTE_ROOM = 40;
+
+vec3 quantize(vec3 c, bool led) {
 	vec3 best = palette[0];
 	float bd = 1e9;
-	for (int i = 0; i < 40; i++) {
+	for (int i = 0; i < (led ? 42 : PALETTE_ROOM); i++) {
 		vec3 d = c - palette[i];
 		float e = dot(d * d, WTS);
 		if (e < bd) {
@@ -91,11 +93,15 @@ void fragment() {
 	vec2 pix = floor(UV * SIZE);              // integer pixel, like numpy's mgrid
 	float x = pix.x, y = pix.y, f = frame;
 
-	// heat haze displaces the scene and its mask together
-	float near = exp(-dot(pix - window_px, pix - window_px) / (2.0 * 140.0 * 140.0));
-	float env = heat * ((1.0 - heat_focus) + heat_focus * (0.35 + 0.65 * near));
-	vec2 d = vec2(2.4 * env * sin(0.23 * y + 0.42 * f + 1.3 * sin(0.045 * x - 0.11 * f)),
-	              0.9 * env * sin(0.19 * x + 0.31 * f + 0.7));
+	// heat haze round the edges of the screen, the middle left clear. The band is wider the hotter it
+	// is and its inner edge wavers and rises like air off a hot road. It displaces the scene and its
+	// mask together.
+	float edge_d = min(min(x, SIZE.x - 1.0 - x), min(y, SIZE.y - 1.0 - y) * 1.25);
+	float reach = HEAT_EDGE_PX * (0.45 + 0.75 * heat) * (1.0 + 0.18 * sin(0.07 * x - 0.05 * y + 0.15 * f) * sin(0.031 * (x + y) - 0.09 * f));
+	float edge = heat > 0.005 ? pow(1.0 - clamp(edge_d / reach, 0.0, 1.0), 1.6) : 0.0;
+	float env = heat * edge;
+	vec2 d = vec2(2.6 * env * sin(0.23 * y + 0.42 * f + 1.3 * sin(0.045 * x - 0.11 * f)),
+	              1.4 * env * sin(0.19 * x + 0.31 * f + 0.7 + 0.08 * y));
 	vec2 src = pix + 0.5 + d;
 
 	vec2 scene_uv = src / SIZE;
@@ -123,10 +129,10 @@ void fragment() {
 	px = lum + (px - lum) * SATURATION;
 	px = (px - 0.5) * CONTRAST + 0.5;
 
-	if (heat > 0.005) {
-		vec3 warm = px * vec3(1.16, 0.97, 0.80) + vec3(0.07, 0.025, -0.01);
-		px = mix(px, warm, clamp(env, 0.0, 1.0));
-		px += 0.30 * heat * min(shutter, 1.0) * near * near * vec3(1.0, 0.85, 0.6);
+	if (env > 0.001) {                        // the edges warm up and glow
+		vec3 warm = px * vec3(1.18, 0.96, 0.78) + vec3(0.08, 0.025, -0.01);
+		px = mix(px, warm, clamp(env * 1.6, 0.0, 1.0));
+		px += 0.22 * env * edge * vec3(1.0, 0.62, 0.28);
 	}
 	if (landing_amount > 0.001) {
 		vec2 vp = (pix / SIZE - vec2(0.5)) * vec2(1.0, 0.72);
@@ -154,10 +160,10 @@ void fragment() {
 		thr = mix(thr, bayer(vec2(wx, y) + shimmer_off) * DITHER * 2.4, area);
 		px *= 1.0 + 0.10 * area;
 	}
-	if (heat > 0.3) {                         // heat makes the dither boil a little
-		thr += 0.012 * heat * sin(0.8 * x + 1.1 * y + 0.9 * f);
+	if (env > 0.05) {                         // heat makes the dither boil a little at the edges
+		thr += 0.02 * env * sin(0.8 * x + 1.1 * y + 0.9 * f);
 	}
-	vec3 outc = quantize(px + thr);
+	vec3 outc = quantize(px + thr, m.g > 0.5);
 
 	// thick white outline just outside the hovered object
 	if (target_id > 0 && !on_target) {

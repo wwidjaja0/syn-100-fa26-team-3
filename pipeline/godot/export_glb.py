@@ -86,6 +86,8 @@ GROUPS = {
     'crates': kids('09_supply_crates'),
     'sandbags': kids('06_sandbag_flood_barrier'),
     'flashlight': kids('11_flashlight'),
+    # the lead-acid battery lifts out of its dock; the dock and its cord stay
+    'battery': [o for o in kids('15_battery_charger') if o.name.startswith('leadacid_')],
 }
 taken = set()
 for name in GROUPS:                                  # an object belongs to the first group that lists it
