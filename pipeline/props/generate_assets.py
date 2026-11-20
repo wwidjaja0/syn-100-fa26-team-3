@@ -123,6 +123,11 @@ def radio():
  m.rod('coax_cable',(cx,back+.024,zc+.03),(cx,cy,zc+.07),.007,'black')
  m.rod('coax_cable',(cx,cy,zc+.07),(cx,cy,2.0),.007,'black')
  for z in [.8,1.4]:m.box('coax_clip',(cx,cy+.004,z),(.03,.012,.02),'steel_light')
+ # status light between the power switch and the band selector: dark while the radio is dead,
+ # red once it has power, blinking for a call (scripts/room/ambience.gd). Added last so the parts
+ # above keep their numbered material names (ambience.gd's RADIO_LCD_MATS).
+ m.box('radio_lamp_bezel',(-.065,y1-.004,zc+.011),(.03,.008,.02),'black')
+ m.box('radio_led',(-.065,y1-.009,zc+.011),(.02,.006,.012),'screen_dark')
  return m
 
 def microfiche_reader():
@@ -399,6 +404,75 @@ def flashlight():
  m.box('wrist_strap_anchor',(-.26,0,.1),(.044,.043,.06),'steel')
  return m
 
+def battery_charger():
+ # a 12 V lead-acid battery standing in a charging dock. The battery's parts are 'leadacid_*'
+ # (the game's 'battery' group, picked up for the radio); the dock's are 'charger_*' and stay put.
+ # The dock stands on a supply crate. Its 'charge_led' blinks green while charging and holds green once full
+ # (scripts/room/ambience.gd). Its mains cord to the power station is laid in the room by
+ # build_pixel_scene.py, from 'charger_cord_exit' to the station's socket.
+ m=Model('Lead-acid battery on a charging dock')
+ TW,TD,TH=.40,.27,.03                          # dock tray
+ bx=-.055                                      # battery centre x: left part of the tray
+ # ---- dock
+ m.box('charger_tray',(0,0,TH/2),(TW,TD,TH),'steel_dark')
+ for x in [-TW/2+.03,TW/2-.03]:
+  for y in [-TD/2+.03,TD/2-.03]:m.box('charger_foot',(x,y,.004),(.04,.04,.008),'black')
+ # a low cradle round the battery: front lip, back lip and the left rail
+ BW,BD=.25,.17                                 # battery footprint
+ m.box('charger_cradle_front',(bx,-BD/2-.012,TH+.022),(BW+.03,.016,.044),'olive_dark')
+ m.box('charger_cradle_back',(bx,BD/2+.012,TH+.022),(BW+.03,.016,.044),'olive_dark')
+ m.box('charger_cradle_side',(bx-BW/2-.012,0,TH+.022),(.016,BD+.04,.044),'olive_dark')
+ # the charger itself, a box on the tray's right end in the power station's olive
+ ux,uw,ud,uh=.148,.095,.21,.20
+ m.box('charger_body',(ux,.01,TH+uh/2),(uw,ud,uh),'olive')
+ m.box('charger_body_cap',(ux,.01,TH+uh+.008),(uw+.01,ud+.01,.016),'olive_dark')
+ fy=.01-ud/2
+ m.box('charger_face',(ux,fy-.004,TH+uh*.56),(uw-.02,.008,uh*.7),'charcoal')
+ m.box('charger_led_bezel',(ux,fy-.009,TH+uh*.78),(.044,.006,.034),'black')
+ m.box('charge_led',(ux,fy-.013,TH+uh*.78),(.028,.006,.02),'screen_glow')
+ m.box('charger_label',(ux,fy-.009,TH+uh*.48),(.05,.004,.026),'off_white')
+ m.box('charger_label_bolt',(ux,fy-.012,TH+uh*.48),(.012,.004,.02),'red')
+ for k in range(3):m.box('charger_vent',(ux,fy-.009,TH+uh*.22+k*.016),(.05,.004,.006),'black')
+ # where the mains cord leaves (build_pixel_scene.py runs it to the power station)
+ m.cyl('charger_cord_exit',(ux+uw/2+.008,.04,TH+.03),.012,.018,'black','x',10)
+ # ---- the battery: a deep-cycle type, pale polypropylene case under a dark lid
+ z0=TH+.004
+ CH,LH=.165,.024                               # case and lid heights
+ m.box('leadacid_case',(bx,0,z0+CH/2),(BW,BD,CH),'cream')
+ m.box('leadacid_lid',(bx,0,z0+CH+LH/2),(BW+.006,BD+.006,LH),'charcoal')
+ m.box('leadacid_lid_step',(bx,.02,z0+CH+LH+.006),(BW*.62,BD*.55,.012),'charcoal')
+ # six cell vent caps in a row on the raised step
+ for k in range(6):
+  m.cyl('leadacid_vent_cap',(bx-.06+k*.024,.02,z0+CH+LH+.016),.008,.008,'black','z',8)
+ # terminal posts at the front corners: lead posts in red (+) and black (-) collars
+ tz=z0+CH+LH
+ for side,col in [(1,'red'),(-1,'black')]:
+  x=bx+side*(BW/2-.032)
+  m.cyl('leadacid_terminal_collar',(x,-.045,tz+.006),.019,.012,col,'z',12)
+  m.cyl('leadacid_terminal_post',(x,-.045,tz+.022),.011,.024,'silver','z',10)
+ # + and - marks beside the posts
+ px=bx+BW/2-.07
+ m.box('leadacid_mark_plus',(px,-.05,tz+.001),(.022,.006,.002),'red_light')
+ m.box('leadacid_mark_plus',(px,-.05,tz+.001),(.006,.022,.002),'red_light')
+ m.box('leadacid_mark_minus',(bx-BW/2+.07,-.05,tz+.001),(.022,.006,.002),'steel_light')
+ # carry strap across the lid
+ for x in [bx-.085,bx+.085]:m.box('leadacid_strap_lug',(x,.05,tz+.012),(.016,.016,.024),'black')
+ m.box('leadacid_strap',(bx,.05,tz+.03),(.186,.016,.012),'black')
+ # yellow warning label on the front: a red band and two lines of text
+ ly=-BD/2-.002
+ m.box('leadacid_label',(bx,ly,z0+CH*.55),(.2,.004,.088),'yellow')
+ m.box('leadacid_label_band',(bx,ly-.002,z0+CH*.55+.03),(.2,.004,.018),'red')
+ for k,w in enumerate([.12,.08]):m.box('leadacid_label_text',(bx-.04+w/2,ly-.002,z0+CH*.5-k*.022),(w,.004,.008),'black')
+ # moulded ribs down each end, where the cell walls are
+ for side in [-1,1]:
+  for k in range(3):m.box('leadacid_rib',(bx+side*(BW/2+.003),-.05+k*.05,z0+CH*.48),(.006,.012,CH*.8),'cream_shadow')
+ # up on a supply crate, so it stands clear of the floor at the bottom of the screen. Added last,
+ # so the parts above keep their numbered material names (ambience.gd finds mat_charge_led_*).
+ SZ=.40
+ for g in m.scene.geometry.values():g.apply_translation([0,0,SZ])
+ single_crate(m,'charger_stand',(0,0,0),(.46,.33,SZ),False)
+ return m
+
 BUILDERS = [
  ('01_wooden_workbench',workbench),
  ('02_emergency_weather_radio',radio),
@@ -414,6 +488,7 @@ BUILDERS = [
  ('12_supply_cabinet_open',lambda: cabinet(True)),
  ('13_storm_shutters_stowed',lambda: storm_shutters(True)),
  ('14_microfiche_reader',microfiche_reader),
+ ('15_battery_charger',battery_charger),
 ]
 
 if __name__=='__main__':

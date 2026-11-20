@@ -10,8 +10,8 @@ extends Node
 ##   room/interactions.gd     hover labels and what clicking each object does   <- game rules
 ##   room/shutters.gd         storm shutters and the heat they let in
 ##   room/cabinet.gd          supply cabinet doors and interior light
-##   room/ambience.gd         storm sky, PA light, lantern glow
-##   room/placeholders.gd     stand-in boxes for props not modelled yet (the battery)
+##   room/ambience.gd         storm sky, PA light, lantern glow, battery dock and radio status lights
+##   room/weather.gd          the weather outside the window (storm, rain, fog, ...) and its light
 ##   room/fish_tank.gd        wires up scenes/fish_tank.tscn (the widened cabin is scenes/room_left.tscn)
 ##   room/room_camera.gd      panning, pixel snapping, hand-over to close-ups
 ##   room/post_process.gd     feeds the post shader
@@ -40,6 +40,7 @@ const Interactions := preload("res://scripts/room/interactions.gd")
 const Shutters := preload("res://scripts/room/shutters.gd")
 const Cabinet := preload("res://scripts/room/cabinet.gd")
 const Ambience := preload("res://scripts/room/ambience.gd")
+const Weather := preload("res://scripts/room/weather.gd")
 const RoomCamera := preload("res://scripts/room/room_camera.gd")
 const PostProcess := preload("res://scripts/room/post_process.gd")
 const CraftingView := preload("res://scripts/views/crafting_view.gd")
@@ -48,7 +49,6 @@ const Crafting := preload("res://scripts/crafting/crafting.gd")
 const RadioRepair := preload("res://scripts/radio/radio_repair.gd")
 const TankView := preload("res://scripts/views/tank_view.gd")
 const TankPanel := preload("res://scripts/tank/tank_panel.gd")
-const Placeholders := preload("res://scripts/room/placeholders.gd")
 const FishTank := preload("res://scripts/room/fish_tank.gd")
 const DebugMenu := preload("res://scripts/dev/debug_menu.gd")
 const Demo := preload("res://scripts/dev/demo.gd")
@@ -100,6 +100,7 @@ var interactions: Interactions
 var shutters: Shutters
 var cabinet: Cabinet
 var ambience: Ambience
+var weather: Weather
 var room_camera: RoomCamera
 var post: PostProcess
 var crafting: CraftingView
@@ -120,10 +121,9 @@ func _ready() -> void:
 		var node := room.find_child(n, true, false)
 		if node:
 			node.visible = false
-	Placeholders.add_all(room, meta)     # adds their groups to meta.groups, so before the picker
 	fish_tank = FishTank.new()
 	_add(fish_tank, "FishTank")
-	fish_tank.build(self, room, meta, $WorldVP/Lights)   # likewise: groups, materials, the wider room
+	fish_tank.build(self, room, meta, $WorldVP/Lights)   # adds its groups to meta.groups, so before the picker
 
 	interactions = Interactions.new()
 	_add(interactions, "Interactions")
@@ -144,6 +144,9 @@ func _ready() -> void:
 	ambience = Ambience.new()
 	_add(ambience, "Ambience")
 	ambience.setup(self, $WorldVP/Lights, materials, $WorldVP/Lights/lantern_glow, compat)
+	weather = Weather.new()              # after ambience: it reads the window lights as ambience left them
+	_add(weather, "Weather")
+	weather.setup(self, $WorldVP/Lights, materials)
 	crafting = CraftingView.new()
 	_add(crafting, "CraftingView")
 	crafting.setup(meta, W, H)
@@ -209,6 +212,7 @@ func _process(delta: float) -> void:
 			and active_view() == null
 	picker.update(cursor, step, room_hover)
 	ambience.update()
+	weather.update(delta, clock)
 	fish_tank.update()
 	post.update()
 	ui.queue_redraw()

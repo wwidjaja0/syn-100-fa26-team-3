@@ -8,7 +8,7 @@ pipeline, and assets that ignore its constraints either vanish, smear or break h
 
 Low-poly 3D props with flat colours are rendered by a locked, first-person **orthographic** camera
 at **480x270**, then upscaled 4x with nearest-neighbour. Lighting is banded into toon steps, colours
-are snapped to a fixed **40-colour palette** (`assets/palette.json`) through a world-locked Bayer
+are snapped to a fixed **42-colour palette** (`assets/palette.json`) through a world-locked Bayer
 dither, and props carry a dark **inverted-hull outline**. Hovered objects get a thick white outline,
 drawn from an object-id mask. The UI is hand-placed pixel art on the same 480x270 grid. There is
 no narrator, so text on screen is only hover labels, item names and diegetic UI (map, radio).
@@ -23,7 +23,7 @@ no narrator, so text on screen is only hover labels, item names and diegetic UI 
 | Camera | ortho width 6.6 m, tilted 8° down, looking at the back wall | Front faces and tops show; backs never do |
 | Room (Blender coords) | back wall at y = 2.0; floor z = 0; ceiling beam z ≈ 3.05; x from -5.2 to 7.2, widened to -7.6 on the left by `scenes/room_left.tscn` | Props live between y ≈ -1 and 2 |
 | Camera pan | x from -4.25 to 3.0, visible half-width 3.3 m | Anything outside x ≈ -7.5…6.3 is never seen |
-| Palette | 40 colours, `assets/palette.json` | Off-palette colours get dithered between neighbours |
+| Palette | 42 colours (40 + LED green and red), `assets/palette.json` | Off-palette colours get dithered between neighbours |
 | Object groups | **max 21** (16 in the room + 3 added in code) | Ids are encoded as `(id + 4) * 10` in one 8-bit channel |
 
 ## 3. 3D props
@@ -44,7 +44,7 @@ back faces are culled, and the outline hull relies on them.
   hull, and Godot reproduces that with `PROP_DIRECT_LIGHT = 0.12` in `scripts/room/room_materials.gd`. So choose prop
   colours a step lighter than you'd expect, and check them in a screenshot.
 - Material names come out as `mat_<part>_<n>`. **Glowing parts are chosen by name**: a material whose name
-  contains `flame`, `lcd`, `display`, `lens`, `screen`, `pendant_bulb` or `storm_window` becomes
+  contains `flame`, `lcd`, `display`, `lens`, `screen`, `pendant_bulb`, `storm_window`, `charge_led` or `radio_led` becomes
   emissive (`EMISSIVE` in `pipeline/scene/build_pixel_scene.py`). Don't use those words in the names
   of parts that shouldn't glow.
 

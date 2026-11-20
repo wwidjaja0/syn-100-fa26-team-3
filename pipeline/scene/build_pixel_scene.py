@@ -183,6 +183,43 @@ place('02_emergency_weather_radio', BENCH_X - 0.28, y_back=WALL_Y - 0.05, on_sur
 # the lantern sits in the back-right corner and the flashlight rides on the power station
 place('10_emergency_lantern', BENCH_X + 0.78, y=1.78, on_surface='01_wooden_workbench')
 place('11_flashlight', 0.9, y=1.0, on_surface='04_portable_power_station', rot_z=12)
+# the lead-acid battery in its charging dock, on a crate left of the power station; the dock's
+# mains cord drops to the floor and runs up into the station's left AC socket
+place('15_battery_charger', 0.1, y=0.93, rot_z=6)
+
+
+def rod(name, a, b, r, mat, coll=props_coll):
+    d = b - a
+    bpy.ops.mesh.primitive_cylinder_add(vertices=8, radius=r, depth=d.length, location=(a + b) / 2)
+    o = bpy.context.object
+    o.name = name
+    o.rotation_mode = 'QUATERNION'
+    o.rotation_quaternion = Vector((0, 0, 1)).rotation_difference(d.normalized())
+    o.data.materials.append(mat)
+    for c in o.users_collection:
+        c.objects.unlink(o)
+    coll.objects.link(o)
+    return o
+
+
+def centre(stem, prefix, pick=min):
+    obs = [o for o in placed[stem][1] if o.name.startswith(prefix)]
+    lo, hi = world_bounds([pick(obs, key=lambda o: world_bounds([o])[0].x)])
+    return (lo + hi) / 2
+
+
+cord_mat = base_mat('charger_cord', (0.02, 0.025, 0.03))
+plug_mat = base_mat('charger_plug', (0.05, 0.06, 0.07))
+exit_p = centre('15_battery_charger', 'charger_cord_exit')
+sock = centre('04_portable_power_station', 'output_socket_dark_center')
+out_dir = Vector((math.sin(math.radians(12)), -math.cos(math.radians(12)), 0))   # the station faces this way
+plug = sock + out_dir * 0.035
+cord = [exit_p, exit_p + Vector((0.06, -0.01, -0.03)), Vector((exit_p.x + 0.07, exit_p.y - 0.03, 0.012)),
+        plug + out_dir * 0.10 + Vector((0, 0, 0.012 - plug.z)),
+        plug + out_dir * 0.07 + Vector((0, 0, -0.06)), plug + out_dir * 0.03]
+for i, (a, b) in enumerate(zip(cord, cord[1:])):
+    rod(f'charger_cord_{i}', a, b, 0.006, cord_mat)
+rod('charger_plug', plug + out_dir * 0.03, sock + out_dir * 0.005, 0.016, plug_mat)
 
 # ---------------------------------------------------------------- ceiling
 # sloped board panels between rafters, rising toward the camera. The room camera looks 8 degrees
@@ -242,7 +279,9 @@ OUTLINE.use_backface_culling = True
 
 EMISSIVE = {'storm_window': ((0.25, 0.68, 1.0), 2.5), 'flame': ((1.0, 0.55, 0.15), 12), 'pendant_bulb': ((1.0, 0.75, 0.4), 15),
             'lcd': ((0.35, 0.95, 0.75), 3), 'display': ((0.35, 0.95, 0.75), 3),
-            'lens': ((1.0, 0.92, 0.7), 4), 'screen': ((0.35, 0.95, 0.75), 3)}
+            'lens': ((1.0, 0.92, 0.7), 4), 'screen': ((0.35, 0.95, 0.75), 3),
+            # status lights, animated by scripts/room/ambience.gd: the battery dock and the radio
+            'charge_led': ((0.08, 1.0, 0.12), 4), 'radio_led': ((1.0, 0.06, 0.05), 4)}
 
 
 BAND = 0.16  # brightness step in perceptual space; bigger = fewer, chunkier bands

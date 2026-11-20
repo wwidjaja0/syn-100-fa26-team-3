@@ -75,6 +75,9 @@ func update(delta: float) -> void:
 	for cam in _cameras:
 		cam.transform = pose[0]
 		cam.size = pose[1]
+	# outline shells keep their room-view width on screen as a close-up zooms in (room_materials.gd)
+	if _main.materials != null:
+		_main.materials.set_outline_zoom(minf(1.0, pose[1] / _size), pose[1] / _main.W)
 
 
 func panning() -> bool:

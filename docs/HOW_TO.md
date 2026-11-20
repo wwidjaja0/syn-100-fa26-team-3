@@ -30,8 +30,8 @@ Every clickable thing is an **object group**: a set of meshes that hover, outlin
    'kettle': kids('15_kettle'),          # every mesh under the imported prop
    # or: 'kettle': named('kettle_'),      # every mesh whose name starts with kettle_
    ```
-   A mesh belongs to the first group that lists it. There's room for 21 groups and 19 are used (16 from the room,
-   plus the placeholder battery and the reef tank's two, added in code). To go past that,
+   A mesh belongs to the first group that lists it. There's room for 21 groups and 19 are used (17 from the room,
+   plus the reef tank's two, added in code). To go past that,
    see "Object groups and the mask" in [`ARCHITECTURE.md`](ARCHITECTURE.md).
 2. **Re-export** the room (`export_glb.py`, see [`PIPELINE.md`](PIPELINE.md) step 5) and let Godot re-import.
 3. **Label it.** In `scripts/room/interactions.gd`, add the hover text to `LABELS`:
@@ -213,6 +213,14 @@ Both views stop at "the player clicked here". They emit signals, so the game log
 Crafting is built this way: `scripts/crafting/crafting.gd` (`main.workbench`) runs
 `main.crafting.cell_clicked.connect(_on_cell_clicked)` in its `setup()`. See "Crafting" in
 [`ARCHITECTURE.md`](ARCHITECTURE.md).
+
+## Add a kind of weather
+
+In `scripts/room/weather.gd`, copy a preset in `PRESETS` (every key is needed; colours are linear) and add its
+name to `CYCLE`, where it should come in the rotation. Sky, haze, land light, the marine layer, rain and lightning
+are all preset values; anything new the window should draw goes in `toon.gdshader`'s `window_view_col()` as another
+`w_*` uniform, set in `weather.gd`'s `_apply()`. Check it with the demo's weather shots (`6x_weather_*`), or F9 then
+W in the game.
 
 ## Add a debug menu command
 
