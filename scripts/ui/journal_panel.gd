@@ -1,15 +1,14 @@
 extends RefCounted
-## Stardew Valley-inspired Radio Broadcast Journal / Log.
+## The cabin log, split by the kind of thing that was said: thoughts, things looked into,
+## and radio calls. Open a category, then an entry.
 ##
-## Records radio transmissions only after the player clicks the radio and reads
-## through every page of the dialogue. Accessible from the top-right HUD "LOG"
-## button (with a bobbing "!" badge for unread logs) or by pressing J.
+## There is no HUD button. Open it from the fixed radio (when nothing is incoming),
+## or with J or L. A story alert is drawn on the radio itself, not on this panel.
 ##
 ## Owned, updated, and drawn by overlay.gd when panel == "journal".
 
 const Px := preload("res://scripts/ui/pixel_draw.gd")
 
-const HUD_BTN := Rect2(392, 6, 33, 15)
 const PANEL := Rect2(36, 18, 408, 214)
 const VIEW := Rect2(44, 34, 392, 190)
 const CLOSE := Vector2(436, 25)
@@ -17,14 +16,24 @@ const PAGE_PREV := Rect2(396, 20, 11, 11)
 const PAGE_NEXT := Rect2(410, 20, 11, 11)
 const BACK_BTN := Rect2(50, 40, 44, 13)
 
-const CARDS_PER_PAGE := 4
+const CARDS_PER_PAGE := 3
 const CARD_X := 50
-const CARD_Y := 40
+const LIST_Y := 58
 const CARD_W := 380
-const CARD_H := 40
-const CARD_STEP := 43
+const CARD_H := 46
+const CARD_STEP := 50
+const CAT_Y := 48
+const CAT_H := 50
+const CAT_STEP := 56
 const LINE_SPACING := 9
+## id, title, the line under it
+const CATEGORIES := [
+	["thought", "THOUGHTS", "THINGS YOU TOLD YOURSELF"],
+	["inspect", "LOOKED AT", "THINGS YOU LOOKED INTO"],
+	["radio", "RADIO", "CALLS YOU HEARD"],
+]
 
+var category := ""                      # "", or one of the category ids above
 var selected_id := ""
 var page := 0
 
@@ -53,34 +62,74 @@ func in_detail() -> bool:
 	return selected_id != ""
 
 
+## one step toward the front of the log: an entry, then its category, then the category list
+func can_step_back() -> bool:
+	return selected_id != "" or category != ""
+
+
+func step_back() -> void:
+	if selected_id != "":
+		selected_id = ""
+	elif category != "":
+		category = ""
+		page = 0
+
+
+## panel closed: next time it opens on the categories
 func leave_detail() -> void:
 	selected_id = ""
-
-
-func over_hud_button(p: Vector2) -> bool:
-	return GameState.flag("radio_fixed") and HUD_BTN.has_point(p)
+	category = ""
+	page = 0
 
 
 func over_close(p: Vector2) -> bool:
 	return absf(p.x - CLOSE.x) < 6 and absf(p.y - CLOSE.y) < 6
 
 
-func _total_pages() -> int:
-	return maxi(1, ceili(float(GameState.radio_log.size()) / float(CARDS_PER_PAGE)))
+func _category_of(entry: Dictionary) -> String:
+	var stored := str(entry.get("category", ""))
+	if stored != "":
+		return stored
+	if entry.get("kind", "") == "radio" or str(entry.get("id", "")).begins_with("radio_"):
+		return "radio"
+	if str(entry.get("id", "")).begins_with("inspect_"):
+		return "inspect"
+	return "thought"
 
 
-func _ordered_logs() -> Array[Dictionary]:
-	var logs: Array[Dictionary] = GameState.radio_log.duplicate()
+func _logs_in(which: String) -> Array[Dictionary]:
+	var logs: Array[Dictionary] = []
+	for item in GameState.cabin_log:
+		if _category_of(item) == which:
+			logs.append(item)
 	logs.reverse()
 	return logs
 
 
+func _unread_in(which: String) -> int:
+	var n := 0
+	for item in GameState.cabin_log:
+		if _category_of(item) == which and item.get("unread", false):
+			n += 1
+	return n
+
+
+func _total_pages() -> int:
+	if category == "":
+		return 1
+	return maxi(1, ceili(float(_logs_in(category).size()) / float(CARDS_PER_PAGE)))
+
+
 func _card_rect(slot: int) -> Rect2:
-	return Rect2(CARD_X, CARD_Y + slot * CARD_STEP, CARD_W, CARD_H)
+	return Rect2(CARD_X, LIST_Y + slot * CARD_STEP, CARD_W, CARD_H)
+
+
+func _cat_rect(slot: int) -> Rect2:
+	return Rect2(CARD_X, CAT_Y + slot * CAT_STEP, CARD_W, CAT_H)
 
 
 func wheel(up: bool) -> void:
-	if selected_id != "":
+	if category == "" or selected_id != "":
 		return
 	var tp := _total_pages()
 	if tp <= 1:
@@ -93,11 +142,21 @@ func wheel(up: bool) -> void:
 
 ## False = the press was outside the panel (the caller closes it).
 func press(p: Vector2) -> bool:
-	if selected_id != "":
+	if selected_id != "" or category != "":
 		if BACK_BTN.has_point(p):
-			leave_detail()
+			step_back()
 			UiSounds.play("tick")
 			return true
+	if selected_id != "":
+		return PANEL.has_point(p)
+
+	if category == "":
+		for i in CATEGORIES.size():
+			if _cat_rect(i).has_point(p):
+				category = CATEGORIES[i][0]
+				page = 0
+				UiSounds.play("click")
+				return true
 		return PANEL.has_point(p)
 
 	var tp := _total_pages()
@@ -111,15 +170,15 @@ func press(p: Vector2) -> bool:
 			UiSounds.play("tick")
 			return true
 
-	var logs := _ordered_logs()
+	var logs := _logs_in(category)
 	var start_idx := page * CARDS_PER_PAGE
 	var end_idx := mini(start_idx + CARDS_PER_PAGE, logs.size())
 	for i in range(start_idx, end_idx):
 		var r := _card_rect(i - start_idx)
 		if r.has_point(p):
-			var entry := logs[i]
-			selected_id = entry.get("id", "")
-			GameState.mark_radio_log_read(selected_id)
+			var entry: Dictionary = logs[i]
+			selected_id = str(entry.get("id", ""))
+			GameState.mark_log_read(selected_id)
 			UiSounds.play("click")
 			return true
 
@@ -131,54 +190,31 @@ func hover_label(p: Vector2) -> String:
 		return "CLOSE"
 	if selected_id != "":
 		if BACK_BTN.has_point(p):
-			return "BACK TO LOG"
+			return "BACK"
 		return ""
+	if category == "":
+		for i in CATEGORIES.size():
+			if _cat_rect(i).has_point(p):
+				return "OPEN " + CATEGORIES[i][1]
+		return ""
+	if BACK_BTN.has_point(p):
+		return "ALL CATEGORIES"
 	var tp := _total_pages()
 	if tp > 1:
 		if PAGE_PREV.has_point(p) and page > 0:
 			return "PREVIOUS PAGE"
 		if PAGE_NEXT.has_point(p) and page < tp - 1:
 			return "NEXT PAGE"
-	var logs := _ordered_logs()
+	var logs := _logs_in(category)
 	var start_idx := page * CARDS_PER_PAGE
 	var end_idx := mini(start_idx + CARDS_PER_PAGE, logs.size())
 	for i in range(start_idx, end_idx):
 		if _card_rect(i - start_idx).has_point(p):
-			return "READ BROADCAST"
+			return "READ ENTRY"
 	return ""
 
 
 # ---------------------------------------------------------------- drawing
-func draw_hud_button(now: float, cur: Vector2, interactive: bool) -> bool:
-	if not GameState.flag("radio_fixed"):
-		return false
-	var hot := interactive and HUD_BTN.has_point(cur)
-	var unread := GameState.unread_radio_logs > 0
-	var pulse := unread and int(fmod(now / 12.0, 2.0)) == 0
-	_overlay.draw_rect(HUD_BTN, _overlay.panel_col)
-	var border: Color = Px.WHITE if hot else (_badge_col if pulse else _overlay.panel_hi)
-	Px.frame(_overlay, HUD_BTN, border)
-
-	# Small pixel notebook glyph on the left
-	var ix := int(HUD_BTN.position.x) + 4
-	var iy := int(HUD_BTN.position.y) + 4
-	_overlay.draw_rect(Rect2(ix, iy, 5, 7), _paper)
-	_overlay.draw_rect(Rect2(ix, iy + 1, 1, 5), _ink)
-	_overlay.draw_rect(Rect2(ix + 2, iy + 2, 2, 1), _ink)
-	_overlay.draw_rect(Rect2(ix + 2, iy + 4, 2, 1), _ink)
-
-	Px.text(_overlay, "LOG", HUD_BTN.position + Vector2(12, 4), Px.WHITE, Px.INK)
-
-	if unread:
-		var bob := int(fmod(now / 6.0, 2.0))
-		var badge := Rect2(HUD_BTN.position.x - 8, HUD_BTN.position.y + 2 + bob, 7, 11)
-		_overlay.draw_rect(badge, _badge_col)
-		Px.frame(_overlay, badge, Px.INK)
-		Px.text(_overlay, "!", badge.position + Vector2(2, 2), _ink)
-
-	return hot
-
-
 func draw(open: float, _now: float, cur: Vector2) -> void:
 	var rows := int(PANEL.size.y * open)
 	if rows <= 0:
@@ -199,17 +235,20 @@ func draw(open: float, _now: float, cur: Vector2) -> void:
 
 	if selected_id != "":
 		_draw_detail(cur)
+	elif category == "":
+		_draw_categories(cur)
 	else:
 		_draw_list(cur)
 
 
 func _draw_title_bar(cur: Vector2) -> void:
-	var count := GameState.radio_log.size()
-	var title := "RADIO JOURNAL - %d LOGGED" % count
+	var title := "CABIN LOG"
+	if category != "":
+		title = _category_label(category)
 	Px.text(_overlay, title, PANEL.position + Vector2(7, 4), _title_col, Px.INK)
 
 	var tp := _total_pages()
-	if selected_id == "" and tp > 1:
+	if category != "" and selected_id == "" and tp > 1:
 		var page_label := "%d/%d" % [page + 1, tp]
 		Px.text(_overlay, page_label, Vector2(PAGE_PREV.position.x - 4 - Px.text_width(page_label), PAGE_PREV.position.y + 2), Px.WHITE)
 		for b in [[PAGE_PREV, page > 0, -1], [PAGE_NEXT, page < tp - 1, 1]]:
@@ -230,13 +269,53 @@ func _draw_title_bar(cur: Vector2) -> void:
 	Px.text(_overlay, "X", cb.position + Vector2(3, 2), Px.WHITE)
 
 
+func _category_label(id: String) -> String:
+	for row in CATEGORIES:
+		if row[0] == id:
+			return row[1]
+	return "LOG"
+
+
+func _draw_back(cur: Vector2) -> void:
+	var hot := BACK_BTN.has_point(cur)
+	_overlay.draw_rect(BACK_BTN, _paper_lo if hot else _paper)
+	Px.frame(_overlay, BACK_BTN, _ink if hot else _pencil)
+	var ax := int(BACK_BTN.position.x) + 5
+	var ay := int(BACK_BTN.position.y) + 6
+	for dx in 3:
+		_overlay.draw_rect(Rect2(ax + dx, ay - dx, 1, 1 + 2 * dx), _ink)
+	Px.text(_overlay, "BACK", BACK_BTN.position + Vector2(11, 3), _ink)
+
+
+func _draw_categories(cur: Vector2) -> void:
+	for i in CATEGORIES.size():
+		var row: Array = CATEGORIES[i]
+		var r := _cat_rect(i)
+		var hot := r.has_point(cur)
+		var count := _logs_in(row[0]).size()
+		var unread := _unread_in(row[0])
+		_overlay.draw_rect(r, _paper_lo if hot else _paper)
+		Px.frame(_overlay, r, _ink if hot else _pencil)
+		var name_col: Color = _radio_col if row[0] == "radio" else _ink
+		Px.text(_overlay, row[1], Vector2(r.position.x + 10, r.position.y + 10), name_col)
+		Px.text(_overlay, row[2], Vector2(r.position.x + 10, r.position.y + 24), _pencil)
+		var count_str := "%d" % count
+		Px.text(_overlay, count_str, Vector2(r.end.x - 10 - Px.text_width(count_str), r.position.y + 10), _ink)
+		if unread > 0:
+			var new_str := "NEW"
+			var nw := Px.text_width(new_str) + 4
+			var nr := Rect2(r.end.x - 10 - nw, r.position.y + 28, nw, 12)
+			_overlay.draw_rect(nr, _badge_col)
+			Px.frame(_overlay, nr, _ink)
+			Px.text(_overlay, new_str, nr.position + Vector2(2, 2), _ink)
+
+
 func _draw_list(cur: Vector2) -> void:
-	var logs := _ordered_logs()
+	_draw_back(cur)
+	var logs := _logs_in(category)
 	if logs.is_empty():
-		var msg := "NO RADIO BROADCASTS LOGGED YET."
-		var hint := "LISTEN TO A FULL RADIO TRANSMISSION TO RECORD IT HERE."
-		Px.text(_overlay, msg, Vector2(VIEW.get_center().x - Px.text_width(msg) / 2.0, VIEW.get_center().y - 10).floor(), _ink)
-		Px.text(_overlay, hint, Vector2(VIEW.get_center().x - Px.text_width(hint) / 2.0, VIEW.get_center().y + 4).floor(), _pencil)
+		var msg := "NOTHING IN THIS LOG YET."
+		Px.text(_overlay, msg, Vector2(VIEW.get_center().x - Px.text_width(msg) / 2.0, VIEW.get_center().y).floor(), _ink)
 		return
 
 	var start_idx := page * CARDS_PER_PAGE
@@ -248,14 +327,8 @@ func _draw_list(cur: Vector2) -> void:
 		_overlay.draw_rect(r, _paper_lo if hot else _paper)
 		Px.frame(_overlay, r, _ink if hot else _pencil)
 
-		# Small radio icon badge on the left
-		var bx := int(r.position.x) + 6
-		var by := int(r.position.y) + 6
-		_overlay.draw_rect(Rect2(bx, by, 7, 7), _overlay.panel_lo)
-		_overlay.draw_rect(Rect2(bx + 2, by + 2, 3, 3), _radio_col)
-
-		var title: String = entry.get("title", "RADIO BROADCAST")
-		Px.text(_overlay, title, Vector2(r.position.x + 18, r.position.y + 6), _ink)
+		var title: String = str(entry.get("title", "NOTE"))
+		Px.text(_overlay, title, Vector2(r.position.x + 10, r.position.y + 6), _ink)
 
 		var day_str := "DAY %d" % entry.get("day", 1)
 		var dx := r.end.x - Px.text_width(day_str) - 6
@@ -268,42 +341,34 @@ func _draw_list(cur: Vector2) -> void:
 			Px.frame(_overlay, nr, _ink)
 			Px.text(_overlay, "NEW", nr.position + Vector2(2, 2), _ink)
 
-		var speaker: String = entry.get("speaker", "RADIO")
-		Px.text(_overlay, speaker, Vector2(r.position.x + 18, r.position.y + 17), _pencil)
+		var speaker: String = str(entry.get("speaker", ""))
+		Px.text(_overlay, speaker, Vector2(r.position.x + 10, r.position.y + 18), _pencil)
 
 		var lines: Array = entry.get("lines", [])
 		var preview: String = _line_text(lines[0]) if not lines.is_empty() else ""
 		var max_preview_w := int(r.size.x) - 24
 		while Px.text_width(preview) > max_preview_w and preview.length() > 4:
 			preview = preview.substr(0, preview.length() - 4) + "..."
-		Px.text(_overlay, preview, Vector2(r.position.x + 18, r.position.y + 27), _ink)
+		Px.text(_overlay, preview, Vector2(r.position.x + 10, r.position.y + 30), _ink)
 
 
 func _draw_detail(cur: Vector2) -> void:
 	var entry: Dictionary = {}
-	for item in GameState.radio_log:
+	for item in GameState.cabin_log:
 		if item.get("id", "") == selected_id:
 			entry = item
 			break
 	if entry.is_empty():
-		leave_detail()
+		selected_id = ""
 		return
 
-	# BACK button with pixel left-arrow
-	var hot := BACK_BTN.has_point(cur)
-	_overlay.draw_rect(BACK_BTN, _paper_lo if hot else _paper)
-	Px.frame(_overlay, BACK_BTN, _ink if hot else _pencil)
-	var ax := int(BACK_BTN.position.x) + 5
-	var ay := int(BACK_BTN.position.y) + 6
-	for dx in 3:
-		_overlay.draw_rect(Rect2(ax + dx, ay - dx, 1, 1 + 2 * dx), _ink)
-	Px.text(_overlay, "BACK", BACK_BTN.position + Vector2(11, 3), _ink)
+	_draw_back(cur)
 
 	var day_str := "LOGGED DAY %d" % entry.get("day", 1)
 	Px.text(_overlay, day_str, Vector2(VIEW.end.x - Px.text_width(day_str) - 8, BACK_BTN.position.y + 3), _pencil)
 
-	var title: String = entry.get("title", "RADIO BROADCAST")
-	var speaker: String = entry.get("speaker", "RADIO")
+	var title: String = str(entry.get("title", "NOTE"))
+	var speaker: String = _category_label(_category_of(entry)) + " / " + str(entry.get("speaker", ""))
 	Px.text(_overlay, title, Vector2(VIEW.position.x + 10, BACK_BTN.end.y + 7), _ink)
 	Px.text(_overlay, speaker, Vector2(VIEW.position.x + 10, BACK_BTN.end.y + 17), _pencil)
 

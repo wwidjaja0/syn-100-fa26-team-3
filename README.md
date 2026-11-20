@@ -39,6 +39,7 @@ You don't need Blender or Python unless you change the room, the props or the ge
 | Drag from an inventory slot | The same in one move: let go over the target (a room object, a mat cell, a radio slot). |
 | Right click | Put the held item back. Otherwise step back one level (out of a map zoom, then out of the map or a close-up). |
 | Esc | Put the held item back, then go straight back to the room. From the room, open the pause / settings menu. |
+| J or L | Open or close the cabin log (everything heard or looked into so far). |
 | PAUSE button (top right) | Open the pause / settings menu from any view. It also has Quit to Title (a new game; nothing is saved yet). |
 | X (top right of a menu), or Esc | Close the menu: settings, pause, how to play. |
 | Mouse wheel, - / =, the map's - / + buttons | Zoom the microfiche map. |
@@ -49,17 +50,19 @@ What's in the room so far:
 - **Storm shutters:** open and close; heat floods in while they're open.
 - **Supply cabinet:** opens and closes.
 - **Dried mushrooms, rolling papers, PA speaker, battery:** click to pick them up into the inventory (the speaker
-  gets a line of thought first, then goes into the inventory once it closes). The battery is a
-  placeholder box on the workbench's left end (`scripts/room/placeholders.gd`) until it's modelled.
+  gets a line of thought first, then goes into the inventory once it closes). The battery is a yellow
+  pack with a lightning bolt, plugged into the front of the power station (`scripts/room/placeholders.gd`)
+  until it's modelled.
 - **Workbench:** the crafting view, looking straight down on the cutting mat. Hold an item and click a cell to put it
   on the mat; click it again to take it back. When the mat holds exactly a recipe's ingredients, the result appears in
   the big slot right of the mat; click it to make it. There are no recipes yet (`RECIPES` in
   `scripts/crafting/crafting.gd`).
-- **Ham radio:** clicking it opens a close-up of the rig. While it's broken, the player's thoughts on it play and the
+- **Ham radio:** while it's broken, clicking it opens a close-up of the rig. The player's thoughts on it play and the
   close-up shows two square slots, SPEAKER (over the empty speaker hole) and BATTERY (over the power supply). Drag
   the PA speaker and the battery into them (or hold one and click its slot); click a filled slot to take the part
-  back. Filling both fixes the radio. Using either part on the radio in the room opens the close-up. Talking on it
-  isn't built yet.
+  back. Filling both fixes the radio. Using either part on the radio in the room opens the close-up. Once it's fixed,
+  a click answers an incoming call if the radio is showing a red !, otherwise it opens the cabin log. J or L opens
+  that log any time. The log keeps every monologue and radio call.
 - **Reef tank** (far left; the cabin was extended for it): a small reef gone bone white from heat stress, a few fish,
   and a dead chiller. Clicking it (or the gauge board above it) opens a close-up: the tank on the left, and a panel
   with its live readings (water temperature, pH, dissolved oxygen, each with its safe band, all out of range) and three
@@ -71,7 +74,8 @@ What's in the room so far:
   detail map (more towns, every river, named peaks). Clicking a printed area jumps straight to its detail map.
 
 **Menus.** The title screen, the pause / settings menu and the how-to-play page share one look
-(`scripts/ui/menu_draw.gd`). All UI sounds (menus, inventory, map, BACK) are placeholders, synthesised in `scripts/ui/ui_sounds.gd`.
+(`scripts/ui/menu_draw.gd`, `scripts/ui/how_to_play.gd`). Starting a game opens how to play first; the pause
+menu can open it again. All UI sounds (menus, inventory, map, BACK) are placeholders, synthesised in `scripts/ui/ui_sounds.gd`.
 Fullscreen can't switch while the game runs embedded in the editor's Game tab; turn off "Embed Game on Next Play"
 there, or run an exported build.
 

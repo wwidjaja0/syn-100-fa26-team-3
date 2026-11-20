@@ -13,7 +13,8 @@ extends RefCounted
 ## A line is a string (said by the entry's "character", the player by default) or
 ## {"who": character id, "text": "..."}, so one entry can go back and forth between speakers.
 ##
-## Owned, updated, and drawn by overlay.gd.
+## Owned, updated, and drawn by overlay.gd. Closing a box (finished or dismissed) files the whole
+## entry in the cabin log (GameState.add_log).
 
 const Px := preload("res://scripts/ui/pixel_draw.gd")
 const Portraits := preload("res://scripts/ui/portraits.gd")
@@ -210,10 +211,20 @@ func start_entry(entry: Dictionary, id := "") -> bool:
 
 func close() -> void:
 	if active and not closing:
+		_archive_current()
 		closing = true
 		_close_clock = _overlay.main.clock
-		_current_entry = {}
 		UiSounds.play("back")
+
+
+## the cabin log keeps the whole entry once it has been opened, including a line the player skips
+func _archive_current() -> void:
+	if _current_entry.is_empty():
+		return
+	if not _current_entry.has("style"):
+		_current_entry["style"] = style
+	GameState.add_log(_current_entry)
+	_current_entry = {}
 
 
 func skip_or_advance() -> void:
@@ -233,9 +244,6 @@ func skip_or_advance() -> void:
 		# advance to next line
 		current_line_idx += 1
 		if current_line_idx >= lines.size():
-			if style == "radio" and not _current_entry.is_empty():
-				GameState.add_radio_log(_current_entry)
-				_current_entry = {}
 			close()
 		else:
 			_chars_shown = 0.0

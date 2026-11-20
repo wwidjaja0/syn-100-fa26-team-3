@@ -6,11 +6,13 @@ extends Control
 ##   edge chevrons while the view pans  - crafting, the tank and radio panels, BACK
 ##   inventory bar (inventory_bar.gd)  - hover label, items in flight, click ripples
 ##   then any popup sitting under the top one, a full-screen scrim, and the top popup
-##   (the microfiche, the radio journal, the dialogue box, or the F9 menu). Clicks never pass
+##   (the microfiche, the cabin log, the dialogue box, or the F9 menu). Clicks never pass
 ##   through the scrim.
+##   a red ! above the radio when a transmission is waiting, or the radio is the next story step
 ##   the cursor (arrow, or hand over anything clickable) with the held item on it
 ##
-## Panels: at most one is open at a time (`panel`): "fiche" (the microfiche) or "journal".
+## Panels: at most one is open at a time (`panel`): "fiche" (the microfiche) or "journal"
+## (the cabin log: J, L, or the fixed radio when nothing is incoming).
 ## main.gd sends every click here first (handle_click); the room only gets the ones the UI ignores.
 
 const Px := preload("res://scripts/ui/pixel_draw.gd")
@@ -26,6 +28,8 @@ const RESULT_SCALE := 3                 # the result's 12x12 icon, drawn 3x
 const PANEL_OPEN_FRAMES := 6.0
 const PANEL_CLOSE_FRAMES := 4.0
 const RIPPLE_FRAMES := 7.0
+## explicit red, not the amber "new" chip: this one means "the story is waiting on the radio"
+const ALERT := Color8(214, 36, 28)
 ## full-screen dim behind whichever popup is on top (dialogue, the map, the journal, the debug menu).
 ## Pause and the title screen draw the same shade themselves.
 const SCRIM := Color(0.015, 0.008, 0.012, 0.62)
@@ -122,7 +126,7 @@ func _hover_label(text: String, cur: Vector2) -> void:
 func over_ui(p: Vector2) -> bool:
 	if top_modal() != "":
 		return true
-	return journal.over_hud_button(p) or inventory.slot_at(p) >= 0 or _over_back(p) or _over_result(p) \
+	return inventory.slot_at(p) >= 0 or _over_back(p) or _over_result(p) \
 			or main.radio_repair.slot_at(p) != "" or main.tank_panel.over(p)
 
 
@@ -157,10 +161,6 @@ func handle_click(p: Vector2) -> bool:
 			else:
 				journal.press(p)
 			return true
-	if journal.over_hud_button(p):
-		open_panel("journal", main.clock)
-		UiSounds.play("click")
-		return true
 	if _over_back(p):
 		main.back()
 		return true
@@ -234,11 +234,6 @@ func _draw() -> void:
 		label = slot_label
 	ui_hover = ui_hover or label != ""
 
-	if not main.landing_active:
-		if journal.draw_hud_button(now, cur, live):
-			label = "RADIO JOURNAL (J)"
-			ui_hover = true
-
 	var hover: String = main.picker.hover
 	if live and label == "" and hover != "":
 		label = main.interactions.label_for(hover, inventory.held)
@@ -262,6 +257,8 @@ func _draw() -> void:
 		dialogue.draw(now, Vector2(-999, -999))
 	if top != "":
 		_scrim()
+	if top == "" or top == "dialogue":
+		_draw_radio_alert(now)
 	if top == "fiche":
 		var sc := panel_scale()
 		microfiche.draw(sc, cur)
@@ -396,6 +393,21 @@ func _draw_crafting(craft, cur: Vector2, live: bool) -> String:
 		if hot:
 			label = "MAKE " + item.name
 	return label
+
+
+## a red ! just above the radio. Story guidance only: an incoming call, or the radio itself
+## once the cabin has pointed the player at it and it is still broken. Hidden parts stay unmarked.
+func _draw_radio_alert(now: float) -> void:
+	if main.landing_active or not main.interactions.radio_alert():
+		return
+	var p: Vector2 = main.picker.screen_point("radio")
+	var x := clampf(p.x, 12.0, Px.W - 20.0)
+	var y := clampf(p.y - 34.0, 6.0, Px.H - 22.0)
+	var bob := int(fmod(now / 7.0, 2.0))
+	var badge := Rect2(floorf(x) - 4, floorf(y) + bob, 9, 13)
+	draw_rect(badge, ALERT)
+	Px.frame(self, badge, Px.INK)
+	Px.text(self, "!", badge.position + Vector2(2, 3), Px.WHITE, Px.INK)
 
 
 ## a little pixel chevron at the left (side -1) or right (+1) edge, bobbing toward that side

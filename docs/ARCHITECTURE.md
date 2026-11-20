@@ -50,7 +50,7 @@ order every frame, and routes input. Each part is one file with one job.
 | `inventory/item_data.gd` | `ItemData` resource: `id`, `name`, `icon` | one `.tres` per item in `items/` |
 | `inventory/inventory_data.gd` | `InventoryData` resource: the list of carried items | |
 | `room/interactions.gd` | **The game rules:** hover labels and what clicking each object does | `LABELS`, `click(group)`, `use_item(item, group)`, `pick_up(group, item_id, hide)`, `say(id)`, `then_after_dialogue(action)` |
-| `room/placeholders.gd` | Stand-in boxes for props not modelled yet (the battery), each its own object group | `PROPS`, `add_all(room, meta)` |
+| `room/placeholders.gd` | Stand-in props not modelled yet (the battery, docked on the power station) | `add_all(room, meta)` |
 | `room/fish_tank.gd` | Wires up `scenes/fish_tank.tscn` (the reef tank and gauge board) and animates the fish, bubbles, kelp and needles. The cabin's widened left end is `scenes/room_left.tscn` | `build(main, room, meta, lights)`, `update()`, `EXTRA` |
 | `room/object_picker.gd` | Reads the mask render: which group is under the cursor | `hover`, `group_at(p)`, `group_of(node)`, `screen_point(group)` |
 | `room/room_materials.gd` | Replaces the room's imported materials with the toon shader | `set_param(material, param, value)` |
@@ -107,7 +107,8 @@ All input lands in `main.gd`'s `_unhandled_input`:
   3. holding an item: `interactions.use_item(item, picker.hover)`;
   4. otherwise: `interactions.click(picker.hover)`.
 - **Right click** → close the F9 menu, else drop the held item, else `back(false)` (one step back).
-- **Esc** → drop the held item, then `back(true)` (all the way back to the room).
+- **Esc** → drop the held item, then `back(true)` (all the way back to the room). From the room, open the pause menu.
+- **J / L** → open or close the cabin log.
 - **Wheel, -/=** → zoom the microfiche when it's open.
 - **F9** → toggle the debug menu. While it's open it takes every key.
 
@@ -195,7 +196,7 @@ There are no recipes yet; the radio is fixed in its own close-up instead.
 
 ## Fixing the radio
 
-Clicking the radio opens the radio close-up. While it's broken, `main._on_radio_view_entered` calls
+Clicking the radio while it is broken opens the radio close-up. `main._on_radio_view_entered` calls
 `interactions.inspect_broken_radio()` (the "inspect_radio_broken" monologue, flag `inspected_radio`), and
 `radio/radio_repair.gd` (`main.radio_repair`) shows one square slot per entry in `SLOTS`: the speaker over the
 `radio_speaker_hole` mesh, the battery over `psu_front_panel`. `slot_rect(id)` projects that mesh's centre with
@@ -205,6 +206,9 @@ to `radio_repair.click(p, held)`:
 - a filled slot clicked with nothing held flies its part back into the inventory;
 - once every slot is filled, `radio_fixed` is set. `main._check_dialogue_triggers()` then swaps in the repaired
   meshes (`start_hidden` grill on, the bare wires off), arms radio chatter and plays "radio_repaired".
+  After that, a click answers a waiting call (a red ! above the radio) or opens the cabin log. J and L open
+  the log too. Every monologue and call is stored there when its box closes (`GameState.cabin_log`). The !
+  also marks the broken radio once the story has pointed at it; the battery and speaker stay unmarked.
 
 ## The reef tank
 

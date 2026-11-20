@@ -78,6 +78,10 @@ vec3 quantize(vec3 c) {
 		if (e < bd) {
 			bd = e;
 			best = palette[i];
+			// flat toon colours land on a palette entry; stop instead of scanning the rest
+			if (e < 0.0002) {
+				break;
+			}
 		}
 	}
 	return best;

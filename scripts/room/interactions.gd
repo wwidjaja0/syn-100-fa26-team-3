@@ -8,9 +8,13 @@ extends Node
 ##   3. say what a click does in click(), and what using an item on it does in use_item().
 ## Story progress goes in GameState (flags, contacted stations); carried items in InventoryManager.
 ##
-## The ham radio: a click opens the radio close-up. While it's broken, the player's thoughts on it
+## The ham radio: while it's broken, a click opens the close-up. The player's thoughts on it
 ## play (dialogue "inspect_radio_broken") and the close-up shows slots for its missing speaker and
 ## battery (radio/radio_repair.gd); filling both fixes it (flag "radio_fixed").
+## Once it's fixed, a click answers an incoming call if one is waiting, otherwise it opens the
+## cabin log (also J or L). A red ! sits above the radio for an incoming call, and for the radio
+## itself after the story has pointed at it and it is still broken. The battery and the speaker
+## stay unmarked: those are found by looking.
 
 ## hover text per object group. Capitals, and only the pixel font's characters
 ## (A-Z 0-9 . , ' - : ? ! ( ) / + = %). Groups not listed here can't be hovered or clicked.
@@ -47,7 +51,7 @@ func hoverable(group: String) -> bool:
 func label_for(group: String, held: ItemData) -> String:
 	var name: String = "CLOSE SHUTTERS" if group == "sky" else LABELS.get(group, "")
 	if group == "radio" and GameState.flag("radio_fixed"):
-		name = "HAM RADIO (INCOMING SIGNAL)" if _main.ui.dialogue.has_pending_radio() else "HAM RADIO"
+		name = "INCOMING SIGNAL" if _main.ui.dialogue.has_pending_radio() else "CABIN LOG"
 	if held != null and name != "":
 		return "USE %s ON %s" % [held.name, name]
 	return name
@@ -65,10 +69,13 @@ func click(group: String) -> void:
 			_main.ui.open_panel("fiche", clock)
 			GameState.set_flag("fiche_seen")
 		"radio":
-			if _main.ui.dialogue.has_pending_radio():
+			if not GameState.flag("radio_fixed"):
+				_main.radio_view.enter(clock)    # main.gd calls inspect_broken_radio() once it settles
+			elif _main.ui.dialogue.has_pending_radio():
 				_main.ui.dialogue.answer_pending_radio(clock)
 			else:
-				_main.radio_view.enter(clock)    # broken: main.gd calls inspect_broken_radio() once it settles
+				_main.ui.open_panel("journal", clock)
+				UiSounds.play("click")
 		"cabinet":
 			_main.cabinet.toggle()
 		"jar":
@@ -99,6 +106,17 @@ func use_item(item: ItemData, group: String) -> bool:
 		_main.tank_view.enter(_main.clock)     # items go in the close-up's slots
 		return true
 	return false
+
+
+## the red ! above the radio. Incoming dialogue, or the radio itself once the player has been
+## told it is the way forward and it is still broken. Not the battery, the speaker, or any
+## other click-around discovery.
+func radio_alert() -> bool:
+	if _main.landing_active or _main.active_view() != null:
+		return false
+	if GameState.flag("radio_fixed"):
+		return _main.ui.dialogue.has_pending_radio()
+	return GameState.flag("dlg_radio_hint_seen") or GameState.flag("inspected_radio")
 
 
 ## the close-up on the broken radio has settled (main.gd's _on_radio_view_entered): the player's
