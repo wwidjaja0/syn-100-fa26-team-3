@@ -20,6 +20,7 @@ func start_if_asked(main: Node) -> void:
 	var i := args.find("--demo")
 	if i < 0:
 		return
+	main.skip_intro_help = true          # the walkthrough and the menu shots start without the how-to card
 	if args.has("--menus"):
 		_menus(args[i + 1] if i + 1 < args.size() else "user://shots")
 		return

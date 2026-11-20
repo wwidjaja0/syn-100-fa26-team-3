@@ -10,8 +10,11 @@ var day := 1
 var flags := {}                            # e.g. "fiche_seen", "window_opened", "took_jar"
 var stations := {}                         # id -> {callsign, name, lat, lon, problems}, from data/stations.json
 var contacted: Array[String] = []          # station ids, in the order they were reached
-var radio_log: Array[Dictionary] = []      # completed radio broadcasts: {id, speaker, title, lines, day, unread}
-var unread_radio_logs := 0
+## everything the player has heard or looked into.
+## {id, speaker, title, lines, day, unread, kind, category}
+## kind is "monologue" or "radio". category is "thought", "inspect", or "radio".
+var cabin_log: Array[Dictionary] = []
+var unread_logs := 0
 ## areas of the microfiche printed in full: {id, name, lat, lon, radius_deg}. Starts with
 ## data/stations.json's "revealed" list (the Pacific Northwest); every station reached adds its own.
 ## Areas whose id has a detail map (made by pipeline/scene/make_fiche.py) can be zoomed into.
@@ -63,10 +66,11 @@ func is_contacted(id: String) -> bool:
 	return id in contacted
 
 
-func add_radio_log(entry: Dictionary) -> void:
-	var id: String = entry.get("id", "")
+## keep one copy of a monologue or a radio call, the first time it is heard
+func add_log(entry: Dictionary) -> void:
+	var id: String = str(entry.get("id", ""))
 	if id != "":
-		for existing in radio_log:
+		for existing in cabin_log:
 			if existing.get("id", "") == id:
 				return
 	var entry_lines: Array = entry.get("lines", []).duplicate()
@@ -74,26 +78,39 @@ func add_radio_log(entry: Dictionary) -> void:
 	if not entry_lines.is_empty():
 		var first = entry_lines[0]
 		first_text = str(first.get("text", "")) if first is Dictionary else str(first)
-	var fallback_title: String = first_text if first_text != "" else entry.get("speaker", "RADIO BROADCAST")
+	var kind: String = entry.get("style", "monologue")
+	if kind != "radio":
+		kind = "monologue"
+	var category: String = str(entry.get("category", ""))
+	if category == "":
+		if kind == "radio":
+			category = "radio"
+		elif id.begins_with("inspect_"):
+			category = "inspect"
+		else:
+			category = "thought"
+	var fallback_title: String = first_text if first_text != "" else entry.get("speaker", "NOTE")
 	if fallback_title.length() > 36:
 		fallback_title = fallback_title.substr(0, 33) + "..."
-	radio_log.append({
+	cabin_log.append({
 		"id": id,
-		"speaker": entry.get("speaker", "RADIO"),
+		"speaker": entry.get("speaker", "YOU" if kind == "monologue" else "RADIO"),
 		"title": entry.get("title", fallback_title),
 		"lines": entry_lines,
 		"day": day,
 		"unread": true,
+		"kind": kind,
+		"category": category,
 	})
-	unread_radio_logs += 1
+	unread_logs += 1
 	changed.emit()
 
 
-func mark_radio_log_read(id: String) -> void:
-	for item in radio_log:
+func mark_log_read(id: String) -> void:
+	for item in cabin_log:
 		if item.get("id", "") == id and item.get("unread", false):
 			item["unread"] = false
-			unread_radio_logs = maxi(unread_radio_logs - 1, 0)
+			unread_logs = maxi(unread_logs - 1, 0)
 			changed.emit()
 			return
 
@@ -102,8 +119,8 @@ func mark_radio_log_read(id: String) -> void:
 func reset() -> void:
 	day = 1
 	flags.clear()
-	radio_log.clear()
-	unread_radio_logs = 0
+	cabin_log.clear()
+	unread_logs = 0
 	reset_map()
 
 

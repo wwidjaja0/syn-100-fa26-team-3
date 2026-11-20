@@ -7,9 +7,13 @@ extends Control
 ##   * open_title_settings()   from the title screen's SETTINGS. Headed SETTINGS; the live
 ##                             background keeps running, and there are no quit buttons (the
 ##                             title screen has one).
-## The in-game menu also has QUIT TO TITLE (asks once more, then starts a new game at the title
-## screen: nothing is saved yet) and, off the web, QUIT TO DESKTOP.
-## The X in the top-right corner (or Esc) closes it: resume() goes back to the game or the title.
+## The in-game menu also has HOW TO PLAY (the same card as the title screen), QUIT TO TITLE
+## (asks once more, then starts a new game at the title screen: nothing is saved yet) and, off
+## the web, QUIT TO DESKTOP.
+## A new game opens straight onto HOW TO PLAY (open_intro_help). Esc or the X closes that card
+## and the game begins. From the pause menu, the same card returns to the settings page.
+## The X in the top-right corner (or Esc) closes the settings page: resume() goes back to the
+## game or the title.
 ## Settings (volumes, mutes, brightness, fullscreen) are saved to user://settings.cfg.
 ##
 ## This node keeps processing while the tree is paused, and takes all input while it is open.
@@ -19,6 +23,7 @@ signal title_settings_closed
 
 const Px := preload("res://scripts/ui/pixel_draw.gd")
 const Menu := preload("res://scripts/ui/menu_draw.gd")
+const HowTo := preload("res://scripts/ui/how_to_play.gd")
 const SETTINGS_PATH := "user://settings.cfg"
 
 const PAUSE_BUTTON := Rect2(429, 6, 45, 15)
@@ -29,6 +34,8 @@ const MUTABLE := ["master", "music", "sfx"]
 
 var is_paused := false                  # the panel is open (in either context)
 var title_context := false              # opened from the title screen
+var page := "settings"                  # "settings" or "how"
+var intro_help := false                 # how-to opened by a new game; closing it resumes play
 var pause_button_enabled := true
 var dragging := ""                      # the slider being dragged, or ""
 var volume := {"master": 1.0, "music": 0.8, "sfx": 0.8}
@@ -40,6 +47,7 @@ var _menu: Rect2                        # the panel; the rects below are laid ou
 var _slider := {}                       # name -> Rect2
 var _mute := {}                         # name -> Rect2
 var _fullscreen: Rect2
+var _how: Rect2
 var _to_title: Rect2
 var _quit: Rect2
 var _confirm_title := false             # QUIT TO TITLE was pressed once; again does it
@@ -70,6 +78,18 @@ func _process(_delta: float) -> void:
 func open_pause() -> void:
 	if is_paused or not pause_button_enabled:
 		return
+	intro_help = false
+	page = "settings"
+	_open(false)
+	get_tree().paused = true
+
+
+## how to play over the cabin, before the intro. Closing it is what starts play.
+func open_intro_help() -> void:
+	if is_paused:
+		return
+	intro_help = true
+	page = "how"
 	_open(false)
 	get_tree().paused = true
 
@@ -78,6 +98,8 @@ func open_pause() -> void:
 func open_title_settings() -> void:
 	if is_paused:
 		return
+	intro_help = false
+	page = "settings"
 	_open(true)
 
 
@@ -99,6 +121,8 @@ func resume() -> void:
 		return
 	post.set_shader_parameter("pause_amount", 0.0)
 	is_paused = false
+	intro_help = false
+	page = "settings"
 	dragging = ""
 	z_index = -1
 	_save_settings()
@@ -140,7 +164,7 @@ func quit_to_title() -> void:
 
 ## place the panel's parts; it is shorter without the quit buttons
 func _layout() -> void:
-	var h := 160.0 if title_context else (212.0 if _has_quit() else 186.0)
+	var h := 160.0 if title_context else (238.0 if _has_quit() else 212.0)
 	_menu = Rect2((Px.W - MENU_W) / 2.0, floorf((Px.H - h) / 2.0), MENU_W, h)
 	var x := _menu.position.x
 	var y := _menu.position.y
@@ -149,16 +173,17 @@ func _layout() -> void:
 	for i in MUTABLE.size():
 		_mute[MUTABLE[i]] = Rect2(x + 209, y + 24 + i * ROW, 42, 17)
 	_fullscreen = Rect2(x + 13, y + 132, 238, 18)
-	_to_title = Rect2(x + 13, y + 158, 238, 18)
-	_quit = Rect2(x + 13, y + 184, 238, 18)
+	_how = Rect2(x + 13, y + 158, 238, 18)
+	_to_title = Rect2(x + 13, y + 184, 238, 18)
+	_quit = Rect2(x + 13, y + 210, 238, 18)
 
 
 # ---------------------------------------------------------------- input
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo and is_paused:
-		if event.keycode == KEY_ESCAPE:
+		if event.keycode == KEY_ESCAPE or (page == "how" and event.keycode in [KEY_ENTER, KEY_KP_ENTER, KEY_SPACE]):
 			UiSounds.play("back")
-			resume()
+			_close_page()
 		get_viewport().set_input_as_handled()
 		return
 
@@ -197,9 +222,13 @@ func _handle_press(p: Vector2) -> void:
 		_confirm_title = false
 	if at == "":
 		return
-	if at == "close":
+	if at == "close" or at == "how_close":
 		UiSounds.play("back")
-		resume()
+		_close_page()
+	elif at == "how":
+		UiSounds.play("click")
+		intro_help = false
+		page = "how"
 	elif at in SLIDERS:
 		dragging = at
 		_set_slider(at, p.x)
@@ -224,13 +253,23 @@ func _handle_press(p: Vector2) -> void:
 		get_tree().quit()
 
 
-## the name of the control under p: "close", a slider's name, "mute_<name>", "fullscreen",
-## "to_title", "quit", "pause" (the corner button), or ""
+## how-to from a new game resumes; how-to from the pause menu goes back to settings; settings resumes
+func _close_page() -> void:
+	if page == "how" and not intro_help:
+		page = "settings"
+		return
+	resume()
+
+
+## the name of the control under p: "close", "how", "how_close", a slider's name, "mute_<name>",
+## "fullscreen", "to_title", "quit", "pause" (the corner button), or ""
 func _hot_at(p: Vector2) -> String:
 	if not is_paused:
 		if _blocked_by_modal():
 			return ""
 		return "pause" if pause_button_enabled and visible and PAUSE_BUTTON.has_point(p) else ""
+	if page == "how":
+		return "how_close" if HowTo.over_close(p) else ""
 	if Menu.close_rect(_menu).has_point(p):
 		return "close"
 	for s in SLIDERS:
@@ -241,6 +280,8 @@ func _hot_at(p: Vector2) -> String:
 			return "mute_" + m
 	if _fullscreen.has_point(p) and _can_fullscreen():
 		return "fullscreen"
+	if not title_context and _how.has_point(p):
+		return "how"
 	if not title_context and _to_title.has_point(p):
 		return "to_title"
 	if _has_quit() and _quit.has_point(p):
@@ -334,6 +375,10 @@ func _draw() -> void:
 		return
 
 	draw_rect(Rect2(0, 0, Px.W, Px.H), Color(0.015, 0.008, 0.012, 0.62))
+	if page == "how":
+		HowTo.draw(self, cur)
+		Menu.cursor(self, cur, hot == "how_close")
+		return
 	Menu.panel(self, _menu, "SETTINGS" if title_context else "PAUSED", hot == "close")
 	for s in SLIDERS:
 		var r: Rect2 = _slider[s]
@@ -346,6 +391,8 @@ func _draw() -> void:
 				hot == "fullscreen", fullscreen)
 	else:
 		Menu.button(self, _fullscreen, "FULLSCREEN: NOT IN EDITOR VIEW", false, false, false)
+	if not title_context:
+		Menu.button(self, _how, "HOW TO PLAY", hot == "how")
 	if not title_context:
 		Menu.button(self, _to_title, "SURE? PROGRESS WILL BE LOST" if _confirm_title else "QUIT TO TITLE",
 				hot == "to_title", _confirm_title)

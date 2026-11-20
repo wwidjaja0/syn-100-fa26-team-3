@@ -86,7 +86,12 @@ var scanned_left := false
 var scanned_right := false
 var radio_hint_triggered := false
 var suppress_auto_dialogue := false
+var skip_intro_help := false           # the screenshot demo starts straight in the room
 var _radio_was_fixed := false
+var _web_frame := 0
+var _mask_wait := false                 # web: read the mask the frame after it was asked to render
+var _shutter_seen := -1.0
+var _cabinet_seen := -1.0
 
 # the parts (see the list above)
 var materials: RoomMaterials
@@ -126,6 +131,7 @@ func _ready() -> void:
 	picker = ObjectPicker.new()
 	_add(picker, "ObjectPicker")
 	picker.setup(self, meta, room, mask_vp, camera)
+	picker.prepare_targets(room)         # window frame joins the shutters, before materials number groups
 	materials = RoomMaterials.new()
 	_add(materials, "RoomMaterials")
 	materials.setup(room, meta, picker.group_of, compat)
@@ -170,6 +176,12 @@ func _ready() -> void:
 	debug_menu.setup(self)
 	demo = Demo.new()
 	_add(demo, "Demo")
+	if OS.has_feature("web"):
+		# The pendant shadow is the only one, and its atlas is the expensive WebGL pass.
+		# Half of 2048 is still soft at 480x270, and costs a quarter of the shadow fill.
+		world_vp.positional_shadow_atlas_size = 1024
+		world_vp.msaa_3d = Viewport.MSAA_DISABLED
+		world_vp.screen_space_aa = Viewport.SCREEN_SPACE_AA_DISABLED
 
 	Input.mouse_mode = Input.MOUSE_MODE_HIDDEN   # overlay.gd draws a pixel cursor instead
 	demo.start_if_asked(self)
@@ -189,6 +201,7 @@ func _process(delta: float) -> void:
 		ui.microfiche.update(cursor, delta, _pan_keys())
 	shutters.update()
 	cabinet.update()
+	_drive_web_mask()
 	ui.dialogue.update(clock, step)
 	_check_dialogue_triggers()
 	interactions.update()
@@ -214,6 +227,7 @@ func _read_cursor() -> void:
 ##   right click        drop the held item; else step back one level (out of a zoom, a panel, a close-up)
 ##   Esc                drop the held item and go straight back to the room; in the room, pause
 ##   mouse wheel, - / = zoom the microfiche
+##   J or L             open or close the cabin log
 ##   F9                 the debug menu
 func _input(event: InputEvent) -> void:
 	if not landing_active and event is InputEventMouseMotion:
@@ -264,12 +278,8 @@ func _unhandled_input(event: InputEvent) -> void:
 					pause_menu.open_pause()
 			KEY_F9:
 				debug_menu.toggle()
-			KEY_J:
-				if ui.panel == "journal":
-					ui.close_panel()
-				elif GameState.flag("radio_fixed") and ui.panel == "" and active_view() == null:
-					ui.open_panel("journal", clock)
-					UiSounds.play("click")
+			KEY_J, KEY_L:
+				_toggle_log()
 			KEY_MINUS, KEY_KP_SUBTRACT:
 				if ui.panel == "fiche":
 					ui.microfiche.zoom_by(-1, cursor)
@@ -289,6 +299,44 @@ func start_game() -> void:
 	room_camera.hold_edge()
 	picker.hover = ""
 	picker.hover_t = 0.0
+	if not skip_intro_help and not suppress_auto_dialogue:
+		pause_menu.open_intro_help()
+
+
+## J or L, from the room or a close-up. A map or another panel keeps the key; Esc leaves that first.
+func _toggle_log() -> void:
+	if ui.panel == "journal":
+		ui.close_panel()
+	elif ui.panel == "":
+		ui.open_panel("journal", clock)
+		UiSounds.play("click")
+
+
+## On the web the mask is a second full render plus a GPU readback, which is what stalls a browser.
+## Freeze it while a menu is up and the room isn't moving, and otherwise render it every other frame.
+## The read happens the frame after the render, so it sees the image that was just drawn.
+func _drive_web_mask() -> void:
+	if not OS.has_feature("web"):
+		picker.refresh_mask = true
+		return
+	_web_frame += 1
+	if _mask_wait:
+		picker.refresh_mask = true
+		_mask_wait = false
+		mask_vp.render_target_update_mode = SubViewport.UPDATE_DISABLED
+		return
+	var moving := absf(room_camera.push) > 0.01
+	moving = moving or not is_equal_approx(shutters.value, _shutter_seen) or not is_equal_approx(cabinet.value, _cabinet_seen)
+	_shutter_seen = shutters.value
+	_cabinet_seen = cabinet.value
+	var looking: bool = not landing_active and ui.panel == "" and active_view() == null and not ui.dialogue.is_active()
+	if (moving or looking) and _web_frame % 2 == 0:
+		mask_vp.render_target_update_mode = SubViewport.UPDATE_ONCE
+		_mask_wait = true
+		picker.refresh_mask = false
+	else:
+		mask_vp.render_target_update_mode = SubViewport.UPDATE_DISABLED
+		picker.refresh_mask = false
 
 
 func _on_radio_view_entered() -> void:
@@ -366,8 +414,8 @@ func back(full := true) -> void:
 	elif ui.panel == "fiche" and not full and ui.microfiche.zoomed():
 		ui.microfiche.leave_detail()
 		UiSounds.play("tick")
-	elif ui.panel == "journal" and not full and ui.journal.in_detail():
-		ui.journal.leave_detail()
+	elif ui.panel == "journal" and not full and ui.journal.can_step_back():
+		ui.journal.step_back()
 		UiSounds.play("tick")
 	elif ui.panel != "":
 		ui.close_panel()

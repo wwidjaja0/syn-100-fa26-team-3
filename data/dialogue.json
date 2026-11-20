@@ -19,6 +19,7 @@
     "intro_wake": {
       "style": "monologue",
       "speaker": "INTERNAL MONOLOGUE",
+      "title": "WAKING UP",
       "once_flag": "dlg_intro_seen",
       "lines": [
         "YEAR 2094. DAY 14 OF THE WET-BULB STORM CYCLE.",
@@ -29,6 +30,7 @@
     "hint_use_radio": {
       "style": "monologue",
       "speaker": "INTERNAL MONOLOGUE",
+      "title": "THE DEAD RADIO",
       "once_flag": "dlg_radio_hint_seen",
       "lines": [
         "IVE CHECKED EVERY CORNER OF THE CABIN. STILL SEALED.",
@@ -39,6 +41,7 @@
     "inspect_radio_broken": {
       "style": "monologue",
       "speaker": "INTERNAL MONOLOGUE",
+      "title": "BROKEN HAM RADIO",
       "once_flag": "dlg_radio_broken_seen",
       "lines": [
         "THE SPEAKER CONE IS GONE. JUST BARE RED AND YELLOW WIRES HANGING OUT.",
@@ -48,6 +51,7 @@
     "radio_repaired": {
       "style": "monologue",
       "speaker": "INTERNAL MONOLOGUE",
+      "title": "RADIO ONLINE",
       "once_flag": "dlg_radio_repaired_seen",
       "lines": [
         "THE SPEAKER IS WIRED IN. THE FREQUENCY DISPLAY JUST FLICKERED TO LIFE.",
@@ -57,6 +61,7 @@
     "inspect_shutters_open": {
       "style": "monologue",
       "speaker": "INTERNAL MONOLOGUE",
+      "title": "THE HEAT",
       "once_flag": "dlg_shutters_seen",
       "lines": [
         "UGH - THE HEAT HITS LIKE AN OVEN DOOR. BETTER NOT LEAVE THE SHUTTERS OPEN TOO LONG."
@@ -65,6 +70,7 @@
     "inspect_speaker": {
       "style": "monologue",
       "speaker": "INTERNAL MONOLOGUE",
+      "title": "PA SPEAKER",
       "once_flag": "dlg_inspect_speaker_seen",
       "lines": [
         "THE SHELTER PA SPEAKER. THE STATUS LED STILL BREATHES, EVEN WITH THE LINE DEAD."
@@ -73,6 +79,7 @@
     "inspect_lantern": {
       "style": "monologue",
       "speaker": "INTERNAL MONOLOGUE",
+      "title": "OIL LANTERN",
       "once_flag": "dlg_inspect_lantern_seen",
       "lines": [
         "OIL LANTERN. BURNING LOW TO SAVE FUEL."
@@ -81,6 +88,7 @@
     "inspect_instruments": {
       "style": "monologue",
       "speaker": "INTERNAL MONOLOGUE",
+      "title": "WEATHER GAUGES",
       "once_flag": "dlg_inspect_instruments_seen",
       "lines": [
         "BAROMETER AND HYGROMETER. THE NEEDLES ARE PEGGED IN THE RED."
@@ -89,14 +97,17 @@
     "inspect_power": {
       "style": "monologue",
       "speaker": "INTERNAL MONOLOGUE",
+      "title": "POWER STATION",
       "once_flag": "dlg_inspect_power_seen",
       "lines": [
-        "PORTABLE POWER STATION. FOUR CELLS STILL HOLDING A CHARGE."
+        "PORTABLE POWER STATION. FOUR CELLS STILL HOLDING A CHARGE.",
+        "A SPARE BATTERY IS CLICKED INTO THE FRONT. I CAN TAKE IT."
       ]
     },
     "inspect_filter": {
       "style": "monologue",
       "speaker": "INTERNAL MONOLOGUE",
+      "title": "WATER FILTER",
       "once_flag": "dlg_inspect_filter_seen",
       "lines": [
         "GRAVITY WATER FILTER. SLOW DRIP, CLEAN WATER."
@@ -105,6 +116,7 @@
     "inspect_crates": {
       "style": "monologue",
       "speaker": "INTERNAL MONOLOGUE",
+      "title": "RATION CRATES",
       "once_flag": "dlg_inspect_crates_seen",
       "lines": [
         "DRY RATION CRATES. ENOUGH TINS FOR ANOTHER FEW WEEKS."
@@ -113,6 +125,7 @@
     "inspect_sandbags": {
       "style": "monologue",
       "speaker": "INTERNAL MONOLOGUE",
+      "title": "SANDBAGS",
       "once_flag": "dlg_inspect_sandbags_seen",
       "lines": [
         "SANDBAGS STACKED AGAINST FLASH RUNOFF."
@@ -121,6 +134,7 @@
     "inspect_flashlight": {
       "style": "monologue",
       "speaker": "INTERNAL MONOLOGUE",
+      "title": "FLASHLIGHT",
       "once_flag": "dlg_inspect_flashlight_seen",
       "lines": [
         "HEAVY DUTY FLASHLIGHT CHARGING ON THE POWER BANK."
@@ -129,6 +143,7 @@
     "inspect_tank": {
       "style": "monologue",
       "speaker": "INTERNAL MONOLOGUE",
+      "title": "THE REEF",
       "once_flag": "dlg_tank_seen",
       "lines": [
         "MY LITTLE REEF. NEARLY EVERY CORAL IN THERE HAS GONE BONE WHITE.",
@@ -140,6 +155,7 @@
     "inspect_tank_gauges": {
       "style": "monologue",
       "speaker": "INTERNAL MONOLOGUE",
+      "title": "TANK READINGS",
       "once_flag": "dlg_tank_gauges_seen",
       "lines": [
         "WATER TEMP: 31.4 C. MOST REEF CORALS START TO BLEACH AROUND 30.",
