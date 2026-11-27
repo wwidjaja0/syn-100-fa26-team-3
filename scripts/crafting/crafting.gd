@@ -63,6 +63,7 @@ func craft(from: Vector2) -> bool:
 	GameState.set_flag("crafted_" + out)
 	changed.emit()
 	crafted.emit(item)
+	_main.complete_task()
 	return true
 
 

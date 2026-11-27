@@ -75,12 +75,14 @@ func click(p: Vector2, held: ItemData) -> bool:
 		changed.emit()
 		if filled.size() == SLOTS.size():
 			GameState.set_flag("radio_fixed")
+		_main.complete_task()
 	elif filled.has(id):
 		if bar.has_room():
 			bar.fly(filled[id], slot_rect(id).get_center(), _main.clock)
 			filled.erase(id)
 			UiSounds.play("pick")
 			changed.emit()
+			_main.complete_task()
 		else:
 			UiSounds.play("back")
 	return true
