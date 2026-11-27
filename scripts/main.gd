@@ -89,9 +89,12 @@ var suppress_auto_dialogue := false
 var skip_intro_help := false           # the screenshot demo starts straight in the room
 var _radio_was_fixed := false
 var _web_frame := 0
-var _mask_wait := false                 # web: read the mask the frame after it was asked to render
+var _mask_wait := false                 # web: a MaskVP render is waiting to be read back by picker
+var _mask_cam_xform := Transform3D()
+var _mask_cam_size := -1.0
 var _shutter_seen := -1.0
 var _cabinet_seen := -1.0
+var _mask_vis_seen := -1
 
 # the parts (see the list above)
 var materials: RoomMaterials
@@ -204,10 +207,10 @@ func _process(delta: float) -> void:
 		ui.microfiche.update(cursor, delta, _pan_keys())
 	shutters.update()
 	cabinet.update()
-	_drive_web_mask()
 	ui.dialogue.update(clock, step)
 	_check_dialogue_triggers()
 	interactions.update()
+	_drive_web_mask()
 	var room_hover: bool = not landing_active and ui.panel == "" and not ui.over_ui(cursor) and not ui.inventory.flying() \
 			and active_view() == null
 	picker.update(cursor, step, room_hover)
@@ -316,31 +319,46 @@ func _toggle_log() -> void:
 		UiSounds.play("click")
 
 
-## On the web the mask is a second full render plus a GPU readback, which is what stalls a browser.
-## Freeze it while a menu is up and the room isn't moving, and otherwise render it every other frame.
-## The read happens the frame after the render, so it sees the image that was just drawn.
+## On the web, re-render MaskVP whenever the camera, doors, or room visibility change so
+## post.gdshader's toon-band mask (m.b) never goes stale in close-ups or during sweeps.
+## CPU readback (picker.refresh_mask) is throttled to every other frame and skipped when room hover
+## is inactive to avoid WebGL pipeline stalls.
 func _drive_web_mask() -> void:
 	if not OS.has_feature("web"):
 		picker.refresh_mask = true
 		return
 	_web_frame += 1
-	if _mask_wait:
+	var looking: bool = not landing_active and ui.panel == "" and active_view() == null and not ui.dialogue.is_active()
+	if _mask_wait and looking and _web_frame % 2 == 0:
 		picker.refresh_mask = true
 		_mask_wait = false
-		mask_vp.render_target_update_mode = SubViewport.UPDATE_DISABLED
-		return
-	var moving := absf(room_camera.push) > 0.01
-	moving = moving or not is_equal_approx(shutters.value, _shutter_seen) or not is_equal_approx(cabinet.value, _cabinet_seen)
-	_shutter_seen = shutters.value
-	_cabinet_seen = cabinet.value
-	var looking: bool = not landing_active and ui.panel == "" and active_view() == null and not ui.dialogue.is_active()
-	if (moving or looking) and _web_frame % 2 == 0:
+	else:
+		picker.refresh_mask = false
+
+	var vis := _room_vis_mask()
+	var dirty := not camera.transform.is_equal_approx(_mask_cam_xform) or not is_equal_approx(camera.size, _mask_cam_size)
+	dirty = dirty or not is_equal_approx(shutters.value, _shutter_seen) or not is_equal_approx(cabinet.value, _cabinet_seen)
+	dirty = dirty or vis != _mask_vis_seen or camera.position.x - camera.size * 0.5 < -4.5
+	if dirty:
+		_mask_cam_xform = camera.transform
+		_mask_cam_size = camera.size
+		_shutter_seen = shutters.value
+		_cabinet_seen = cabinet.value
+		_mask_vis_seen = vis
 		mask_vp.render_target_update_mode = SubViewport.UPDATE_ONCE
 		_mask_wait = true
-		picker.refresh_mask = false
 	else:
 		mask_vp.render_target_update_mode = SubViewport.UPDATE_DISABLED
-		picker.refresh_mask = false
+
+
+func _room_vis_mask() -> int:
+	var mask := 1 if GameState.flag("radio_fixed") else 0
+	var bit := 2
+	for g in picker.groups.values():
+		if g and g.visible:
+			mask |= bit
+		bit <<= 1
+	return mask
 
 
 func _on_radio_view_entered() -> void:
