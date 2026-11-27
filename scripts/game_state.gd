@@ -6,7 +6,10 @@ signal changed
 ## a station was reached over the radio for the first time (it now shows on the microfiche)
 signal station_contacted(id: String)
 
+const DAILY_TASKS := 3
+
 var day := 1
+var tasks_remaining := DAILY_TASKS
 var flags := {}                            # e.g. "fiche_seen", "window_opened", "took_jar"
 var stations := {}                         # id -> {callsign, name, lat, lon, problems}, from data/stations.json
 var contacted: Array[String] = []          # station ids, in the order they were reached
@@ -37,6 +40,27 @@ func flag(name: String) -> bool:
 
 func set_flag(name: String, value := true) -> void:
 	flags[name] = value
+	changed.emit()
+
+
+## Spend one of the day's task slots after a major task has successfully completed.
+## Returns true only when this task used the last available slot.
+func complete_major_task() -> bool:
+	if tasks_remaining <= 0:
+		return false
+	tasks_remaining -= 1
+	changed.emit()
+	return tasks_remaining == 0
+
+
+func is_exhausted() -> bool:
+	return tasks_remaining <= 0
+
+
+## Sleeping advances time without undoing inventory or story progress.
+func start_next_day() -> void:
+	day += 1
+	tasks_remaining = DAILY_TASKS
 	changed.emit()
 
 
@@ -118,6 +142,7 @@ func mark_log_read(id: String) -> void:
 ## a new game: day 1, nothing done, the map as it started (pause menu's QUIT TO TITLE)
 func reset() -> void:
 	day = 1
+	tasks_remaining = DAILY_TASKS
 	flags.clear()
 	cabin_log.clear()
 	unread_logs = 0

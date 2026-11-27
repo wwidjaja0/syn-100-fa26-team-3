@@ -1,6 +1,6 @@
 extends Node
 ## Things in the room that move on their own: the storm outside the window, the PA speaker's
-## breathing status light, the lantern's slow glow, and two status lights:
+## breathing status light, the lantern light, and two status lights:
 ##   the battery dock (by the power station): blinks green while the lead-acid battery charges,
 ##     holds green once it is full (flag "battery_charged"), dark once the battery is taken;
 ##   the ham radio: dark while it is broken, solid red once it has power, blinking red while a
@@ -11,7 +11,6 @@ extends Node
 ## in its own pass, in sRGB space, which over-brightens what it touches. Those lights are scaled by
 ## this there, a value fitted against Forward+ screenshots.
 const COMPAT_SHADOW_LIGHT_SCALE := 0.2
-const LANTERN_SWING := 0.04             # the lantern breathes +/- 4 % around its set brightness
 const LED_ON := 1.0                     # status lights' glow when lit: brighter washes the colour out
 const CHARGE_SECONDS := 75.0            # how long the battery charges once the game has started
 const CHARGE_BLINK := 1.0               # blinks per second while charging
@@ -28,6 +27,7 @@ var _main: Node
 var _materials: Node
 var _lantern: OmniLight3D
 var _lantern_energy := 1.0
+var _lantern_on := true
 var _radio_glow: OmniLight3D
 var _charge_led := ""                   # the dock's and the radio's light materials (numbered names)
 var _radio_led := ""
@@ -68,9 +68,7 @@ func update() -> void:
 	var clock: float = _main.clock
 	_materials.set_param("storm_window_emit", "sky_w", clock * 2.2 / 600.0)          # storm drift
 	_materials.set_param("pa_led", "emission_energy", 6.0 + 3.0 * sin(clock * 0.21))
-	# slow and faint on purpose: a fast or strong flicker makes the toon light bands jump
-	var n := sin(clock * 0.045) * 0.6 + sin(clock * 0.11 + 1.7) * 0.4
-	_lantern.light_energy = _lantern_energy * (1.0 + LANTERN_SWING * n)
+	_lantern.light_energy = _lantern_energy if _lantern_on else 0.0
 
 	var radio_lit: bool = _main.ui.dialogue != null and _main.ui.dialogue.is_radio_lit()
 	_status_lights(clock, radio_lit)
@@ -80,10 +78,13 @@ func update() -> void:
 
 	if _radio_glow != null:
 		if radio_lit:
-			var target_glow := 1.6 + 0.6 * sin(clock * 0.65) + 0.25 * sin(clock * 1.9)
-			_radio_glow.light_energy = lerpf(_radio_glow.light_energy, target_glow, 0.2)
+			_radio_glow.light_energy = lerpf(_radio_glow.light_energy, 1.6, 0.2)
 		else:
 			_radio_glow.light_energy = lerpf(_radio_glow.light_energy, 0.0, 0.15)
+
+
+func set_lantern(on: bool) -> void:
+	_lantern_on = on
 
 
 ## the battery dock's green light and the radio's red one (see the top of this file)
@@ -99,7 +100,13 @@ func _status_lights(clock: float, radio_lit: bool) -> void:
 		charge = LED_ON if GameState.flag("battery_charged") or _blink(secs, CHARGE_BLINK) else 0.0
 	_materials.set_param(_charge_led, "emission_energy", charge)
 	if _dock_glow:
-		_dock_glow.light_energy = DOCK_GLOW * charge / LED_ON
+		if GameState.flag("took_battery"):
+			_dock_glow.light_energy = 0.0
+		elif GameState.flag("battery_charged"):
+			_dock_glow.light_energy = DOCK_GLOW
+		else:
+			# The tiny LED can blink, but its actual room illumination stays steady while charging.
+			_dock_glow.light_energy = DOCK_GLOW * 0.35
 	var radio := 0.0
 	if GameState.flag("radio_fixed"):
 		radio = LED_ON if not radio_lit or _blink(secs, RADIO_BLINK) else 0.0

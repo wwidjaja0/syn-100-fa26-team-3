@@ -50,6 +50,7 @@ const RadioRepair := preload("res://scripts/radio/radio_repair.gd")
 const TankView := preload("res://scripts/views/tank_view.gd")
 const TankPanel := preload("res://scripts/tank/tank_panel.gd")
 const FishTank := preload("res://scripts/room/fish_tank.gd")
+const SleepCycle := preload("res://scripts/room/sleep_cycle.gd")
 const DebugMenu := preload("res://scripts/dev/debug_menu.gd")
 const Demo := preload("res://scripts/dev/demo.gd")
 
@@ -92,6 +93,7 @@ var _web_frame := 0
 var _mask_wait := false                 # web: read the mask the frame after it was asked to render
 var _shutter_seen := -1.0
 var _cabinet_seen := -1.0
+var _tired_monologue_pending := false
 
 # the parts (see the list above)
 var materials: RoomMaterials
@@ -110,6 +112,7 @@ var workbench: Crafting                 # the crafting rules (crafting is the ca
 var radio_repair: RadioRepair
 var tank_panel: TankPanel
 var fish_tank: FishTank
+var sleep_cycle: SleepCycle
 var views: Array[Node] = []             # every close-up view
 var debug_menu: DebugMenu
 var demo: Demo
@@ -124,6 +127,9 @@ func _ready() -> void:
 	fish_tank = FishTank.new()
 	_add(fish_tank, "FishTank")
 	fish_tank.build(self, room, meta, $WorldVP/Lights)   # adds its groups to meta.groups, so before the picker
+	sleep_cycle = SleepCycle.new()
+	_add(sleep_cycle, "SleepCycle")
+	sleep_cycle.build(self, room, meta)                 # replaces the lantern picker group with the light switch
 
 	interactions = Interactions.new()
 	_add(interactions, "Interactions")
@@ -144,6 +150,7 @@ func _ready() -> void:
 	ambience = Ambience.new()
 	_add(ambience, "Ambience")
 	ambience.setup(self, $WorldVP/Lights, materials, $WorldVP/Lights/lantern_glow, compat)
+	sleep_cycle.setup_lighting(materials, $WorldVP/Lights)   # after Compatibility scales shadow lights
 	weather = Weather.new()              # after ambience: it reads the window lights as ambience left them
 	_add(weather, "Weather")
 	weather.setup(self, $WorldVP/Lights, materials)
@@ -198,6 +205,7 @@ func _add(part: Node, name: String) -> void:
 func _process(delta: float) -> void:
 	var step := delta * TICK
 	clock += step
+	sleep_cycle.update()
 	_read_cursor()
 	room_camera.update(delta)                     # pans; moves the close-up views; places the cameras
 	if ui.panel == "fiche":
@@ -207,6 +215,7 @@ func _process(delta: float) -> void:
 	_drive_web_mask()
 	ui.dialogue.update(clock, step)
 	_check_dialogue_triggers()
+	_check_end_of_day()
 	interactions.update()
 	var room_hover: bool = not landing_active and ui.panel == "" and not ui.over_ui(cursor) and not ui.inventory.flying() \
 			and active_view() == null
@@ -241,6 +250,8 @@ func _input(event: InputEvent) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if landing_active:                   # start_menu.gd owns input until Start Game
 		return
+	if sleep_cycle.active:
+		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
 			click()
@@ -249,6 +260,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			if ui.inventory.drag_released(cursor):
 				click()                  # dropping a dragged item works like clicking with it held
 	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
+		if GameState.is_exhausted():
+			return
 		if debug_menu.open:
 			debug_menu.open = false
 		elif ui.dialogue.is_active():
@@ -271,6 +284,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			elif event.keycode == KEY_ESCAPE:
 				ui.dialogue.close()
 				return
+		if GameState.is_exhausted():
+			return
 		match event.keycode:
 			KEY_ESCAPE:
 				if ui.inventory.held != null:
@@ -394,8 +409,16 @@ func _check_dialogue_triggers() -> void:
 
 ## a left click: the UI gets it first, then an open close-up view, then the room
 func click() -> void:
+	if sleep_cycle.active:
+		return
 	click_at = clock
 	ui.ripple(cursor, clock)
+	if GameState.is_exhausted():
+		if ui.dialogue.is_active():
+			ui.handle_click(cursor)
+		elif ui.panel == "" and active_view() == null and not debug_menu.open:
+			interactions.click(picker.hover)
+		return
 	if ui.handle_click(cursor):
 		return
 	if active_view() != null:
@@ -408,6 +431,39 @@ func click() -> void:
 			interactions.use_item(held, picker.hover)
 		return
 	interactions.click(picker.hover)
+
+
+## Major work (a completed craft, full repair, or completed tank fix) uses one daily task.
+## The final task returns to the room through the normal camera animation before tired dialogue.
+func complete_major_task() -> void:
+	if not GameState.complete_major_task():
+		return
+	_tired_monologue_pending = true
+	ui.inventory.held = null
+	if ui.panel != "":
+		ui.close_panel()
+	debug_menu.open = false
+	for v in views:
+		v.exit(clock)
+	room_camera.hold_edge()
+	picker.hover = ""
+	picker.hover_t = 0.0
+
+
+func _check_end_of_day() -> void:
+	if not _tired_monologue_pending or ui.dialogue.is_active() or active_view() != null:
+		return
+	_tired_monologue_pending = false
+	ui.dialogue.start("end_of_day_tired")
+
+
+func sleep_until_next_day() -> void:
+	if not GameState.is_exhausted():
+		return
+	room_camera.hold_edge()
+	picker.hover = ""
+	picker.hover_t = 0.0
+	sleep_cycle.start_sleep()
 
 
 ## Esc / right-click / BACK: close the panel, or leave the close-up view. Right-click (full = false)

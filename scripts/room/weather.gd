@@ -27,7 +27,7 @@ const PRESETS := {
 		"sky_top": Vector3(0.05, 0.12, 0.30), "sky_low": Vector3(0.20, 0.35, 0.55),
 		"vis": 30000.0, "haze": Vector3(0.20, 0.30, 0.45), "land": Vector3(1.0, 1.0, 1.0),
 		"fog": 0.0, "fog_top": 300.0, "fog_col": Vector3(0.5, 0.55, 0.62),
-		"rain": 0.55, "lightning": 4.0, "light": Vector3(1.0, 1.0, 1.0), "heat": 0.45, "heat_in": 0.0,
+		"rain": 0.55, "lightning": 0.0, "light": Vector3(1.0, 1.0, 1.0), "heat": 0.45, "heat_in": 0.0,
 	},
 	"rain": {
 		"cover": 1.0, "storm": 0.0, "cloud": Vector3(0.16, 0.19, 0.24),
@@ -69,8 +69,8 @@ const PRESETS := {
 	},
 }
 const SKY_MAT := "storm_window_emit"
-const FLASH_FRAMES := 5.0               # 24 fps frames a lightning flash takes to fade
-const FLASH_LIGHT := 3.0                # the window light's extra brightness at the flash's peak
+const FLASH_FRAMES := 9.0               # 24 fps frames a lightning flash takes to fade
+const FLASH_LIGHT := 0.8                # the window light's extra brightness at the flash's peak
 
 var current := "storm"                  # the weather showing (or the one being faded out of)
 var next := ""                          # the weather being faded into ("" when settled)
@@ -129,13 +129,13 @@ func update(delta: float, clock: float) -> void:
 			current = next
 			next = ""
 			_since = 0.0
-	# lightning: strikes at random, `lightning` a minute on average, each a bright flicker
+	# lightning: occasional random strikes, each one smooth so it does not resemble a faulty lamp
 	if _rng.randf() < w.lightning / 60.0 * delta:
 		_flash_at = clock
 	var age := clock - _flash_at
 	var flash := 0.0
 	if age < FLASH_FRAMES:
-		flash = (1.0 - age / FLASH_FRAMES) * (1.0 if int(age) % 2 == 0 else 0.5)
+		flash = pow(1.0 - age / FLASH_FRAMES, 2.0)
 	_now = w
 	_apply(w, flash)
 

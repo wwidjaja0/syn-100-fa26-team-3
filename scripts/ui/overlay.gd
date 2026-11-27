@@ -45,6 +45,7 @@ var panel_hi: Color
 var panel_lo: Color
 var warn_col: Color                     # readings outside their safe band
 var ok_col: Color                       # the safe band on a reading's bar
+var stamina_col: Color                  # filled cells in the energy meter
 
 var _panel_at := -1e9
 var _closing_at := -1e9
@@ -62,6 +63,7 @@ func _ready() -> void:
 	panel_lo = Px.palette_color(pal, Color(0.03, 0.02, 0.03))
 	warn_col = Px.palette_color(pal, Color(0.92, 0.39, 0.09))
 	ok_col = Px.palette_color(pal, Color(0.39, 0.63, 0.68))
+	stamina_col = Px.palette_color(pal, Color8(121, 183, 196))
 	inventory = InventoryBar.new(self)
 	microfiche = MicrofichePanel.new(self, pal)
 	journal = JournalPanel.new(self, pal)
@@ -207,7 +209,8 @@ func _draw() -> void:
 
 	# close-ups and the inventory stay on screen under a popup, but they don't highlight or take clicks
 	var top := top_modal()
-	var live := top == ""
+	var room_live := top == ""
+	var live := room_live and not GameState.is_exhausted()
 	var craft = main.crafting
 	if craft.settled():
 		var craft_label := _draw_crafting(craft, cur, live)
@@ -230,12 +233,13 @@ func _draw() -> void:
 		ui_hover = ui_hover or hot
 
 	var slot_label := inventory.draw_slots(cur, live)
+	_draw_stamina()
 	if slot_label != "":
 		label = slot_label
 	ui_hover = ui_hover or label != ""
 
 	var hover: String = main.picker.hover
-	if live and label == "" and hover != "":
+	if room_live and label == "" and hover != "":
 		label = main.interactions.label_for(hover, inventory.held)
 	if label != "":
 		_hover_label(label, cur)
@@ -282,13 +286,34 @@ func _draw() -> void:
 		ui_hover = true
 
 	# the cursor: a hand over anything clickable, pressed in while a click is fresh
-	var hand: bool = ui_hover or (live and (hover != "" or inventory.held != null or craft.hover_cell != craft.NO_CELL))
+	var hand: bool = ui_hover or (room_live and (hover != "" \
+			or (not GameState.is_exhausted() and (inventory.held != null or craft.hover_cell != craft.NO_CELL))))
 	var hs: Array = _hotspots["hand" if hand else "arrow"]
 	var pressed: bool = main.clicking()
 	var at := cur - Vector2(hs[0], hs[1]) + Vector2(0, 1 if pressed else 0)
 	draw_texture(HAND if hand else ARROW, at, Color(0.78, 0.78, 0.80) if pressed else Px.WHITE)
 	if inventory.held != null:
 		inventory.draw_icon(inventory.held, cur + Vector2(5, 8))
+	main.sleep_cycle.draw(self)
+
+
+## A compact segmented meter hangs directly above the inventory, like a survival-game status bar.
+func _draw_stamina() -> void:
+	var bar_w := InventoryBar.SLOT_STEP * (InventoryBar.SLOTS - 1) + InventoryBar.SLOT
+	var bar := Rect2(InventoryBar.POS.x, InventoryBar.POS.y - 11, bar_w, 7)
+	draw_rect(bar, panel_lo)
+	Px.frame(self, bar.grow(1), Px.INK)
+	Px.frame(self, bar, panel_hi)
+	var segments := 3
+	var filled := roundi(float(GameState.tasks_remaining) / GameState.DAILY_TASKS * segments)
+	var gap := 1.0
+	var segment_w := (bar.size.x - 2.0 - gap * (segments - 1)) / segments
+	var fill_col: Color = warn_col if GameState.tasks_remaining == 1 else stamina_col
+	for i in segments:
+		var cell := Rect2(bar.position + Vector2(1.0 + i * (segment_w + gap), 1.0),
+				Vector2(segment_w, bar.size.y - 2.0))
+		if i < filled:
+			draw_rect(cell, fill_col)
 
 
 ## the tank close-up's panel (tank/tank_panel.gd): each reading's name and live value (orange when
