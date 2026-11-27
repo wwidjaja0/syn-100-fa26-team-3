@@ -85,6 +85,15 @@
         "OIL LANTERN. BURNING LOW TO SAVE FUEL."
       ]
     },
+    "end_of_day_tired": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "title": "END OF THE DAY",
+      "repeatable": true,
+      "lines": [
+        "I'M FEELING KINDA TIRED. I SHOULD TURN OUT THE LAMP AND HEAD TO BED."
+      ]
+    },
     "inspect_instruments": {
       "style": "monologue",
       "speaker": "INTERNAL MONOLOGUE",

@@ -21,7 +21,7 @@ extends Node
 const LABELS := {
 	"shutters": "STORM SHUTTERS", "cabinet": "SUPPLY CABINET", "microfiche": "MICROFICHE MAP", "speaker": "PA SPEAKER",
 	"radio": "HAM RADIO (BROKEN)", "jar": "DRIED MUSHROOMS", "papers": "ROLLING PAPERS", "bench": "WORKBENCH",
-	"lantern": "LANTERN", "instruments": "WEATHER GAUGES", "power": "POWER STATION", "filter": "WATER FILTER",
+	"lantern": "LANTERN", "light_switch": "LIGHT SWITCH", "instruments": "WEATHER GAUGES", "power": "POWER STATION", "filter": "WATER FILTER",
 	"crates": "SUPPLY CRATES", "sandbags": "SANDBAGS", "flashlight": "FLASHLIGHT", "battery": "BATTERY",
 	"tank": "REEF TANK", "tank_gauges": "TANK GAUGES",
 }
@@ -44,12 +44,18 @@ func update() -> void:
 
 ## can the cursor pick this group? (the open window's sky only while the shutters are open)
 func hoverable(group: String) -> bool:
+	if GameState.is_exhausted():
+		return group == "light_switch"
 	return LABELS.has(group) or (group == "sky" and _main.shutters.is_open)
 
 
 ## the label to show while hovering a group, given the item held on the cursor (or null)
 func label_for(group: String, held: ItemData) -> String:
 	var name: String = "CLOSE SHUTTERS" if group == "sky" else LABELS.get(group, "")
+	if group == "light_switch" and GameState.is_exhausted():
+		return "TURN OFF LIGHT - GO TO BED"
+	if group == "light_switch":
+		return "TURN LIGHT OFF" if _main.sleep_cycle.lamp_on else "TURN LIGHT ON"
 	if group == "radio" and GameState.flag("radio_fixed"):
 		name = "INCOMING SIGNAL" if _main.ui.dialogue.has_pending_radio() else "CABIN LOG"
 	if held != null and name != "":
@@ -60,6 +66,10 @@ func label_for(group: String, held: ItemData) -> String:
 ## a click on a room object with nothing in hand
 func click(group: String) -> void:
 	var clock: float = _main.clock
+	if GameState.is_exhausted():
+		if group == "light_switch":
+			_main.sleep_until_next_day()
+		return
 	match group:
 		"shutters", "sky":
 			_main.shutters.toggle()
@@ -91,6 +101,8 @@ func click(group: String) -> void:
 			_main.crafting.enter(clock)
 		"tank", "tank_gauges":
 			_main.tank_view.enter(clock)     # the first time, main.gd's hook plays inspect_tank()
+		"light_switch":
+			_main.sleep_cycle.toggle_lamp()
 		"lantern", "instruments", "power", "filter", "crates", "sandbags", "flashlight":
 			_main.ui.dialogue.start("inspect_" + group)
 
@@ -99,6 +111,11 @@ func click(group: String) -> void:
 ## The item goes back to its slot either way; if the use consumes it, remove it here with
 ## InventoryManager.remove_item(item).
 func use_item(item: ItemData, group: String) -> bool:
+	if group == "light_switch":
+		_main.sleep_cycle.toggle_lamp()
+		return true
+	if GameState.is_exhausted():
+		return false
 	if group == "radio" and not GameState.flag("radio_fixed"):
 		_main.radio_view.enter(_main.clock)    # its parts go in the close-up's slots
 		return true
@@ -112,7 +129,7 @@ func use_item(item: ItemData, group: String) -> bool:
 ## told it is the way forward and it is still broken. Not the battery, the speaker, or any
 ## other click-around discovery.
 func radio_alert() -> bool:
-	if _main.landing_active or _main.active_view() != null:
+	if _main.landing_active or GameState.is_exhausted() or _main.active_view() != null:
 		return false
 	if GameState.flag("radio_fixed"):
 		return _main.ui.dialogue.has_pending_radio()

@@ -32,9 +32,10 @@ func commands() -> Array:
 		["6", "CLEAR INVENTORY", _clear_inventory],
 		["7", "OPEN / CLOSE SHUTTERS", func(): _main.shutters.toggle(); say("SHUTTERS")],
 		["8", "OPEN / CLOSE CABINET", func(): _main.cabinet.toggle(); say("CABINET")],
-		["9", "NEXT DAY", func(): GameState.day += 1; say("DAY %d" % GameState.day)],
+		["9", "NEXT DAY", func(): GameState.start_next_day(); say("DAY %d" % GameState.day)],
 		["W", "WEATHER: " + _main.weather.current.to_upper() + " (NEXT)", _next_weather],
 		["0", "LIGHT UP RADIO SIGNAL" if GameState.flag("radio_fixed") else "FIX THE RADIO", _trigger_radio_chatter],
+		["S", "COMPLETE MAJOR TASK", _debug_complete_task],
 	]
 
 
@@ -63,6 +64,8 @@ func key(code: int) -> void:
 		run((n + 9) % 10 + (1 if n == 0 else 0))   # 1 -> first line ... 9 -> ninth, 0 -> the line after W
 	elif code == KEY_W:
 		run(9)
+	elif code == KEY_S:
+		run(11)
 	elif code in [KEY_ESCAPE, KEY_F9]:
 		open = false
 
@@ -97,8 +100,8 @@ func draw(overlay: Control, cur: Vector2) -> bool:
 
 
 func _status() -> String:
-	return "DAY %d   STATIONS %d/%d   ITEMS %d/%d" % [GameState.day, GameState.contacted.size(),
-			GameState.stations.size(), InventoryManager.inventory.items.size(), InventoryManager.MAX_ITEMS]
+	return "DAY %d   ENERGY %d/%d   ITEMS %d/%d" % [GameState.day, GameState.tasks_remaining,
+			GameState.DAILY_TASKS, InventoryManager.inventory.items.size(), InventoryManager.MAX_ITEMS]
 
 
 func _rect() -> Rect2:
@@ -169,6 +172,11 @@ func _clear_inventory() -> void:
 	for item in InventoryManager.inventory.items.duplicate():
 		InventoryManager.remove_item(item)
 	say("INVENTORY EMPTY")
+
+
+func _debug_complete_task() -> void:
+	_main.complete_major_task()
+	say("ENERGY %d/%d" % [GameState.tasks_remaining, GameState.DAILY_TASKS])
 
 
 func _trigger_radio_chatter() -> void:
