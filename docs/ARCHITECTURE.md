@@ -45,7 +45,7 @@ order every frame, and routes input. Each part is one file with one job.
 | Script | Job | Main entry points |
 |---|---|---|
 | `main.gd` | Builds the parts, runs the frame, routes input | `click()`, `back(full)`, `active_view()`, `clock`, `cursor` |
-| `game_state.gd` | **Autoload `GameState`.** Day, story flags, stations reached, revealed map areas | `set_flag`, `flag`, `contact_station(id)`, `reveal(lat, lon, deg)`, signals `changed`, `station_contacted` |
+| `game_state.gd` | **Autoload `GameState`.** Day, story flags, stations reached, revealed map areas | `set_flag`, `flag`, `advance_day()`, `contact_station(id)`, `reveal(lat, lon, deg)`, signals `changed`, `station_contacted` |
 | `inventory/inventory_manager.gd` | **Autoload `InventoryManager`.** What the player carries (max 5) | `get_item(id)`, `add_item`, `remove_item`, `has_item`, signal `inventory_updated` |
 | `inventory/item_data.gd` | `ItemData` resource: `id`, `name`, `icon` | one `.tres` per item in `items/` |
 | `inventory/inventory_data.gd` | `InventoryData` resource: the list of carried items | |
@@ -55,7 +55,10 @@ order every frame, and routes input. Each part is one file with one job.
 | `room/room_materials.gd` | Replaces the room's imported materials with the toon shader | `set_param(material, param, value)` |
 | `room/shutters.gd` | Storm shutters swing open/shut; how much heat gets in rises and falls | `toggle()`, `is_open`, `heat` |
 | `room/cabinet.gd` | Supply cabinet doors and the light inside | `toggle()` |
-| `room/weather.gd` | The weather outside the window: presets (storm, rain, overcast, marine fog, clear, wildfire smoke) cross-faded on a cycle, lightning, and the window lights' colour to match | `set_weather(name)`, `after(name)`, `update(delta, clock)` |
+| `room/weather.gd` | The weather outside the window: presets (storm, rain, overcast, marine fog, clear, wildfire smoke) cross-faded on a cycle, lightning, and the window lights' colour to match; the outside temperature and the rain | `set_weather(name)`, `after(name)`, `temperature()`, `rain()`, `heat(open)`, `update(delta, clock)` |
+| `room/leak.gd` | The hole under the window: the sandbag that belongs in it (starts thrown up on the pile), the stream and the puddle while it's open | `state()` ("open", "bag", "filter"), `leaking()`, `plug()`, `make_way()`, `level` |
+| `room/water_filter.gd` | The bucket filter beside the hole: its intake run out through the hole (flag `filter_installed`), when it runs (shutters open + rain), and the jug it fills, taken as CLEAN WATER | `installed()`, `blocked()`, `running()`, `fill`, `click()`, `click_jug()`, `return_jug()` |
+| `room/pendant.gd` | The hanging lamp's pull chain: lights out, a fade, `GameState.advance_day()`, the morning; not while the hole leaks | `pull()`, `busy()`, `blackout()`, `card()` |
 | `room/ambience.gd` | Things that move on their own: storm sky, PA status light, lantern, the battery dock's green light (blinks while charging, solid when full, flag `battery_charged`) and the radio's red one | |
 | `room/room_camera.gd` | Edge panning, pixel snapping, blending into close-up views | `x`, `push`, `cam_px` |
 | `room/post_process.gd` | Hooks the renders and palette into `post.gdshader`; updates its uniforms | |
@@ -66,6 +69,7 @@ order every frame, and routes input. Each part is one file with one job.
 | `crafting/crafting.gd` | **The crafting rules** (`main.workbench`): items lying on the mat, `RECIPES`, making the result | `placed`, `item_at(cell)`, `result()`, `craft(from)`, signals `changed`, `crafted` |
 | `views/tank_view.gd` | Close-up of the reef tank, framed left of centre to leave room for its panel; first visit plays `interactions.inspect_tank()` | signal `clicked` |
 | `tank/tank_panel.gd` | The tank close-up's panel (`main.tank_panel`): live readings with safe bands, and item slots that take anything | `readings`, `live_value(i)`, `contents`, `click(p, held)`, `slot_rect(i)`, signal `changed` |
+| `tank/tank_water.gd` | What the cabin does to the tank's readings: an open window in hot weather warms it; a jug of CLEAN WATER in a tank slot is a water change (pH and oxygen part way to safe) and sends the jug back | `update(delta)` |
 | `radio/radio_repair.gd` | The radio close-up's slots for its missing parts (`main.radio_repair`); filling them all sets `radio_fixed` | `SLOTS`, `filled`, `showing()`, `slot_rect(id)`, `click(p, held)`, signal `changed` |
 | `ui/overlay.gd` | Draws all UI; gets every click first; owns the open panel | `panel`, `open_panel`, `close_panel`, `handle_click`, `over_ui` |
 | `ui/inventory_bar.gd` | The slots along the bottom, the held item, items flying in, dragging | `held`, `fly`, `has_room`, `click`, `drag_released(p)` |
@@ -237,7 +241,30 @@ either opens `views/tank_view.gd`; the first time it settles, `interactions.insp
 then "inspect_tank_gauges" (both `once_flag`). While it's settled, `tank/tank_panel.gd` is up: `overlay.gd` draws its
 `readings` (each a value with a bar range and a safe band, wobbling slightly via `live_value(i)`) and its `SLOTS`
 item slots, and sends it clicks first. The slots take any item; nothing reads `contents` yet. To make items affect
-the tank, connect to `tank_panel.changed` and change a reading's `value`.
+the tank, connect to `tank_panel.changed` and change a reading's `value`. `tank/tank_water.gd` already does: the
+shutters open while it's hotter outside than the water (`weather.temperature()`) warm it toward the outside
+temperature, and a CLEAN WATER jug put in a slot is poured in at once (pH and oxygen move `WATER_CHANGE` of the way
+to their targets) and the empty jug goes back under the filter's tap. Its rates are first guesses, to be balanced
+with the rest of the tank's chemistry (issue #35).
+
+## The leak, the water filter and the day
+
+A hole is knocked through the wall low under the window, behind the left end of the sandbag pile's second row
+(`build_pixel_scene.py`'s `wall_hole`). That row's left bag (parts `loose_bag_*`) is built in the hole;
+`room/leak.gd` gathers its parts under a pivot and starts it up on top of the pile, so water runs in:
+`leak_stream_a_*` / `_b_*` flicker while it's open and raining, and `leak_puddle*` scale with `level`, which
+fills with the rain and dries once the hole is sealed. After the waking thoughts main.gd plays "leak_noticed"
+(flag `dlg_leak_seen`), and from then `interactions.leak_alert()` puts the red ! over the sandbags. Clicking them
+calls `leak.plug()` (flag `hole_plugged`). Clicking the water filter then calls `water_filter.click()`: its
+`intake_idle_*` parts hide, its `intake_hole_*` parts show, the bag goes back up (`leak.make_way()`) and flag
+`filter_installed` is set. The filter runs while the shutters are open and `weather.rain()` is above `MIN_RAIN`,
+dripping (`filter_drip`) into the jug beside it (the `jug` group; `jug_water` is scaled up from the jug's floor
+with `fill`). Clicking the full jug picks it up as `items/water_jug.tres`; `return_jug()` puts it back empty.
+
+The hanging lamp, its cord and its pull chain are the `pendant` group. `room/pendant.gd` turns the `pendant_key`
+light and the bulb off, `overlay.gd` fades to black (`blackout()`) and shows the DAY card (`card()`), and
+`GameState.advance_day()` moves `day` on; the top-left box (`overlay._draw_hud()`) shows the day and
+`weather.temperature()`. While the night runs (`busy()`) the room takes no clicks. Not while `leak.leaking()`.
 
 ## Dragging items
 

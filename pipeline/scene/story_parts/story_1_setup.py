@@ -82,7 +82,7 @@ for o in cab_closed.objects:
         bm.to_mesh(o.data); bm.free()
     if 'inset_dark_interior' in o.name:
         o.matrix_world = Matrix.Translation((0, 0.53, 0)) @ o.matrix_world
-bpy.data.objects['07_gravity_water_filter'].location.y -= 0.45
+# (the water filter stays where build_pixel_scene.py put it: its intake is lined up with the wall hole)
 
 # ---------------------------------------------------------------- room extension for the pans
 room = colls['Room']

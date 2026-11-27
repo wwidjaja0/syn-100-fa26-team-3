@@ -82,12 +82,16 @@ GROUPS = {
     'lantern': kids('10_emergency_lantern'),
     'instruments': kids('08_wall_weather_instruments'),
     'power': kids('04_portable_power_station'),
+    # the water filter's jug fills while it runs and is taken into the inventory (water_filter.gd)
+    'jug': [o for o in kids('07_gravity_water_filter') if o.name.startswith('jug_')],
     'filter': kids('07_gravity_water_filter'),
     'crates': kids('09_supply_crates'),
     'sandbags': kids('06_sandbag_flood_barrier'),
     'flashlight': kids('11_flashlight'),
     # the lead-acid battery lifts out of its dock; the dock and its cord stay
     'battery': [o for o in kids('15_battery_charger') if o.name.startswith('leadacid_')],
+    # the hanging lamp over the bench and its pull chain: lights out ends the day
+    'pendant': named('pendant_'),
 }
 taken = set()
 for name in GROUPS:                                  # an object belongs to the first group that lists it
@@ -131,7 +135,7 @@ for m in bpy.data.materials:
     info = {'kind': 'toon', 'color': [1, 1, 1], 'strength': 0.0}
     if m.name == 'toon_outline':
         info = {'kind': 'outline', 'color': list(emit.inputs['Color'].default_value)[:3], 'strength': 1.0}
-    elif m.name == 'storm_window_emit':
+    elif m.name in ('storm_window_emit', 'wall_hole_view'):
         info = {'kind': 'sky', 'color': [0.1, 0.42, 0.95], 'strength': 2.5}
     elif diff:
         info['color'] = list(diff.inputs['Color'].default_value)[:3]
@@ -199,7 +203,10 @@ meta = {
     'points': {'window': to_godot((WIN_X, WALL_Y, 1.53)),
                'speaker_mount': to_godot(objs['speaker_rig'].matrix_world.translation),
                'radio_front': to_godot(radio_front),
-               'fiche_screen': fiche_screen},
+               'fiche_screen': fiche_screen,
+               # the hole in the wall under the window: the outside seen through it centres here
+               'hole': to_godot(sum((objs['wall_hole_view'].matrix_world @ Vector(c) for c in objs['wall_hole_view'].bound_box),
+                                    Vector()) / 8) if 'wall_hole_view' in objs else None},
     'craft': craft,
 }
 

@@ -15,6 +15,13 @@ extends Node
 ## cabin log (also J or L). A red ! sits above the radio for an incoming call, and for the radio
 ## itself after the story has pointed at it and it is still broken. The battery and the speaker
 ## stay unmarked: those are found by looking.
+##
+## The hole under the window (room/leak.gd): the game starts with a sandbag thrown off it and the
+## storm running in. Clicking the sandbags drops the bag back in; a red ! marks them once the cabin
+## has pointed the leak out. The water filter beside it (room/water_filter.gd) can then run its
+## intake out through the hole instead; while it runs it fills the water jug beside it, and the full jug
+## goes into the inventory as CLEAN WATER (for the reef tank's slots). The hanging lamp's pull chain (room/pendant.gd) ends the day,
+## but not while water is still coming in.
 
 ## hover text per object group. Capitals, and only the pixel font's characters
 ## (A-Z 0-9 . , ' - : ? ! ( ) / + = %). Groups not listed here can't be hovered or clicked.
@@ -23,7 +30,7 @@ const LABELS := {
 	"radio": "HAM RADIO (BROKEN)", "jar": "DRIED MUSHROOMS", "papers": "ROLLING PAPERS", "bench": "WORKBENCH",
 	"lantern": "LANTERN", "instruments": "WEATHER GAUGES", "power": "POWER STATION", "filter": "WATER FILTER",
 	"crates": "SUPPLY CRATES", "sandbags": "SANDBAGS", "flashlight": "FLASHLIGHT", "battery": "BATTERY",
-	"tank": "REEF TANK", "tank_gauges": "TANK GAUGES",
+	"tank": "REEF TANK", "tank_gauges": "TANK GAUGES", "pendant": "PULL CHAIN: LIGHTS OUT", "jug": "WATER JUG",
 }
 
 var _main: Node
@@ -44,6 +51,8 @@ func update() -> void:
 
 ## can the cursor pick this group? (the open window's sky only while the shutters are open)
 func hoverable(group: String) -> bool:
+	if _main.pendant.busy():
+		return false
 	return LABELS.has(group) or (group == "sky" and _main.shutters.is_open)
 
 
@@ -52,6 +61,12 @@ func label_for(group: String, held: ItemData) -> String:
 	var name: String = "CLOSE SHUTTERS" if group == "sky" else LABELS.get(group, "")
 	if group == "radio" and GameState.flag("radio_fixed"):
 		name = "INCOMING SIGNAL" if _main.ui.dialogue.has_pending_radio() else "CABIN LOG"
+	elif group == "sandbags" and _main.leak.leaking():
+		name = "MOVE SANDBAG OVER THE HOLE"
+	elif group == "filter":
+		name = _main.water_filter.label()
+	elif group == "jug":
+		name = _main.water_filter.jug_label()
 	if held != null and name != "":
 		return "USE %s ON %s" % [held.name, name]
 	return name
@@ -91,7 +106,19 @@ func click(group: String) -> void:
 			_main.crafting.enter(clock)
 		"tank", "tank_gauges":
 			_main.tank_view.enter(clock)     # the first time, main.gd's hook plays inspect_tank()
-		"lantern", "instruments", "power", "filter", "crates", "sandbags", "flashlight":
+		"sandbags":
+			if _main.leak.leaking():
+				_main.leak.plug()
+				say("sandbag_plugged")
+			else:
+				_main.ui.dialogue.start("inspect_sandbags")
+		"filter":
+			_main.water_filter.click()
+		"jug":
+			_main.water_filter.click_jug()
+		"pendant":
+			_main.pendant.pull()
+		"lantern", "instruments", "power", "crates", "flashlight":
 			_main.ui.dialogue.start("inspect_" + group)
 
 
@@ -117,6 +144,13 @@ func radio_alert() -> bool:
 	if GameState.flag("radio_fixed"):
 		return _main.ui.dialogue.has_pending_radio()
 	return GameState.flag("dlg_radio_hint_seen") or GameState.flag("inspected_radio")
+
+
+## the red ! above the sandbags: water is running in and the cabin has pointed it out
+func leak_alert() -> bool:
+	if _main.landing_active or _main.active_view() != null or _main.pendant.busy():
+		return false
+	return _main.leak.leaking() and GameState.flag("dlg_leak_seen")
 
 
 ## the close-up on the broken radio has settled (main.gd's _on_radio_view_entered): the player's

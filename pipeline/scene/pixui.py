@@ -111,7 +111,7 @@ ICON_COLORS = {
     'K': (0.06, 0.03, 0.03), 'W': (0.96, 0.94, 0.86), 'R': (0.62, 0.16, 0.10), 'G': (0.62, 0.74, 0.66),
     'B': (0.45, 0.28, 0.14), 'C': (0.90, 0.82, 0.62), 'O': (0.86, 0.42, 0.12), 'Y': (0.98, 0.80, 0.36),
     'T': (0.80, 0.55, 0.30), 'E': (1.00, 0.36, 0.10), 'S': (0.70, 0.70, 0.72), 'M': (0.40, 0.44, 0.36),
-    'D': (0.16, 0.17, 0.16), 'L': (1.00, 0.20, 0.12),
+    'D': (0.16, 0.17, 0.16), 'L': (1.00, 0.20, 0.12), 'A': (0.45, 0.72, 0.86), 'N': (0.16, 0.34, 0.55),
 }
 ICONS = {
     'jar': ["..KKKKKKKK..",
@@ -175,6 +175,19 @@ ICONS = {
                 ".KYYYYYYYYK.",
                 ".KDDDDDDDDK.",
                 ".KKKKKKKKKK."],
+    # a jug of filtered water, handle on the right
+    'water_jug': ["....KKKK....",
+                  "....KNNK....",
+                  "...KKKKKK...",
+                  "..KWWWWWWKK.",
+                  ".KWWWWWWWKWK",
+                  ".KAAAAAAAKWK",
+                  ".KANAAAAAKWK",
+                  ".KANAAAAAKKK",
+                  ".KAAAAAAAK..",
+                  ".KAAAAAAAK..",
+                  ".KNNNNNNNK..",
+                  ".KKKKKKKKK.."],
 }
 ITEM_NAMES = {'jar': 'DRIED MUSHROOMS', 'papers': 'ROLLING PAPERS', 'cig': 'SHROOM CIGARETTE', 'speaker': 'PA SPEAKER'}
 

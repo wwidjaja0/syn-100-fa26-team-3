@@ -13,6 +13,9 @@ extends Node
 ##   room/ambience.gd         storm sky, PA light, lantern glow, battery dock and radio status lights
 ##   room/weather.gd          the weather outside the window (storm, rain, fog, ...) and its light
 ##   room/fish_tank.gd        wires up scenes/fish_tank.tscn (the widened cabin is scenes/room_left.tscn)
+##   room/leak.gd             the hole under the window, its sandbag, and the puddle when it's open
+##   room/water_filter.gd     the bucket filter: its intake through the hole, when it runs, the jug it fills
+##   room/pendant.gd          the hanging lamp's pull chain: lights out, on to the next day
 ##   room/room_camera.gd      panning, pixel snapping, hand-over to close-ups
 ##   room/post_process.gd     feeds the post shader
 ##   views/crafting_view.gd   close-up: straight down onto the workbench's cutting mat
@@ -21,6 +24,7 @@ extends Node
 ##   crafting/crafting.gd     what lies on the cutting mat, the recipes, crafting   <- crafting rules
 ##   radio/radio_repair.gd    the radio close-up's slots for its missing speaker and battery
 ##   tank/tank_panel.gd       the tank close-up's live readings and item slots
+##   tank/tank_water.gd       what the open window and a jug of clean water do to the tank's readings
 ##   ui/overlay.gd            the pixel UI (its own node, UI/Overlay)
 ##   ui/start_menu.gd         the title screen (its own node, UI/StartMenu); calls start_game()
 ##   ui/pause_menu.gd         the pause / settings menu (its own node, UI/PauseMenu)
@@ -50,6 +54,10 @@ const RadioRepair := preload("res://scripts/radio/radio_repair.gd")
 const TankView := preload("res://scripts/views/tank_view.gd")
 const TankPanel := preload("res://scripts/tank/tank_panel.gd")
 const FishTank := preload("res://scripts/room/fish_tank.gd")
+const Leak := preload("res://scripts/room/leak.gd")
+const WaterFilter := preload("res://scripts/room/water_filter.gd")
+const Pendant := preload("res://scripts/room/pendant.gd")
+const TankWater := preload("res://scripts/tank/tank_water.gd")
 const DebugMenu := preload("res://scripts/dev/debug_menu.gd")
 const Demo := preload("res://scripts/dev/demo.gd")
 
@@ -110,6 +118,10 @@ var workbench: Crafting                 # the crafting rules (crafting is the ca
 var radio_repair: RadioRepair
 var tank_panel: TankPanel
 var fish_tank: FishTank
+var leak: Leak
+var water_filter: WaterFilter
+var pendant: Pendant
+var tank_water: TankWater
 var views: Array[Node] = []             # every close-up view
 var debug_menu: DebugMenu
 var demo: Demo
@@ -147,6 +159,15 @@ func _ready() -> void:
 	weather = Weather.new()              # after ambience: it reads the window lights as ambience left them
 	_add(weather, "Weather")
 	weather.setup(self, $WorldVP/Lights, materials)
+	leak = Leak.new()
+	_add(leak, "Leak")
+	leak.setup(self, room)
+	water_filter = WaterFilter.new()
+	_add(water_filter, "WaterFilter")
+	water_filter.setup(self, room)
+	pendant = Pendant.new()              # after ambience: it keeps the lamp's light as ambience left it
+	_add(pendant, "Pendant")
+	pendant.setup(self, $WorldVP/Lights, materials, room)
 	crafting = CraftingView.new()
 	_add(crafting, "CraftingView")
 	crafting.setup(meta, W, H)
@@ -168,6 +189,9 @@ func _ready() -> void:
 	tank_panel = TankPanel.new()
 	_add(tank_panel, "TankPanel")
 	tank_panel.setup(self)
+	tank_water = TankWater.new()
+	_add(tank_water, "TankWater")
+	tank_water.setup(self)
 	room_camera = RoomCamera.new()
 	_add(room_camera, "RoomCamera")
 	room_camera.setup(self, meta, room, camera, mask_cam)
@@ -213,6 +237,10 @@ func _process(delta: float) -> void:
 	picker.update(cursor, step, room_hover)
 	ambience.update()
 	weather.update(delta, clock)
+	leak.update(delta)
+	water_filter.update(delta)
+	tank_water.update(delta)
+	pendant.update()
 	fish_tank.update()
 	post.update()
 	ui.queue_redraw()
@@ -377,7 +405,13 @@ func _check_dialogue_triggers() -> void:
 		intro_triggered = true
 		ui.dialogue.start("intro_wake")
 
-	# 2. Room scan tracking: visiting left wall and right wall
+	# 2. Water running in under the window: once the waking thoughts are done, point it out
+	#    (a red ! then marks the sandbags until the bag is back in the hole)
+	if intro_triggered and leak.leaking() and not GameState.flag("dlg_leak_seen") and clock - game_started_at >= 36.0 \
+			and not ui.dialogue.is_active() and ui.panel == "" and active_view() == null:
+		ui.dialogue.start("leak_noticed")
+
+	# 3. Room scan tracking: visiting left wall and right wall
 	if not radio_hint_triggered:
 		if room_camera.x <= room_camera.CAM_MIN + 0.6:
 			scanned_left = true
@@ -400,6 +434,8 @@ func click() -> void:
 		return
 	if active_view() != null:
 		active_view().click(cursor, ui.inventory.held)   # the view's listeners decide what a click does
+		return
+	if pendant.busy():                                   # lights out: the night is running
 		return
 	var held: ItemData = ui.inventory.held
 	if held != null:

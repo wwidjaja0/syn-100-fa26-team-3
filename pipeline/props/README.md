@@ -31,8 +31,8 @@ trimesh is pinned because newer versions export without the single `world` root 
 | `03_supply_cabinet_closed` | two-door upright cabinet | 2.0 m high |
 | `04_portable_power_station` | battery, socket panel, display, handle | 0.8 m high |
 | `05_storm_shutters_closed` | two bolted wood panels over the window | 3.0 m across |
-| `06_sandbag_flood_barrier` | stacked burlap bags | 2.5 m across |
-| `07_gravity_water_filter` | frame, paired tanks, spigot, bucket | 1.5 m high |
+| `06_sandbag_flood_barrier` | stacked burlap bags; the second row's left bag (`loose_bag_*`) plugs the wall hole and moves in the game | 2.5 m across |
+| `07_gravity_water_filter` | two stacked buckets on a pallet, a tap into a water jug on the floor (`jug_*`, the `jug` group), and its intake twice: coiled (`intake_idle_*`) and out through the wall hole (`intake_hole_*`) | 1.0 m high |
 | `08_wall_weather_instruments` | two gauges and a thermometer on a board | 1.9 m mounting height |
 | `09_supply_crates` | three crates, one open with food tins | 1.5 m across |
 | `10_emergency_lantern` | caged lantern: glass, flame, handle | 0.8 m high |

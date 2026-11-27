@@ -111,7 +111,7 @@ Use `GameState` (`scripts/game_state.gd`), an autoload you can reach from any sc
 ```gdscript
 GameState.set_flag("radio_fixed")        # emits GameState.changed
 if GameState.flag("radio_fixed"): ...
-GameState.day += 1
+GameState.advance_day()                  # day += 1, emits GameState.changed (the hanging lamp does this)
 ```
 
 Name flags as plain facts (`window_opened`, `took_jar`). Things the player carries go through `InventoryManager`, not

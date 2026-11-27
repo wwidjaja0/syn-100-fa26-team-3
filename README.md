@@ -53,8 +53,21 @@ What's in the room so far:
   (`scripts/room/weather.gd`): storm, rain, overcast, the coast's marine fog filling the valleys below, clear
   skies, and wildfire smoke. Each holds a couple of minutes, then fades into the next; the window's light into
   the room follows it. F9's W line jumps to the next one.
-- **Supply cabinet:** opens and closes.
-- **Dried mushrooms, rolling papers, PA speaker, battery:** click to pick them up into the inventory (the speaker
+- **The leak under the window:** the game starts in the storm with one sandbag thrown up on top of the pile, and
+  the hole in the wall behind it open: water spills out over the bottom row and a puddle spreads across the floor
+  (`scripts/room/leak.gd`). Once the cabin points it out, a red ! marks the sandbags; click them to drop the bag
+  back in. You can't end the day until you do.
+- **Water filter:** a two-bucket gravity filter beside the hole. With the bag back in, click it to run its intake
+  out through the hole in the bag's place (`scripts/room/water_filter.gd`). It only runs with the shutters open
+  (the sealed top bucket needs air to drain) and while it's raining; then it drips into the water jug on the floor
+  beside it. Click the full jug to take it (CLEAN WATER). Put in one of the reef tank's slots, it's a water change
+  that eases the tank's pH and oxygen toward safe, and the empty jug goes back under the tap
+  (`scripts/tank/tank_water.gd`). Opening the shutters while it's hotter outside than the tank warms the tank's water.
+- **Day and temperature** (top left): the day, and the temperature outside with the weather (orange when it's
+  hotter outside than the tank, so an open window will warm it).
+- **Hanging lamp:** its pull chain is lights out: the room goes dark, the next day's card shows, and the morning
+  comes back (`scripts/room/pendant.gd`, `GameState.advance_day()`). What a new day brings is still to come.
+- **Supply cabinet:** opens and closes.- **Dried mushrooms, rolling papers, PA speaker, battery:** click to pick them up into the inventory (the speaker
   gets a line of thought first, then goes into the inventory once it closes). The battery is a lead-acid
   battery standing in a charging dock on a crate, left of the power station: the dock's light blinks green while
   it charges and stays green once it's full. The ham radio has a red light: dark while it's broken, red once it
@@ -87,7 +100,8 @@ there, or run an exported build.
 
 **Debug menu (F9).** Press a number or click a line:
 1 contact the next station, 2 contact all stations, 3 reveal the whole map, 4 reset the map, 5 give all items,
-6 clear the inventory, 7 open/close the shutters, 8 open/close the cabinet, 9 next day, 0 close.
+6 clear the inventory, 7 open/close the shutters, 8 open/close the cabinet, 9 next day, W next weather, 0 fix
+the radio (or light up its signal once fixed).
 Set `ENABLED` in `scripts/dev/debug_menu.gd` to `false` for a release.
 
 ## Repository map
@@ -101,11 +115,13 @@ scripts/
   main.gd                           the root node: builds the parts below, runs them each frame, routes input
   game_state.gd                     autoload GameState: day, story flags, radio stations reached, map reveals
   room/                             the 3D room: materials, hover picking, interactions, shutters, cabinet,
-                                    ambience, camera, post-processing
+                                    ambience, weather, the leak and the water filter, the hanging lamp,
+                                    camera, post-processing
   views/                            close-up camera views: the crafting table and the ham radio
   crafting/                         the crafting rules: what's on the mat, the recipes, making things
   radio/                            fixing the radio: the close-up's speaker and battery slots
-  tank/                             the reef tank close-up's panel: live readings and item slots
+  tank/                             the reef tank close-up's panel (live readings, item slots) and what the
+                                    open window and the water filter do to its water
   ui/                               the pixel UI: overlay, inventory bar, drawing helpers
     microfiche/                     the microfiche map panel and its sheets/zoom maths
   inventory/                        autoload InventoryManager and the ItemData / InventoryData resources
@@ -113,7 +129,7 @@ scripts/
 shaders/
   toon.gdshader                     every 3D surface, plus the object-id mask pass
   post.gdshader                     toon banding, dither, 42-colour palette, hover outline, heat
-items/                              one ItemData .tres per item (jar, papers, cig, speaker, battery)
+items/                              one ItemData .tres per item (jar, papers, cig, speaker, battery, water_jug)
 data/stations.json                  radio stations and the map areas printed at the start (placeholders)
 assets/                             shelter.glb (the room), scene_meta.json, palette.json   [generated]
 ui/                                 font, cursors, item icons, microfiche sheets            [generated]

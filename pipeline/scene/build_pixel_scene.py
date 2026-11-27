@@ -8,7 +8,7 @@ banded toon shading with inverted-hull outlines, lights it warm-inside /
 storm-blue-outside, saves climate_shelter_pixel.blend, renders a low-res
 frame and palette-maps + nearest-upscales it (see pixelize.py).
 """
-import bpy, math, sys, json
+import bpy, bmesh, math, random, sys, json
 from pathlib import Path
 from mathutils import Vector
 
@@ -167,8 +167,10 @@ BENCH_X = 2.75
 place('05_storm_shutters_closed', WIN_X, y_back=WALL_Y, coll=sh_closed)
 place('13_storm_shutters_stowed', WIN_X, y_back=WALL_Y, coll=sh_stowed)
 place('06_sandbag_flood_barrier', WIN_X, y_back=WALL_Y - 0.05)
-place('07_gravity_water_filter', -4.45, y_back=WALL_Y - 0.3)
-place('09_supply_crates', -2.6, y=-0.55, rot_z=-8)
+# the bucket filter stands just left of the hole behind the sandbags' loose bag; it is lined up
+# with the hole below, once the hole is known
+place('07_gravity_water_filter', WIN_X - 1.6, y_back=WALL_Y - 0.08)
+place('09_supply_crates', -4.55, y=-0.55, rot_z=-8)
 place('04_portable_power_station', 0.9, y=1.0, rot_z=12)
 place('01_wooden_workbench', BENCH_X, y_back=WALL_Y - 0.05)
 place('08_wall_weather_instruments', BENCH_X, y_back=WALL_Y)
@@ -207,6 +209,162 @@ def centre(stem, prefix, pick=min):
     lo, hi = world_bounds([pick(obs, key=lambda o: world_bounds([o])[0].x)])
     return (lo + hi) / 2
 
+
+# ---------------------------------------------------------------- the hole under the window
+# A hole knocked through the wall low under the window, behind the sandbag pile's loose bag (its
+# parts are 'loose_bag_*', built in the plugged spot, the second row's left end). The game starts
+# with that bag thrown up on top of the pile, so the storm runs in here: water spills out of the hole,
+# down between the bottom row's bags, and spreads across the floor in front of the pile
+# (scripts/room/leak.gd scales 'leak_puddle*' and flickers 'leak_stream_*').
+# The water filter's intake can be run out through the hole instead (scripts/room/water_filter.gd).
+HOLE = centre('06_sandbag_flood_barrier', 'loose_bag_stuffed_burlap_bag')
+HOLE.y, HOLE.z = WALL_Y, 0.31
+HOLE_W, HOLE_H = 0.34, 0.19
+rng = random.Random(14)
+
+
+def outline(cx, cz, rx, rz, n, jitter, seed_shift=0.0):
+    """a ragged closed loop round (cx, cz): radius wobbles by up to `jitter` of itself, plus a
+    couple of deeper bites"""
+    pts = []
+    for i in range(n):
+        t = 2 * math.pi * i / n
+        k = 1 + jitter * (rng.random() * 2 - 1) + 0.12 * math.sin(3 * t + seed_shift) + 0.08 * math.sin(5 * t + 1.3)
+        pts.append((cx + rx * k * math.cos(t), cz + rz * k * math.sin(t)))
+    return pts
+
+
+def poly_mesh(name, faces, mat, coll=room_coll):
+    """a mesh from a list of faces, each a list of (x, y, z)"""
+    bm = bmesh.new()
+    for f in faces:
+        bm.faces.new([bm.verts.new(v) for v in f])
+    bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=1e-5)
+    me = bpy.data.meshes.new(name)
+    bm.to_mesh(me)
+    bm.free()
+    o = bpy.data.objects.new(name, me)
+    coll.objects.link(o)
+    o.data.materials.append(mat)
+    return o
+
+
+def ring(name, inner, outer, y, mat):
+    """the band between two loops of the same length, at depth y"""
+    faces = []
+    for i in range(len(inner)):
+        j = (i + 1) % len(inner)
+        faces.append([(inner[i][0], y, inner[i][1]), (outer[i][0], y, outer[i][1]),
+                      (outer[j][0], y, outer[j][1]), (inner[j][0], y, inner[j][1])])
+    return poly_mesh(name, faces, mat)
+
+
+N = 26
+hole = outline(HOLE.x, HOLE.z, HOLE_W / 2, HOLE_H / 2, N, 0.22)
+# cut it through the back wall: a ragged prism, its sides left as damp, broken timber
+inner_mat = base_mat('wall_hole_inner', (0.13, 0.08, 0.05))
+cut = poly_mesh('wall_hole_cutter',
+                [[(x, WALL_Y - 0.05, z) for x, z in hole], [(x, WALL_Y + 0.25, z) for x, z in reversed(hole)]] +
+                [[(hole[i][0], WALL_Y - 0.05, hole[i][1]), (hole[i][0], WALL_Y + 0.25, hole[i][1]),
+                  (hole[(i + 1) % N][0], WALL_Y + 0.25, hole[(i + 1) % N][1]), (hole[(i + 1) % N][0], WALL_Y - 0.05, hole[(i + 1) % N][1])]
+                 for i in range(N)], inner_mat)
+wall = bpy.data.objects['back_wall']
+wall.data.materials.append(inner_mat)
+mod = wall.modifiers.new('hole', 'BOOLEAN')
+mod.operation = 'DIFFERENCE'
+mod.solver = 'EXACT'
+mod.object = cut
+mod.material_mode = 'TRANSFER'
+bpy.context.view_layer.objects.active = wall
+bpy.ops.object.modifier_apply(modifier='hole')
+bpy.data.objects.remove(cut, do_unlink=True)
+# the outside, seen through it: a second window view (toon.gdshader kind 3, centred on the hole by
+# scripts/room/room_materials.gd), near the wall's outer face
+view = outline(HOLE.x, HOLE.z, HOLE_W * 0.75, HOLE_H * 0.85, N, 0.0)
+poly_mesh('wall_hole_view', [[(x, WALL_Y + 0.17, z) for x, z in view]], base_mat('wall_hole_view', (0.3, 0.6, 0.9)))
+# round the edge, where the plaster has spalled off: a ragged band of the darker render underneath,
+# and a thin pale lip of broken plaster right at the hole
+edge = [(HOLE.x + (x - HOLE.x) * 1.08, HOLE.z + (z - HOLE.z) * 1.12) for x, z in hole]
+spall = [(HOLE.x + (x - HOLE.x) * (1.35 + 0.55 * rng.random() + 0.25 * max(0.0, -math.sin(2 * math.pi * i / N))),
+          HOLE.z + (z - HOLE.z) * (1.4 + 0.6 * rng.random())) for i, (x, z) in enumerate(hole)]
+ring('wall_hole_spall', edge, spall, WALL_Y - 0.002, base_mat('wall_hole_spall', (0.40, 0.27, 0.15)))
+ring('wall_hole_lip', hole, edge, WALL_Y - 0.003, base_mat('wall_hole_lip', (0.74, 0.58, 0.38)))
+# a water stain running down from the hole's foot to the floor, wider as it goes
+stain_mat = base_mat('wall_hole_stain', (0.33, 0.22, 0.12))
+lo = min(z for _, z in hole)
+for i, (dx, w, top) in enumerate([(-0.04, 0.10, lo + 0.02), (0.05, 0.07, lo + 0.01), (0.0, 0.16, lo - 0.08)]):
+    poly_mesh(f'wall_hole_stain_{i}', [[(HOLE.x + dx - w * 0.7, WALL_Y - 0.0015, 0.0), (HOLE.x + dx + w * 0.7, WALL_Y - 0.0015, 0.0),
+                                        (HOLE.x + dx + w * 0.4, WALL_Y - 0.0015, top), (HOLE.x + dx - w * 0.4, WALL_Y - 0.0015, top)]],
+              stain_mat)
+# cracks running out from it, and broken laths poking into it from the sides
+crack_mat = base_mat('wall_hole_crack', (0.10, 0.06, 0.04))
+for i, (ang, length) in enumerate([(25, 0.16), (160, 0.12), (200, 0.10), (-20, 0.09), (95, 0.08)]):
+    t = math.radians(ang)
+    sx, sz = HOLE.x + HOLE_W * 0.5 * math.cos(t), HOLE.z + HOLE_H * 0.5 * math.sin(t)
+    o = box(f'wall_hole_crack_{i}', (sx + length / 2 * math.cos(t), WALL_Y - 0.004, sz + length / 2 * math.sin(t)),
+            (length, 0.004, 0.008), crack_mat)
+    o.rotation_euler.y = -t
+lath_mat = base_mat('wall_hole_lath', (0.30, 0.19, 0.10))
+for i, (side, dz, length, tilt) in enumerate([(-1, 0.04, 0.10, 12), (1, -0.03, 0.08, -18), (1, 0.06, 0.06, 25)]):
+    o = box(f'wall_hole_lath_{i}', (HOLE.x + side * (HOLE_W / 2 - length / 2 + 0.03), WALL_Y + 0.05, HOLE.z + dz),
+            (length, 0.02, 0.022), lath_mat)
+    o.rotation_euler.y = math.radians(tilt)
+# moss in the damp along the bottom lip
+moss_mat = base_mat('wall_hole_moss', (0.22, 0.30, 0.13))
+for i, (dx, w) in enumerate([(-0.10, 0.05), (-0.03, 0.035), (0.07, 0.045)]):
+    box(f'wall_hole_moss_{i}', (HOLE.x + dx, WALL_Y - 0.005, lo + 0.004), (w, 0.01, 0.014), moss_mat)
+
+# the filter: slide it so its intake's rubber boot sits in the hole
+boot = centre('07_gravity_water_filter', 'intake_hole_boot')
+placed['07_gravity_water_filter'][0].location += Vector((HOLE.x, WALL_Y - 0.075, HOLE.z)) - boot
+
+
+def joined(name, parts, mat, origin):
+    """flat discs (x, y, r, squash) joined into one mesh with its origin at `origin`"""
+    obs = []
+    for x, y, r, sq in parts:
+        bpy.ops.mesh.primitive_cylinder_add(vertices=14, radius=r, depth=0.004, location=(origin.x + x, origin.y + y, origin.z))
+        o = bpy.context.object
+        o.scale.y = sq
+        obs.append(o)
+    bpy.ops.object.select_all(action='DESELECT')
+    for o in obs:
+        o.select_set(True)
+    bpy.context.view_layer.objects.active = obs[0]
+    bpy.ops.object.transform_apply(scale=True)
+    bpy.ops.object.join()
+    o = bpy.context.object
+    o.name = name
+    scene.cursor.location = origin
+    bpy.ops.object.origin_set(type='ORIGIN_CURSOR')
+    o.data.materials.clear()
+    o.data.materials.append(mat)
+    for c in o.users_collection:
+        c.objects.unlink(o)
+    room_coll.objects.link(o)
+    return o
+
+
+# the puddle spreads out from the front of the pile below the hole; its sheen is a lighter set of
+# streaks on top. The water reaches it down the dip between the bottom row's first two bags.
+DIP_X = centre('06_sandbag_flood_barrier', 'stuffed_burlap_bag').x + 0.235
+p0 = Vector((DIP_X, WALL_Y - 0.42, 0.004))
+joined('leak_puddle', [(0.0, 0.05, 0.30, 0.8), (-0.32, -0.15, 0.34, 0.7), (0.30, -0.20, 0.32, 0.7), (-0.05, -0.45, 0.42, 0.6),
+                       (-0.62, -0.05, 0.24, 0.8), (0.55, -0.55, 0.26, 0.7), (-0.45, -0.65, 0.3, 0.6), (0.75, -0.15, 0.22, 0.7)],
+       base_mat('leak_puddle', (0.05, 0.10, 0.14)), p0)
+joined('leak_puddle_sheen', [(-0.12, -0.18, 0.16, 0.25), (0.28, -0.36, 0.12, 0.25), (-0.40, -0.50, 0.14, 0.25), (0.05, -0.64, 0.09, 0.3)],
+       base_mat('leak_puddle_sheen', (0.30, 0.48, 0.58)), p0 + Vector((0, 0, 0.003)))
+# the water spilling out of the hole: over the lip, forward along the dip, down the front of the
+# bags to the floor. Two shapes the game swaps for a shimmer.
+stream_mat = base_mat('leak_stream', (0.42, 0.66, 0.78))
+lip = lo + 0.012                   # the hole's lowest point
+for k, w in enumerate((0.07, 0.05)):
+    sx = (HOLE.x + DIP_X) / 2 + (0.012 if k else -0.012)
+    for i, (loc, size) in enumerate([((HOLE.x, WALL_Y - 0.03, lip + 0.004), (0.10 + 0.02 * k, 0.06, 0.012)),
+                                     ((sx, WALL_Y - 0.17, lip - 0.005), (w, 0.24, 0.014)),
+                                     ((DIP_X + 0.01 * k, WALL_Y - 0.34, (lip + 0.03) / 2), (w * 0.8, 0.014, lip - 0.03)),
+                                     ((DIP_X, WALL_Y - 0.38, 0.012), (w * 1.6, 0.1, 0.008))]):
+        box(f'leak_stream_{"ab"[k]}_{i}', loc, size, stream_mat)
 
 cord_mat = base_mat('charger_cord', (0.02, 0.025, 0.03))
 plug_mat = base_mat('charger_plug', (0.05, 0.06, 0.07))
@@ -262,7 +420,17 @@ bpy.ops.mesh.primitive_cylinder_add(vertices=6, radius=0.008, depth=cord_len, lo
 cord = bpy.context.object; cord.name = 'pendant_cord'; cord.data.materials.append(beam_mat)
 bpy.ops.mesh.primitive_cylinder_add(vertices=8, radius=0.05, depth=0.03, location=(PENDANT_X, LAMP_Y, cord_top - 0.015))
 canopy = bpy.context.object; canopy.name = 'pendant_ceiling_cup'; canopy.data.materials.append(lamp_mat)
-for o in (shade, bulb, cord, canopy):
+# the pull chain off the shade's rim, with a wooden knob: the game's 'pendant' group (lights out,
+# on to the next day: scripts/room/pendant.gd)
+chain_mat = base_mat('pendant_pull_chain', (0.62, 0.50, 0.28))
+knob_mat = base_mat('pendant_pull_knob', (0.55, 0.33, 0.16))
+CHAIN_TOP, CHAIN_BOT = LAMP_Z - 0.06, 2.06
+bpy.ops.mesh.primitive_cylinder_add(vertices=6, radius=0.006, depth=CHAIN_TOP - CHAIN_BOT,
+                                    location=(PENDANT_X + 0.16, LAMP_Y - 0.05, (CHAIN_TOP + CHAIN_BOT) / 2))
+chain = bpy.context.object; chain.name = 'pendant_pull_chain'; chain.data.materials.append(chain_mat)
+bpy.ops.mesh.primitive_cylinder_add(vertices=8, radius=0.024, depth=0.07, location=(PENDANT_X + 0.16, LAMP_Y - 0.05, CHAIN_BOT - 0.03))
+knob = bpy.context.object; knob.name = 'pendant_pull_knob'; knob.data.materials.append(knob_mat)
+for o in (shade, bulb, cord, canopy, chain, knob):
     for c in o.users_collection:
         c.objects.unlink(o)
     room_coll.objects.link(o)
@@ -281,7 +449,11 @@ EMISSIVE = {'storm_window': ((0.25, 0.68, 1.0), 2.5), 'flame': ((1.0, 0.55, 0.15
             'lcd': ((0.35, 0.95, 0.75), 3), 'display': ((0.35, 0.95, 0.75), 3),
             'lens': ((1.0, 0.92, 0.7), 4), 'screen': ((0.35, 0.95, 0.75), 3),
             # status lights, animated by scripts/room/ambience.gd: the battery dock and the radio
-            'charge_led': ((0.08, 1.0, 0.12), 4), 'radio_led': ((1.0, 0.06, 0.05), 4)}
+            'charge_led': ((0.08, 1.0, 0.12), 4), 'radio_led': ((1.0, 0.06, 0.05), 4),
+            # the water running in under the window catches the storm light (scripts/room/leak.gd)
+            'leak_stream': ((0.55, 0.82, 0.95), 1.6), 'leak_puddle_sheen': ((0.35, 0.58, 0.72), 1.0),
+            # the water filter's jug: its level and the drop from the tap (scripts/room/water_filter.gd)
+            'jug_water': ((0.45, 0.75, 0.92), 1.4), 'filter_drip': ((0.55, 0.82, 0.95), 1.6)}
 
 
 BAND = 0.16  # brightness step in perceptual space; bigger = fewer, chunkier bands
@@ -360,7 +532,7 @@ nt.links.new(ramp.outputs['Color'], e.inputs['Color'])
 nt.links.new(e.outputs[0], out.inputs['Surface'])
 
 # inverted-hull outlines on props + lamp (room boxes stay clean)
-outlined = [o for o in props_coll.all_objects if o.type == 'MESH'] + [shade, cord]
+outlined = [o for o in props_coll.all_objects if o.type == 'MESH'] + [shade, cord, chain, knob]
 for o in outlined:
     if not o.data.materials:
         o.data.materials.append(bpy.data.materials.new(o.name + '_mat'))

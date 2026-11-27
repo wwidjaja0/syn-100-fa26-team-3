@@ -131,6 +131,112 @@
         "SANDBAGS STACKED AGAINST FLASH RUNOFF."
       ]
     },
+    "leak_noticed": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "title": "THE LEAK",
+      "once_flag": "dlg_leak_seen",
+      "lines": [
+        "WATER'S RUNNING IN UNDER THE WINDOW.",
+        "ONE OF THE SANDBAGS GOT SHOVED UP ONTO THE PILE. THE HOLE IN THE WALL BEHIND IT IS WIDE OPEN.",
+        "I NEED TO PUT THAT BAG BACK BEFORE THE STORM FLOODS THE FLOOR."
+      ]
+    },
+    "sandbag_plugged": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "title": "PLUGGED",
+      "once_flag": "dlg_sandbag_plugged_seen",
+      "lines": [
+        "THERE. BAG'S BACK OVER THE HOLE. THE FLOOR CAN DRY OUT NOW.",
+        "SHAME TO WASTE ALL THAT RAIN, THOUGH. THE FILTER'S INTAKE WOULD FIT THROUGH THERE."
+      ]
+    },
+    "filter_hole_open": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "title": "WATER FILTER",
+      "repeatable": true,
+      "lines": [
+        "NOT WITH WATER POURING IN UNDER THE WINDOW. THE SANDBAG GOES BACK IN THAT HOLE FIRST."
+      ]
+    },
+    "filter_installed": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "title": "WATER FILTER",
+      "once_flag": "dlg_filter_installed_seen",
+      "lines": [
+        "INTAKE OUT THROUGH THE HOLE, A RUBBER BOOT AND SOME RAGS AROUND IT. THE BAG CAN SIT ON THE PILE.",
+        "THE RAIN RUNS IN, DRIPS THROUGH THE CERAMIC CANDLES, AND OUT OF THE TAP INTO THE JUG.",
+        "THE TOP BUCKET'S SEALED TO THE INTAKE, THOUGH. IT ONLY DRAINS WITH THE SHUTTERS OPEN TO LET AIR IN."
+      ]
+    },
+    "filter_shutters_shut": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "title": "WATER FILTER",
+      "repeatable": true,
+      "lines": [
+        "IT JUST GURGLES. NO AIR GETTING IN - THE SHUTTERS HAVE TO BE OPEN FOR IT TO DRAIN.",
+        "IF IT'S HOT OUT, THE TANK WILL FEEL IT, THOUGH."
+      ]
+    },
+    "filter_no_rain": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "title": "WATER FILTER",
+      "repeatable": true,
+      "lines": [
+        "NOTHING COMING IN. NO RAIN, NO WATER. NO POINT LETTING THE HEAT IN FOR IT TODAY."
+      ]
+    },
+    "filter_running": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "title": "WATER FILTER",
+      "repeatable": true,
+      "lines": [
+        "SLOW DRIP, CLEAN WATER. THE JUG UNDER THE TAP IS FILLING."
+      ]
+    },
+    "jug_empty": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "title": "WATER JUG",
+      "repeatable": true,
+      "lines": [
+        "AN EMPTY JUG UNDER THE FILTER'S TAP. NOTHING'S COMING THROUGH WITHOUT WATER GOING IN THE TOP."
+      ]
+    },
+    "jug_filling": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "title": "WATER JUG",
+      "repeatable": true,
+      "lines": [
+        "NOT FULL YET. IT ONLY FILLS WHILE THE FILTER'S RUNNING: SHUTTERS OPEN, RAIN COMING IN."
+      ]
+    },
+    "tank_water_change": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "title": "WATER CHANGE",
+      "once_flag": "dlg_tank_water_change_seen",
+      "lines": [
+        "FRESH WATER IN. IT THINS OUT THE CO2 AND BRINGS SOME OXYGEN WITH IT.",
+        "ONE JUG WON'T FIX IT. BACK UNDER THE TAP IT GOES."
+      ]
+    },
+    "bed_leaking": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "title": "NOT YET",
+      "repeatable": true,
+      "lines": [
+        "I CAN'T SLEEP WITH THE STORM RUNNING IN UNDER THE WINDOW. THAT SANDBAG GOES BACK FIRST."
+      ]
+    },
     "inspect_flashlight": {
       "style": "monologue",
       "speaker": "INTERNAL MONOLOGUE",

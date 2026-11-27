@@ -245,58 +245,103 @@ def storm_shutters(open_state=False):
  return m
 
 def sandbags():
+ # Stacked sandbags under the window. The second row's left bag plugs a hole in the wall behind it
+ # (build_pixel_scene.py's 'wall_hole'), so the top row sits to the right, clear of it. That bag's
+ # parts are 'loose_bag_*', built here in the plugged spot; the game starts with it thrown up on top
+ # of the pile, so the storm runs in, and the player drops it back (scripts/room/leak.gd).
  m=Model('Stacked sandbag flood barrier')
- # x wide, arranged in overlapping layers
- for level in range(3):
-  n=5-level
-  xstart=-(n-1)*.235
-  for k in range(n):
-   x=xstart+k*.47 + (.095 if level==1 else 0)
+ rows=[[-.94,-.47,0,.47,.94],[-.61,-.14,.33,.80],[.095,.565]]
+ for level,xs in enumerate(rows):
+  for k,x in enumerate(xs):
    y=-.01 + (k%2)*.019
    z=.12+level*.19
    tint=['canvas','canvas_light','canvas_dark','canvas','cream_shadow'][(k+level*2)%5]
+   pre='loose_bag_' if (level,k)==(1,0) else ''
    body=trimesh.creation.icosphere(subdivisions=1,radius=1)
    body.apply_scale([.259,.175,.112])
    body.apply_translation([x,y,z])
-   m.add(body,'stuffed_burlap_bag',tint)
+   m.add(body,pre+'stuffed_burlap_bag',tint)
    # stitch/seam across forward face
-   m.box('stitched_upper_edge',(x,-.137,z+.022),(.39,.012,.012),'canvas_dark')
+   m.box(pre+'stitched_upper_edge',(x,-.137,z+.022),(.39,.012,.012),'canvas_dark')
    for sx in [-.16,-.08,0,.08,.16]:
-    m.box('seam_cross_stitch',(x+sx,-.15,z+.022),(.008,.012,.019),'wood_pale')
+    m.box(pre+'seam_cross_stitch',(x+sx,-.15,z+.022),(.008,.012,.019),'wood_pale')
    if k%3==0:
-    m.sphere('tied_sack_knot',(x+.255,.0,z),(.041,.044,.032),'canvas_dark',1)
+    m.sphere(pre+'tied_sack_knot',(x+.255,.0,z),(.041,.044,.032),'canvas_dark',1)
  return m
 
 def water_filter():
- m=Model('Gravity-fed water filtration rig')
- # tripod-ish braced stand and two stacked canisters
- for x in [-.265,.265]:
-  for y in [-.17,.17]:
-   m.box('support_frame_leg',(x,y,.62),(.042,.042,1.18),'steel_dark')
- for z in [.20,.71,1.13]:
-  m.box('stand_crossbar_left_to_right',(0,-.165,z),(.57,.04,.035),'steel')
-  m.box('stand_crossbar_depth',(.265,0,z),(.04,.34,.035),'steel')
- m.cyl('upper_filter_tank',(0,0,1.14),.241,.50,'navy',sections=16)
- m.cyl('upper_tank_lid',(0,0,1.403),.258,.044,'graphite',sections=16)
- m.cyl('lid_dome',(0,0,1.445),.09,.047,'steel',sections=10)
- m.cyl('lower_collecting_tank',(0,0,.465),.21,.41,'steel_light',sections=16)
- m.cyl('collector_lid',(0,0,.680),.226,.035,'metal',sections=16)
- m.cyl('collector_base',(0,0,.25),.225,.029,'steel_dark',sections=16)
- m.cyl('tank_filter_stage',(0,0,.82),.118,.18,'cream',sections=12)
- m.cone('filter_narrowing',(0,0,.735),.10,.13,.09,'steel',sections=12)
- m.rod('water_tube',(0,0,.71),(0,0,.67),.037,'navy')
- # spigot protrudes forward
- m.rod('tap_outlet',(0,-.20,.38),(0,-.37,.38),.031,'brass')
- m.cyl('water_tap_handle',(0,-.30,.435),.062,.018,'steel_dark',sections=8)
- m.rod('spout_down',(0,-.37,.38),(0,-.37,.30),.020,'brass')
- m.box('water_level_window',(0,-.240,1.18),(.075,.018,.22),'steel_light')
- m.box('water_level_blue',(0,-.254,1.13),(.041,.010,.105),'aqua')
- # collection bucket to one side under nozzle
- m.cone('portable_basin',(.48,-.32,.14),.15,.18,.27,'olive_light',sections=12)
- m.ring('basin_rim',(.48,-.32,.27),.182,.148,.021,'steel',sections=16)
- m.rod('basin_handle_left',(.32,-.32,.22),(.34,-.32,.34),.012,'steel')
- m.rod('basin_handle_top',(.34,-.32,.34),(.64,-.32,.34),.012,'steel')
- m.rod('basin_handle_right',(.64,-.32,.34),(.66,-.32,.22),.012,'steel')
+ # A two-bucket gravity filter on a low pallet, squat enough to sit under the window beside the
+ # hole in the wall (build_pixel_scene.py lines its 'intake_hole_boot' up with 'wall_hole'). Raw
+ # water runs in through an intake hose at the top bucket's lid, drips through the ceramic candles
+ # into the bottom bucket, and out of a tap on its left into a water jug on the floor ('jug_*', the
+ # game's 'jug' group: it fills while the filter runs and the player takes it; 'jug_water' is the
+ # level showing through its side, 'filter_drip' the drop falling from the tap).
+ # The intake comes twice: 'intake_idle_*' coiled on the floor, and 'intake_hole_*' run out through
+ # the hole, sealed with a rubber boot and rags (scripts/room/water_filter.gd shows one or the other).
+ m=Model('Bucket gravity filter with an intake through the wall')
+ HX,HY,HZ=.92,.30,.31                          # the wall hole's centre, from the filter's centre
+ # ---- pallet
+ PT=.1425                                      # pallet top
+ for x in [-.24,0,.24]:m.box('pallet_stringer',(x,0,.06),(.05,.44,.09),'wood_dark')
+ for k in range(4):m.box('pallet_slat',(0,-.165+k*.11,PT-.0125),(.56,.085,.025),'wood' if k%2 else 'wood_light')
+ for y in [-.18,.18]:m.box('pallet_base_board',(0,y,.0075),(.56,.08,.015),'wood_dark')
+ # ---- bottom bucket: the clean water
+ cb=PT+.17
+ m.cone('clean_bucket',(0,0,cb),.150,.168,.34,'off_white',sections=16)
+ m.ring('clean_bucket_rim',(0,0,PT+.33),.178,.160,.024,'cream_shadow',sections=16)
+ for z in [PT+.08,PT+.22]:m.ring('clean_bucket_hoop',(0,0,z),.168 if z>PT+.1 else .158,.150,.012,'cream_shadow',sections=16)
+ m.box('clean_level_tube',(-.085,-.162,PT+.17),(.022,.014,.22),'glass')
+ m.box('clean_level_water',(-.085,-.171,PT+.12),(.012,.008,.11),'aqua')
+ # the tap, on the bucket's left, and a short tube over to the jug
+ ty=-.04
+ m.rod('clean_tap',(-.14,ty,PT+.20),(-.22,ty,PT+.20),.017,'brass')
+ m.cyl('clean_tap_handle',(-.20,ty,PT+.235),.03,.012,'steel_dark',sections=8)
+ JX=-.46                                       # the jug's centre x
+ m.rod('clean_tap_tube',(-.22,ty,PT+.20),(JX,ty,PT+.20),.011,'black')
+ m.rod('clean_tap_spout',(JX,ty,PT+.20),(JX,ty,.30),.011,'black')
+ m.box('filter_drip',(JX,ty,.282),(.012,.012,.014),'aqua')
+ # ---- top bucket: the raw water, with the filter candles inside
+ m.cyl('raw_bucket_seat',(0,0,PT+.345),.172,.016,'steel_light',sections=16)
+ rb=PT+.353+.16
+ m.cone('raw_bucket',(0,0,rb),.150,.168,.32,'orange',sections=16)
+ m.ring('raw_bucket_rim',(0,0,PT+.67),.178,.160,.024,'red',sections=16)
+ m.ring('raw_bucket_hoop',(0,0,PT+.45),.160,.150,.012,'red',sections=16)
+ m.cyl('raw_bucket_lid',(0,0,PT+.69),.176,.022,'graphite',sections=16)
+ m.box('raw_bucket_label',(0,-.162,PT+.56),(.15,.006,.07),'cream')
+ m.box('raw_bucket_label_band',(0,-.166,PT+.585),(.15,.004,.014),'red')
+ for k,w in enumerate([.10,.07]):m.box('raw_bucket_label_text',(-.03+w/2,-.166,PT+.552-k*.018),(w,.004,.007),'black')
+ # wire handle over the lid
+ for x in [-.17,.17]:m.rod('raw_bucket_handle_side',(x,0,PT+.62),(x*.8,0,PT+.75),.007,'steel_light')
+ m.rod('raw_bucket_handle',(-.136,0,PT+.75),(.136,0,PT+.75),.007,'steel_light')
+ # ---- the intake: a grey pipe up through the lid, elbowing toward the hole
+ lt=PT+.70
+ m.rod('intake_pipe',(.07,0,lt),(.07,0,lt+.08),.022,'steel_light')
+ m.sphere('intake_elbow',(.07,0,lt+.08),(.026,.026,.026),'steel_light',1)
+ m.rod('intake_pipe_out',(.07,0,lt+.08),(.19,0,lt+.08),.022,'steel_light')
+ m.cyl('intake_hose_clamp',(.19,0,lt+.08),.026,.02,'silver','x',10)
+ e=(.20,0,lt+.08)
+ def hose(prefix,pts,r=.02):
+  for a,b in zip(pts,pts[1:]):m.rod(prefix,a,b,r,'black')
+ # run out through the hole: over the bottom row of sandbags and in through a rubber boot
+ hose('intake_hole_hose',[e,(.42,.05,lt-.04),(.66,.15,.52),(.82,.24,HZ+.03),(HX,HY-.03,HZ),(HX,HY+.14,HZ)])
+ m.rod('intake_hole_boot',(HX,HY-.05,HZ),(HX,HY+.01,HZ),.052,'charcoal',sections=12)
+ # two wads of rag packed in under and beside the boot; the outside still shows round them
+ for dx,dz,w,h,c in [(-.075,-.045,.07,.045,'canvas_dark'),(.07,-.05,.06,.04,'canvas')]:
+  m.box('intake_hole_rag',(HX+dx,HY-.03,HZ+dz),(w,.05,h),c)
+ # coiled on the floor in front of the hole, the strainer end loose
+ hose('intake_idle_hose',[e,(.29,-.04,lt-.08),(.34,-.10,.45),(.35,-.16,.12),(.32,-.20,.04)])
+ m.ring('intake_idle_coil',(.30,-.22,.022),.10,.074,.036,'black',sections=14)
+ m.ring('intake_idle_coil',(.29,-.215,.05),.085,.062,.03,'charcoal',sections=14)
+ m.cyl('intake_idle_strainer',(.17,-.30,.03),.03,.07,'steel','x',10)
+ # ---- the jug on the floor under the tube: a pale plastic jug, its water showing through the side
+ JH=.22
+ m.box('jug_body',(JX,ty,JH/2+.004),(.19,.13,JH),'off_white')
+ m.box('jug_shoulder',(JX,ty,JH+.014),(.14,.10,.024),'off_white')
+ m.cyl('jug_neck',(JX,ty,JH+.036),.024,.022,'off_white',sections=10)
+ m.cyl('jug_cap',(JX-.10,ty-.07,.012),.026,.02,'navy',sections=10)
+ m.box('jug_handle',(JX+.108,ty,JH*.62),(.026,.05,.12),'off_white')
+ m.box('jug_handle_grip',(JX+.117,ty,JH*.62),(.012,.035,.08),'cream_shadow')
+ m.box('jug_water',(JX,ty-.067,.014+(JH-.04)/2),(.16,.006,JH-.04),'aqua')
  return m
 
 def weather_instruments():

@@ -196,7 +196,25 @@ const STEPS := [
   [1894, "weather", "clear"], [1908, "shot", "64_weather_clear"],
   [1910, "weather", "wildfire smoke"], [1924, "shot", "65_weather_wildfire_smoke"],
   [1926, "look", 2.0], [1946, "shot", "66_weather_smoke_bench_view"],
-  [1947, "quit"],
+  # the hole under the window: the storm running in (the ! once the cabin has pointed it out), the
+  # sandbag dropped back in, the filter's intake run out through it, and the filter running with the
+  # shutters open; the day and the outside temperature in the top-left corner throughout
+  [1947, "shutters", false], [1948, "weather", "storm"], [1949, "look", -0.8], [1950, "flag", "dlg_leak_seen"], [1950, "drop"],
+  [1951, "point", Vector2(240, 60)], [1990, "shot", "70_leak_open"],
+  [1991, "hover", "sandbags"], [2005, "shot", "71_hover_move_sandbag"], [2006, "click"],
+  [2014, "shot", "72_bag_hopping"], [2040, "shot", "73_hole_plugged"],
+  [2041, "hover", "filter"], [2055, "shot", "74_hover_filter"], [2056, "click"],
+  [2058, "point", Vector2(240, 60)], [2085, "shot", "75_filter_installed"],
+  [2086, "shutters", true], [2150, "shot", "76_filter_running"],
+  [2151, "hover", "filter", Vector2(-16, 8)], [2165, "shot", "77_hover_filter_running"],
+  # the jug under the filter's tap: half full, then full and taken, then poured into the tank and back
+  [2166, "jug", 0.5], [2167, "hover", "jug"], [2180, "shot", "77b_hover_jug_half"],
+  [2181, "jug", 1.0], [2190, "shot", "77c_hover_jug_full"], [2191, "click"], [2205, "shot", "77d_jug_taken"],
+  [2206, "pour_jug"], [2225, "shot", "77e_jug_back"],
+  # lights out at the hanging lamp's pull chain: dark, the DAY 2 card, the morning
+  [2226, "shutters", false], [2227, "look", 2.0], [2232, "hover", "pendant"], [2250, "shot", "78_hover_pull_chain"],
+  [2251, "click"], [2260, "shot", "79_lights_out"], [2320, "shot", "80_day_card"], [2400, "shot", "81_next_morning"],
+  [2401, "quit"],
 ]
 
 
@@ -294,5 +312,19 @@ func _do(s: Array, out: String) -> void:
 			main.weather.set_weather(s[2])   # window's heat is full at once, so each shot shows its heat
 			main.shutters._heat_from = main.shutters.MAX_HEAT
 			main.shutters._heat_at = -1e9
+		"jug":                           # set how full the water filter's jug is
+			main.water_filter.fill = s[2]
+		"pour_jug":                      # the CLEAN WATER goes into the tank's first slot, as the close-up does
+			var jug := InventoryManager.get_item("water_jug")
+			for it: ItemData in InventoryManager.inventory.items:
+				if it != null and it.id == "water_jug":
+					jug = it
+			InventoryManager.remove_item(jug)
+			main.tank_panel.contents[0] = jug
+			main.tank_panel.changed.emit()
+		"drop":                          # put down whatever is on the cursor
+			main.ui.inventory.held = null
+		"flag":                          # set a GameState flag
+			GameState.set_flag(s[2])
 		"quit":
 			get_tree().quit()
