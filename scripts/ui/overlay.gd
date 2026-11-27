@@ -63,7 +63,7 @@ func _ready() -> void:
 	panel_lo = Px.palette_color(pal, Color(0.03, 0.02, 0.03))
 	warn_col = Px.palette_color(pal, Color(0.92, 0.39, 0.09))
 	ok_col = Px.palette_color(pal, Color(0.39, 0.63, 0.68))
-	stamina_col = Px.palette_color(pal, Color8(239, 180, 94))
+	stamina_col = Px.palette_color(pal, Color8(121, 183, 196))
 	inventory = InventoryBar.new(self)
 	microfiche = MicrofichePanel.new(self, pal)
 	journal = JournalPanel.new(self, pal)
@@ -297,25 +297,21 @@ func _draw() -> void:
 	main.sleep_cycle.draw(self)
 
 
-## A segmented task-bar meter in the upper-right shows how much energy remains today.
+## A compact segmented meter hangs directly above the inventory, like a survival-game status bar.
 func _draw_stamina() -> void:
-	var panel := Rect2(Px.W - 142, 7, 134, 22)
-	draw_rect(panel, panel_col)
-	Px.frame(self, panel.grow(1), Px.INK)
-	Px.frame(self, panel, panel_hi)
-	Px.text(self, "ENERGY", panel.position + Vector2(6, 4), Px.WHITE, Px.INK)
-	var bar := Rect2(panel.position + Vector2(47, 5), Vector2(80, 12))
+	var bar_w := InventoryBar.SLOT_STEP * (InventoryBar.SLOTS - 1) + InventoryBar.SLOT
+	var bar := Rect2(InventoryBar.POS.x, InventoryBar.POS.y - 11, bar_w, 7)
 	draw_rect(bar, panel_lo)
 	Px.frame(self, bar.grow(1), Px.INK)
 	Px.frame(self, bar, panel_hi)
 	var segments := 3
 	var filled := roundi(float(GameState.tasks_remaining) / GameState.DAILY_TASKS * segments)
-	var gap := 2.0
-	var segment_w := (bar.size.x - 4.0 - gap * (segments - 1)) / segments
+	var gap := 1.0
+	var segment_w := (bar.size.x - 2.0 - gap * (segments - 1)) / segments
 	var fill_col: Color = warn_col if GameState.tasks_remaining == 1 else stamina_col
 	for i in segments:
-		var cell := Rect2(bar.position + Vector2(2.0 + i * (segment_w + gap), 2.0),
-				Vector2(segment_w, bar.size.y - 4.0))
+		var cell := Rect2(bar.position + Vector2(1.0 + i * (segment_w + gap), 1.0),
+				Vector2(segment_w, bar.size.y - 2.0))
 		if i < filled:
 			draw_rect(cell, fill_col)
 
