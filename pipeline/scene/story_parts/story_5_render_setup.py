@@ -28,7 +28,7 @@ GROUPS = {
     'lantern': kids('10_emergency_lantern'),
     'instruments': kids('08_wall_weather_instruments'),
     'power': kids('04_portable_power_station'),
-    'filter': kids('07_gravity_water_filter'),
+    'filter': kids('07_uv_water_filter'),
     'crates': kids('09_supply_crates'),
     'sandbags': kids('06_sandbag_flood_barrier'),
     'flashlight': kids('11_flashlight'),

@@ -88,10 +88,11 @@
     "inspect_instruments": {
       "style": "monologue",
       "speaker": "INTERNAL MONOLOGUE",
-      "title": "WEATHER GAUGES",
+      "title": "GAUGES",
       "once_flag": "dlg_inspect_instruments_seen",
       "lines": [
-        "BAROMETER AND HYGROMETER. THE NEEDLES ARE PEGGED IN THE RED."
+        "HYGROMETER, BAROMETER, THERMOMETER. THE CABIN'S HUMIDITY, THE STORM'S PRESSURE, THE HEAT.",
+        "THE HUMIDITY'S THE ONE TO WATCH. PAST HALF, THE REEF SALT STARTS PULLING WATER OUT OF THE AIR AND CAKING. WARMER MAKES IT WORSE."
       ]
     },
     "inspect_power": {
@@ -110,7 +111,7 @@
       "title": "WATER FILTER",
       "once_flag": "dlg_inspect_filter_seen",
       "lines": [
-        "GRAVITY WATER FILTER. SLOW DRIP, CLEAN WATER."
+        "UV WATER PURIFIER. RAIN IN, PURE WATER OUT."
       ]
     },
     "inspect_crates": {
@@ -129,6 +130,132 @@
       "once_flag": "dlg_inspect_sandbags_seen",
       "lines": [
         "SANDBAGS STACKED AGAINST FLASH RUNOFF."
+      ]
+    },
+    "leak_noticed": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "title": "THE LEAK",
+      "once_flag": "dlg_leak_seen",
+      "lines": [
+        "WATER'S RUNNING IN UNDER THE WINDOW.",
+        "ONE OF THE SANDBAGS GOT SHOVED UP ONTO THE PILE. THE HOLE IN THE WALL BEHIND IT IS WIDE OPEN.",
+        "I NEED TO PUT THAT BAG BACK BEFORE THE STORM FLOODS THE FLOOR."
+      ]
+    },
+    "sandbag_plugged": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "title": "PLUGGED",
+      "once_flag": "dlg_sandbag_plugged_seen",
+      "lines": [
+        "THERE. BAG'S BACK OVER THE HOLE. THE FLOOR CAN DRY OUT NOW."
+      ]
+    },
+    "filter_shutters_shut": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "title": "UV PURIFIER",
+      "repeatable": true,
+      "lines": [
+        "THE GUTTER ON THE SILL'S DRY. THE SHUTTERS HAVE TO BE OPEN FOR THE RAIN TO BLOW IN ACROSS IT.",
+        "IF IT'S HOT OUT, THE TANK WILL FEEL IT, THOUGH. AND THE DAMP GETS INTO THE SALT."
+      ]
+    },
+    "filter_no_rain": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "title": "UV PURIFIER",
+      "repeatable": true,
+      "lines": [
+        "NO RAIN, NOTHING IN THE GUTTER. NO POINT LETTING THE HEAT IN FOR IT TODAY."
+      ]
+    },
+    "filter_running": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "title": "UV PURIFIER",
+      "repeatable": true,
+      "lines": [
+        "RAIN OFF THE SILL, THROUGH THE CARTRIDGES, PAST THE UV LAMP AND INTO THE JERRYCAN."
+      ]
+    },
+    "filter_intro": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "title": "UV PURIFIER",
+      "once_flag": "dlg_seen_filter_intro",
+      "lines": [
+        "RAIN CATCHER ON THE SILL, A SEDIMENT CARTRIDGE, CARBON, AND A UV LAMP RUNNING OFF THE POWER STATION.",
+        "RAIN'S ALREADY CLOSE TO DISTILLED. THE CARTRIDGES TAKE OUT THE GRIT AND THE SMOKE, THE LAMP KILLS WHATEVER'S LIVING IN IT.",
+        "PURE WATER, THEN. NO SALT IN IT, NOTHING TO HOLD THE PH UP. GOOD FOR TOPPING THE TANK UP, BUT A REEF NEEDS SEAWATER."
+      ]
+    },
+    "jug_filling": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "title": "JERRYCAN",
+      "repeatable": true,
+      "lines": [
+        "NOT FULL YET. IT ONLY FILLS WHILE THE PURIFIER'S RUNNING: SHUTTERS OPEN, RAIN COMING IN."
+      ]
+    },
+    "salt_scoop": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "title": "REEF SALT",
+      "once_flag": "dlg_salt_scoop_seen",
+      "lines": [
+        "REEF SALT MIX. SEA SALT, PLUS THE MAGNESIUM AND CALCIUM AND CARBONATES THAT MAKE SEAWATER SEAWATER.",
+        "THE CARBONATES ARE WHAT HOLD THE PH UP. MIXED INTO PURE WATER ON THE BENCH, THAT'S NEW SEAWATER FOR A WATER CHANGE."
+      ]
+    },
+    "salt_caked": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "title": "CAKED SALT",
+      "once_flag": "dlg_salt_caked_seen",
+      "lines": [
+        "IT'S CAKED. THE DAMP'S GOT INTO THE SACK AND CRUSTED IT INTO LUMPS.",
+        "IT'LL STILL DISSOLVE, JUST SLOWLY. KEEPING THE SHUTTERS SHUT IN THE WET WOULD HAVE KEPT IT DRIER."
+      ]
+    },
+    "tank_water_change": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "title": "WATER CHANGE",
+      "once_flag": "dlg_tank_water_change_seen",
+      "lines": [
+        "TWENTY LITRES OUT, TWENTY OF NEW SEAWATER IN. THE PH COMES UP, AND THERE'S OXYGEN IN IT.",
+        "IT WON'T LAST, THOUGH. AS THE WATER EVAPORATES, THIS AIR PULLS THE PH RIGHT BACK DOWN. IT BUYS TIME, THAT'S ALL."
+      ]
+    },
+    "tank_top_off": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "title": "TOP-OFF",
+      "once_flag": "dlg_tank_top_off_seen",
+      "lines": [
+        "PURE WATER TO REPLACE WHAT EVAPORATED. THE SALT STAYS BEHIND WHEN WATER EVAPORATES, SO THIS BRINGS THE SALINITY BACK DOWN.",
+        "IT DOES NOTHING FOR THE PH, THOUGH. THAT NEEDS THE SALT MIX'S BUFFER."
+      ]
+    },
+    "tank_full": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "title": "TOP-OFF",
+      "repeatable": true,
+      "lines": [
+        "IT'S ALREADY FULL TO THE LINE. IT WOULD JUST SPILL."
+      ]
+    },
+    "bed_leaking": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "title": "NOT YET",
+      "repeatable": true,
+      "lines": [
+        "I CAN'T SLEEP WITH THE STORM RUNNING IN UNDER THE WINDOW. THAT SANDBAG GOES BACK FIRST."
       ]
     },
     "inspect_flashlight": {

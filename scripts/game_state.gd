@@ -7,7 +7,7 @@ signal changed
 signal station_contacted(id: String)
 
 var day := 1
-var flags := {}                            # e.g. "fiche_seen", "window_opened", "took_jar"
+var flags := {}                            # e.g. "fiche_seen", "window_opened", "took_jar", "hole_plugged"
 var stations := {}                         # id -> {callsign, name, lat, lon, problems}, from data/stations.json
 var contacted: Array[String] = []          # station ids, in the order they were reached
 ## everything the player has heard or looked into.
@@ -37,6 +37,13 @@ func flag(name: String) -> bool:
 
 func set_flag(name: String, value := true) -> void:
 	flags[name] = value
+	changed.emit()
+
+
+## Lights out at the hanging lamp (room/pendant.gd): on to the next day. The story, the inventory and
+## the cabin carry over; what each new day brings is still to be decided (issue #36).
+func advance_day() -> void:
+	day += 1
 	changed.emit()
 
 

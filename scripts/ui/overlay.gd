@@ -8,7 +8,10 @@ extends Control
 ##   then any popup sitting under the top one, a full-screen scrim, and the top popup
 ##   (the microfiche, the cabin log, the dialogue box, or the F9 menu). Clicks never pass
 ##   through the scrim.
-##   a red ! above the radio when a transmission is waiting, or the radio is the next story step
+##   a red ! above the radio when a transmission is waiting, or the radio is the next story step,
+##   and above the sandbags while the storm runs in through the hole under the window
+##   the day and the temperature outside, in the top-left corner (in the room, not the close-ups)
+##   the black of a night passing, with the new day's card (room/pendant.gd)
 ##   the cursor (arrow, or hand over anything clickable) with the held item on it
 ##
 ## Panels: at most one is open at a time (`panel`): "fiche" (the microfiche) or "journal"
@@ -28,6 +31,9 @@ const RESULT_SCALE := 3                 # the result's 12x12 icon, drawn 3x
 const PANEL_OPEN_FRAMES := 6.0
 const PANEL_CLOSE_FRAMES := 4.0
 const RIPPLE_FRAMES := 7.0
+const HUD_AT := Vector2(6, 6)           # the day / temperature box's top-left corner
+const THERMO_MIN := 20.0                # degC at the thermometer icon's empty and full marks
+const THERMO_MAX := 45.0
 ## explicit red, not the amber "new" chip: this one means "the story is waiting on the radio"
 const ALERT := Color8(214, 36, 28)
 ## full-screen dim behind whichever popup is on top (dialogue, the map, the journal, the debug menu).
@@ -126,7 +132,7 @@ func _hover_label(text: String, cur: Vector2) -> void:
 func over_ui(p: Vector2) -> bool:
 	if top_modal() != "":
 		return true
-	return inventory.slot_at(p) >= 0 or _over_back(p) or _over_result(p) \
+	return inventory.slot_at(p) >= 0 or _over_back(p) or _over_result(p) or main.workbench.slot_at(p) >= 0 \
 			or main.radio_repair.slot_at(p) != "" or main.tank_panel.over(p)
 
 
@@ -204,6 +210,7 @@ func _draw() -> void:
 		_chevron(-1, push < -0.5, now)
 	elif push > 0.0:
 		_chevron(1, push > 0.5, now)
+	_draw_hud()
 
 	# close-ups and the inventory stay on screen under a popup, but they don't highlight or take clicks
 	var top := top_modal()
@@ -259,6 +266,7 @@ func _draw() -> void:
 		_scrim()
 	if top == "" or top == "dialogue":
 		_draw_radio_alert(now)
+		_draw_leak_alert(now)
 	if top == "fiche":
 		var sc := panel_scale()
 		microfiche.draw(sc, cur)
@@ -281,8 +289,10 @@ func _draw() -> void:
 		dialogue.draw(now, cur)
 		ui_hover = true
 
+	_draw_night()
+
 	# the cursor: a hand over anything clickable, pressed in while a click is fresh
-	var hand: bool = ui_hover or (live and (hover != "" or inventory.held != null or craft.hover_cell != craft.NO_CELL))
+	var hand: bool = ui_hover or (live and (hover != "" or inventory.held != null))
 	var hs: Array = _hotspots["hand" if hand else "arrow"]
 	var pressed: bool = main.clicking()
 	var at := cur - Vector2(hs[0], hs[1]) + Vector2(0, 1 if pressed else 0)
@@ -362,22 +372,28 @@ func _draw_radio_slots(cur: Vector2, live: bool) -> String:
 	return label
 
 
-## the crafting view's UI: the items lying on the mat, the hovered cell (2 px white on its grid
-## lines, inked outside) and the result slot (empty until the mat holds a recipe; crafting/crafting.gd).
-## Returns the hover label.
+## the crafting view's UI, one plus one (crafting/crafting.gd): two slots on the mat with a + between
+## them, an = and the result slot right of the mat (empty until the two make something; clicking it
+## makes it). Returns the hover label.
 func _draw_crafting(craft, cur: Vector2, live: bool) -> String:
 	var bench = main.workbench
 	var label := ""
-	for cell: Vector2i in bench.placed:
-		inventory.draw_icon(bench.placed[cell], Vector2(craft.cell_rect(cell).position) + Vector2(5, 5))
-	if live and craft.hover_cell != craft.NO_CELL:
-		var cr := Rect2(craft.cell_rect(craft.hover_cell))
-		Px.frame(self, cr.grow(1), Px.INK)
-		Px.frame(self, cr, Px.WHITE)
-		Px.frame(self, cr.grow(-1), Px.WHITE)
-		var on: ItemData = bench.item_at(craft.hover_cell)
-		if on != null and inventory.held == null:
-			label = "TAKE " + on.name
+	for i in bench.SLOTS.size():
+		var r: Rect2 = bench.SLOTS[i]
+		var hot: bool = live and r.has_point(cur)
+		draw_rect(r, panel_col)
+		Px.frame(self, r.grow(1), Px.INK)
+		Px.frame(self, r, Px.WHITE if hot else panel_hi)
+		var it: ItemData = bench.slots[i]
+		if it != null and it.icon != null:
+			draw_texture_rect(it.icon, Rect2(r.position + (r.size - Vector2(36, 36)) / 2.0, Vector2(36, 36)), false)
+		elif it != null:
+			Px.text(self, "?", r.get_center() - Vector2(2, 3), Px.WHITE, Px.INK)
+		if hot:
+			label = bench.slot_label(i, inventory.held)
+	var mid: float = bench.SLOTS[0].get_center().y
+	_sign("+", Vector2((bench.SLOTS[0].end.x + bench.SLOTS[1].position.x) / 2.0, mid))
+	_sign("=", Vector2((bench.SLOTS[1].end.x + RESULT.position.x) / 2.0, mid))
 	var out: String = bench.result()
 	var hot := live and out != "" and RESULT.has_point(cur)
 	draw_rect(RESULT, panel_col)
@@ -391,8 +407,19 @@ func _draw_crafting(craft, cur: Vector2, live: bool) -> String:
 		else:
 			Px.text(self, "?", RESULT.get_center() - Vector2(2, 3), Px.WHITE, Px.INK)
 		if hot:
-			label = "MAKE " + item.name
+			var wait: float = bench.ready_frames(out)
+			label = "MAKE " + item.name + (" (CAKED SALT: SLOW TO DISSOLVE)" if wait > 0.0 else "")
 	return label
+
+
+## a + or = between the crafting slots, drawn 2x in a dark box so it reads on the mat
+func _sign(s: String, c: Vector2) -> void:
+	var r := Rect2((c - Vector2(8, 9)).floor(), Vector2(17, 17))
+	draw_rect(r, panel_col)
+	Px.frame(self, r, Px.INK)
+	draw_set_transform(r.position + Vector2(4, 2), 0.0, Vector2(2, 2))
+	Px.text(self, s, Vector2.ZERO, Px.WHITE, Px.INK)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
 ## a red ! sign pointing straight down at the radio. Story guidance only: an incoming call, or the
@@ -405,6 +432,65 @@ func _draw_radio_alert(now: float) -> void:
 	var bob := int(fmod(now / 8.0, 2.0))
 	var tip := Vector2i(int(clampf(top.x, 7.0, Px.W - 8.0)), int(clampf(top.y - 3.0 - bob, 16.0, Px.H - 4.0)))
 	_alert_badge(tip)
+
+
+## the same sign over the sandbag pile while water runs in through the hole behind it (room/leak.gd)
+func _draw_leak_alert(now: float) -> void:
+	if not main.interactions.leak_alert():
+		return
+	var top: Vector2 = main.picker.screen_top("sandbags")
+	var bob := int(fmod(now / 8.0, 2.0))
+	_alert_badge(Vector2i(int(clampf(top.x, 7.0, Px.W - 8.0)), int(clampf(top.y - 3.0 - bob, 16.0, Px.H - 4.0))))
+
+
+## the top-left box: the day, and the temperature outside with a little thermometer. The
+## temperature turns orange when it is hotter outside than the reef tank's water, the cue that an
+## open window will warm the tank (tank/tank_water.gd). Hidden on the title screen and in close-ups,
+## where BACK sits in that corner.
+func _draw_hud() -> void:
+	if main.landing_active or main.active_view() != null:
+		return
+	var day := "DAY %d" % GameState.day
+	var outside: float = main.weather.temperature()
+	var deg := "%d" % roundi(outside)
+	var hot: bool = outside > main.tank_panel.readings[0].value
+	var w := maxi(Px.text_width(day), 8 + Px.text_width(deg) + 4 + Px.text_width("C")) + 10
+	var r := Rect2(HUD_AT, Vector2(w, 27))
+	draw_rect(r, panel_col)
+	Px.frame(self, r.grow(1), Px.INK)
+	Px.frame(self, r, panel_hi)
+	Px.text(self, day, r.position + Vector2(5, 4), Px.WHITE, Px.INK)
+	# the thermometer: a glass stem over a red bulb, filled to the temperature
+	var at := r.position + Vector2(5, 15)
+	draw_rect(Rect2(at + Vector2(0, -1), Vector2(5, 10)), Px.INK)
+	draw_rect(Rect2(at + Vector2(2, 0), Vector2(1, 6)), Px.GREY)
+	var fill := int(round(5.0 * clampf((outside - THERMO_MIN) / (THERMO_MAX - THERMO_MIN), 0.0, 1.0)))
+	draw_rect(Rect2(at + Vector2(2, 6 - fill), Vector2(1, fill)), ALERT)
+	draw_rect(Rect2(at + Vector2(1, 5), Vector2(3, 3)), ALERT)
+	var col := warn_col if hot else Px.WHITE
+	var tx := at.x + 8
+	Px.text(self, deg, Vector2(tx, at.y), col, Px.INK)
+	tx += Px.text_width(deg) + 1
+	draw_rect(Rect2(tx, at.y - 1, 5, 5), Px.INK)          # a degree sign: the font has none
+	Px.frame(self, Rect2(tx + 1, at.y, 3, 3), col)
+	Px.text(self, "C", Vector2(tx + 5, at.y), col, Px.INK)
+
+
+## lights out (room/pendant.gd): the room fades to black in steps, the new day's number shows big
+## in the middle, and the morning fades back in
+func _draw_night() -> void:
+	var dark: float = main.pendant.blackout()
+	if dark <= 0.0:
+		return
+	draw_rect(Rect2(0, 0, Px.W, Px.H), Color(Px.INK, snappedf(dark, 0.25)))
+	var c: float = main.pendant.card()
+	if c <= 0.0:
+		return
+	var s := "DAY %d" % GameState.day
+	var at := Vector2(floorf((Px.W - 2 * Px.text_width(s)) / 2.0), floorf(Px.H / 2.0 - 7.0))
+	draw_set_transform(at, 0.0, Vector2(2, 2))
+	Px.text(self, s, Vector2.ZERO, Color(1, 1, 1, snappedf(c, 0.25)), Px.INK)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
 ## half-widths of the alert sign's rows, top to bottom: a 9 x 11 sign with clipped corners, then a

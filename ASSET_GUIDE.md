@@ -61,13 +61,13 @@ back faces are culled, and the outline hull relies on them.
 (`scripts/views/crafting_view.gd`). That view is **4 px per cm** (480 px = 1.2 m), and the mat texture
 (`pipeline/scene/make_mat.py`) is drawn one texel per screen pixel, so its 5 cm grid cells are exact 20 px squares,
 the size of an inventory slot. The grid is 12x7 cells. To change it, edit `make_mat.py` and re-export;
-Godot reads the size, centre and grid from the `craft` block in `scene_meta.json`.
+Godot reads the size, centre and grid from the `craft` block in `scene_meta.json`. The mat is the backdrop only:
+crafting is one plus one in two UI slots drawn over it (`scripts/crafting/crafting.gd`).
 - Keep the bench's middle clear: the mat sits between the ham radio and the papers, the lantern is in the back-right
   corner, and the flashlight rides on the power station.
 - Nothing tall goes in front of something you need to see: the camera looks almost level, so a prop at the front
   of the bench hides whatever is behind it up to its own height. That's why the radio sits right of the vice, not
   behind it, and it stays under 30 cm because the weather-gauge board hangs above it.
-- Pieces built on the mat should be about one cell (5 cm) across. Use `crafting.cell_world(cell)` to place them.
 - The mat has no outline hull, so it isn't dimmed like other props.
 
 **Close-up views.** The crafting table and the ham radio are close-ups: the camera eases from the room into

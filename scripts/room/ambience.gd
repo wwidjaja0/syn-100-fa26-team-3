@@ -66,7 +66,8 @@ func setup(main: Node, lights: Node3D, materials: Node, lantern: OmniLight3D, co
 
 func update() -> void:
 	var clock: float = _main.clock
-	_materials.set_param("storm_window_emit", "sky_w", clock * 2.2 / 600.0)          # storm drift
+	for sky in ["storm_window_emit", "wall_hole_view"]:                              # storm drift
+		_materials.set_param(sky, "sky_w", clock * 2.2 / 600.0)
 	_materials.set_param("pa_led", "emission_energy", 6.0 + 3.0 * sin(clock * 0.21))
 	# slow and faint on purpose: a fast or strong flicker makes the toon light bands jump
 	var n := sin(clock * 0.045) * 0.6 + sin(clock * 0.11 + 1.7) * 0.4

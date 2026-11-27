@@ -29,6 +29,10 @@ const VIEW_PITCH := -6.0                # degrees: where the window's centre loo
 ## from the left end of the room it looks out over the sea.
 const VIEW_AHEAD_X := -1.0
 const VIEW_HAZE_M := 30000.0            # make_window_view.py's HAZE_M: what the panorama's alpha means
+## the hole in the wall under the window is small: it sees a wider, lower slice of the same view, so
+## the coast and the land still show through it
+const HOLE_VIEW_ZOOM := 1.4
+const HOLE_VIEW_PITCH := -11.0          # degrees
 ## In Blender the outline shells also shadowed the props inside them, which gave the video its dark,
 ## moody props; in Godot outlined props get only this share of direct light to match.
 const PROP_DIRECT_LIGHT := 0.12
@@ -219,7 +223,7 @@ func _make(name: String, src: Material, compat: bool) -> ShaderMaterial:
 			m.set_shader_parameter("emission", color)
 		"sky":
 			m.set_shader_parameter("kind", 3)
-			_set_window_view(m)
+			_set_window_view(m, name)
 	for prefix: String in STATUS_LIGHTS:
 		if name.begins_with(prefix):
 			var led: Color = STATUS_LIGHTS[prefix].srgb_to_linear()
@@ -238,19 +242,26 @@ func _make(name: String, src: Material, compat: bool) -> ShaderMaterial:
 	return m
 
 
-## the window's view: where the panorama sits behind the window and how it swings as the room pans
-func _set_window_view(m: ShaderMaterial) -> void:
+## the window's view: where the panorama sits behind the window and how it swings as the room pans.
+## The hole in the wall under the window ("wall_hole_view") gets the same view, centred on itself.
+func _set_window_view(m: ShaderMaterial, name: String) -> void:
 	var v: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(WINDOW_VIEW_META))
 	var w: Array = _meta.points.window
+	var zoom := VIEW_ZOOM
+	var pitch := VIEW_PITCH
+	if name == "wall_hole_view" and _meta.points.get("hole") != null:
+		w = _meta.points.hole
+		zoom = HOLE_VIEW_ZOOM
+		pitch = HOLE_VIEW_PITCH
 	var cam: Dictionary = _meta.camera
 	var window := Vector3(w[0], w[1], w[2])
 	m.set_shader_parameter("use_view", true)
 	m.set_shader_parameter("window_view", WINDOW_VIEW)
 	m.set_shader_parameter("window_depth", WINDOW_DEPTH)
 	m.set_shader_parameter("view_window", window)
-	m.set_shader_parameter("view_zoom", VIEW_ZOOM)
-	m.set_shader_parameter("view_yaw", -atan2(window.x - VIEW_AHEAD_X, cam.pos_z - window.z) * VIEW_ZOOM)
-	m.set_shader_parameter("view_pitch", deg_to_rad(VIEW_PITCH))
+	m.set_shader_parameter("view_zoom", zoom)
+	m.set_shader_parameter("view_yaw", -atan2(window.x - VIEW_AHEAD_X, cam.pos_z - window.z) * zoom)
+	m.set_shader_parameter("view_pitch", deg_to_rad(pitch))
 	m.set_shader_parameter("view_frame", Vector3(deg_to_rad(v.hfov_deg), deg_to_rad(v.pitch_top_deg), deg_to_rad(v.pitch_bottom_deg)))
 	m.set_shader_parameter("view_depth", Vector3(v.depth_near_m, v.depth_far_m, v.depth_top_m))
 	m.set_shader_parameter("view_haze_m", VIEW_HAZE_M)

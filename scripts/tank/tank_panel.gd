@@ -16,14 +16,18 @@ signal changed
 const SLOTS := 3
 const SLOT := 28                        # slot side, px (the 12x12 icon is drawn 2x inside)
 const SLOT_GAP := 8
-const PANEL := Rect2(304, 30, 168, 206) # the panel, right of the tank on the 480x270 screen
-const ROW := 40                         # px per reading row
+const PANEL := Rect2(304, 10, 168, 250) # the panel, right of the tank on the 480x270 screen
+const ROW := 36                         # px per reading row
 
 ## name, value, unit (printf format), bar range, safe band, how far the live value wanders
 var readings := [
 	{"name": "WATER TEMP", "value": 31.4, "format": "%.1f C", "min": 20.0, "max": 34.0, "safe": [24.0, 29.0], "drift": 0.12},
 	{"name": "PH", "value": 7.74, "format": "%.2f", "min": 7.4, "max": 8.4, "safe": [8.0, 8.3], "drift": 0.01},
 	{"name": "OXYGEN", "value": 3.6, "format": "%.1f MG/L", "min": 0.0, "max": 9.0, "safe": [5.0, 9.0], "drift": 0.08},
+	# a saltwater reef: natural seawater is about 35 parts per thousand. Evaporation leaves the salt
+	# behind, so it climbs as the level drops (tank/tank_water.gd)
+	{"name": "SALINITY", "value": 35.1, "format": "%.1f PPT", "min": 30.0, "max": 42.0, "safe": [33.0, 36.0], "drift": 0.02},
+	{"name": "WATER LEVEL", "value": 97.0, "format": "%d%%", "min": 70.0, "max": 100.0, "safe": [92.0, 100.0], "drift": 0.0},
 ]
 var contents: Array = []                # one ItemData (or null) per slot
 

@@ -111,7 +111,7 @@ Use `GameState` (`scripts/game_state.gd`), an autoload you can reach from any sc
 ```gdscript
 GameState.set_flag("radio_fixed")        # emits GameState.changed
 if GameState.flag("radio_fixed"): ...
-GameState.day += 1
+GameState.advance_day()                  # day += 1, emits GameState.changed (the hanging lamp does this)
 ```
 
 Name flags as plain facts (`window_opened`, `took_jar`). Things the player carries go through `InventoryManager`, not
@@ -179,11 +179,13 @@ path clear of the pendant lamp (see the asset guide).
 
 1. Make sure every ingredient and the result are items (see [Add an inventory item](#add-an-inventory-item)). The
    result needs an icon: it's shown 3x in the result slot.
-2. Add a line to `RECIPES` in `scripts/crafting/crafting.gd`, the result's item id → its ingredients' ids:
+2. Add a line to `RECIPES` in `scripts/crafting/crafting.gd`, the result's item id → its two ingredients' ids
+   (crafting is one plus one; either order works):
    ```gdscript
    "cig": ["jar", "papers"],
    ```
-   Where the items sit on the mat doesn't matter, but the mat must hold exactly these items, no more.
+   A bigger thing is built a step at a time: make `xy` from `x` and `y`, then `xyz` from `xy` and `z`.
+   If the result should take time before it's usable, return the frames from `ready_frames(out)`.
 3. To react to it being made, check the flag `crafted_<id>` (`GameState.flag("crafted_cig")`) or connect to
    `main.workbench.crafted`.
 
@@ -207,11 +209,11 @@ Both views stop at "the player clicked here". They emit signals, so the game log
 
 | View | Signals |
 |---|---|
-| `crafting_view.gd` | `cell_hovered(cell)`, `cell_clicked(cell, held)`; `cell_world(cell)` gives a cell's 3D centre for placing a piece; the grid is 12x7 cells of 5 cm |
+| `crafting_view.gd` | `clicked(p, held)`: a click anywhere in the settled view (the crafting slots are drawn over the mat) |
 | `radio_view.gd` | `clicked(cursor, held)`; `screen_point(world)` maps a 3D point to the screen |
 
 Crafting is built this way: `scripts/crafting/crafting.gd` (`main.workbench`) runs
-`main.crafting.cell_clicked.connect(_on_cell_clicked)` in its `setup()`. See "Crafting" in
+`main.crafting.clicked.connect(_on_clicked)` in its `setup()`. See "Crafting" in
 [`ARCHITECTURE.md`](ARCHITECTURE.md).
 
 ## Add a kind of weather

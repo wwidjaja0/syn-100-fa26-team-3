@@ -32,7 +32,7 @@ func commands() -> Array:
 		["6", "CLEAR INVENTORY", _clear_inventory],
 		["7", "OPEN / CLOSE SHUTTERS", func(): _main.shutters.toggle(); say("SHUTTERS")],
 		["8", "OPEN / CLOSE CABINET", func(): _main.cabinet.toggle(); say("CABINET")],
-		["9", "NEXT DAY", func(): GameState.day += 1; say("DAY %d" % GameState.day)],
+		["9", "NEXT DAY", func(): GameState.advance_day(); say("DAY %d" % GameState.day)],
 		["W", "WEATHER: " + _main.weather.current.to_upper() + " (NEXT)", _next_weather],
 		["0", "LIGHT UP RADIO SIGNAL" if GameState.flag("radio_fixed") else "FIX THE RADIO", _trigger_radio_chatter],
 	]
