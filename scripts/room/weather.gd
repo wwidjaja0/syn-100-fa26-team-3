@@ -29,6 +29,8 @@ const TUTORIAL_DAYS := 1
 ## heat: how hot the room gets with the shutters open a while (0..1, the post shader's heat haze round
 ## the screen's edges); heat_in: how much still gets in with them shut. temp: the temperature outside,
 ## degC (the top-left corner shows it; above the tank's, an open window warms the tank: tank/tank_water.gd).
+## humid: the relative humidity outside, 0..1 (room/cabin_climate.gd lets it in through the open window,
+## where it cakes the reef salt).
 ## rain also sets how fast water runs in through the hole under the window (room/leak.gd) and how hard
 ## the water filter runs (room/water_filter.gd).
 const PRESETS := {
@@ -37,21 +39,21 @@ const PRESETS := {
 		"sky_top": Vector3(0.05, 0.12, 0.30), "sky_low": Vector3(0.20, 0.35, 0.55),
 		"vis": 30000.0, "haze": Vector3(0.20, 0.30, 0.45), "land": Vector3(1.0, 1.0, 1.0),
 		"fog": 0.0, "fog_top": 300.0, "fog_col": Vector3(0.5, 0.55, 0.62),
-		"rain": 0.55, "lightning": 4.0, "light": Vector3(1.0, 1.0, 1.0), "heat": 0.45, "heat_in": 0.0, "temp": 33.0,
+		"rain": 0.55, "lightning": 4.0, "light": Vector3(1.0, 1.0, 1.0), "heat": 0.45, "heat_in": 0.0, "temp": 33.0, "humid": 0.95,
 	},
 	"rain": {
 		"cover": 1.0, "storm": 0.0, "cloud": Vector3(0.16, 0.19, 0.24),
 		"sky_top": Vector3(0.10, 0.12, 0.16), "sky_low": Vector3(0.20, 0.23, 0.28),
 		"vis": 9000.0, "haze": Vector3(0.17, 0.20, 0.25), "land": Vector3(0.75, 0.8, 0.85),
 		"fog": 0.0, "fog_top": 250.0, "fog_col": Vector3(0.4, 0.44, 0.5),
-		"rain": 1.0, "lightning": 0.0, "light": Vector3(0.55, 0.6, 0.65), "heat": 0.12, "heat_in": 0.0, "temp": 28.0,
+		"rain": 1.0, "lightning": 0.0, "light": Vector3(0.55, 0.6, 0.65), "heat": 0.12, "heat_in": 0.0, "temp": 28.0, "humid": 0.97,
 	},
 	"overcast": {
 		"cover": 1.0, "storm": 0.0, "cloud": Vector3(0.30, 0.33, 0.38),
 		"sky_top": Vector3(0.25, 0.28, 0.33), "sky_low": Vector3(0.40, 0.43, 0.48),
 		"vis": 22000.0, "haze": Vector3(0.36, 0.39, 0.44), "land": Vector3(0.9, 0.92, 0.95),
 		"fog": 0.0, "fog_top": 250.0, "fog_col": Vector3(0.6, 0.63, 0.68),
-		"rain": 0.0, "lightning": 0.0, "light": Vector3(0.75, 0.78, 0.8), "heat": 0.35, "heat_in": 0.05, "temp": 34.0,
+		"rain": 0.0, "lightning": 0.0, "light": Vector3(0.75, 0.78, 0.8), "heat": 0.35, "heat_in": 0.05, "temp": 34.0, "humid": 0.75,
 	},
 	# the Oregon coast's summer fog: the sea and the valleys under a bright layer of cloud, the
 	# ridges and the summit above it in sun
@@ -60,14 +62,14 @@ const PRESETS := {
 		"sky_top": Vector3(0.05, 0.20, 0.70), "sky_low": Vector3(0.18, 0.40, 0.85),
 		"vis": 60000.0, "haze": Vector3(0.30, 0.48, 0.80), "land": Vector3(1.25, 1.2, 1.1),
 		"fog": 1.0, "fog_top": 120.0, "fog_col": Vector3(0.72, 0.69, 0.64),
-		"rain": 0.0, "lightning": 0.0, "light": Vector3(1.4, 1.3, 1.1), "heat": 0.3, "heat_in": 0.0, "temp": 26.0,
+		"rain": 0.0, "lightning": 0.0, "light": Vector3(1.4, 1.3, 1.1), "heat": 0.3, "heat_in": 0.0, "temp": 26.0, "humid": 0.98,
 	},
 	"clear": {
 		"cover": 0.3, "storm": 0.0, "cloud": Vector3(0.85, 0.88, 0.92),
 		"sky_top": Vector3(0.06, 0.25, 0.75), "sky_low": Vector3(0.45, 0.65, 0.90),
 		"vis": 70000.0, "haze": Vector3(0.45, 0.62, 0.85), "land": Vector3(1.35, 1.3, 1.15),
 		"fog": 0.0, "fog_top": 200.0, "fog_col": Vector3(0.9, 0.92, 0.95),
-		"rain": 0.0, "lightning": 0.0, "light": Vector3(1.6, 1.4, 1.1), "heat": 0.8, "heat_in": 0.2, "temp": 41.0,
+		"rain": 0.0, "lightning": 0.0, "light": Vector3(1.6, 1.4, 1.1), "heat": 0.8, "heat_in": 0.2, "temp": 41.0, "humid": 0.35,
 	},
 	# smoke blown in from inland fires: a brown-orange sky, the sun a dull disc, the coast fading out
 	"wildfire smoke": {
@@ -75,7 +77,7 @@ const PRESETS := {
 		"sky_top": Vector3(0.35, 0.16, 0.06), "sky_low": Vector3(0.80, 0.42, 0.12),
 		"vis": 7000.0, "haze": Vector3(0.62, 0.33, 0.12), "land": Vector3(0.95, 0.65, 0.45),
 		"fog": 0.0, "fog_top": 200.0, "fog_col": Vector3(0.7, 0.45, 0.25),
-		"rain": 0.0, "lightning": 0.0, "light": Vector3(1.3, 0.7, 0.35), "heat": 0.95, "heat_in": 0.3, "temp": 44.0,
+		"rain": 0.0, "lightning": 0.0, "light": Vector3(1.3, 0.7, 0.35), "heat": 0.95, "heat_in": 0.3, "temp": 44.0, "humid": 0.30,
 	},
 }
 const SKY_MATS := ["storm_window_emit", "wall_hole_view"]   # the window, and the hole under it
@@ -118,6 +120,11 @@ func heat(open: float) -> float:
 ## the temperature outside now, degC (cross-fades with the weather)
 func temperature() -> float:
 	return _now.temp
+
+
+## the relative humidity outside now, 0..1
+func humidity() -> float:
+	return _now.humid
 
 
 ## how hard it is raining now, 0..1

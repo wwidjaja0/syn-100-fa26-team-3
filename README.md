@@ -36,7 +36,7 @@ You don't need Blender or Python unless you change the room, the props or the ge
 | Left click | Use the UI if the cursor is on it; otherwise act on the object under the cursor. |
 | Cursor at the left / right edge, or A / D, ← / → | Look around (pan the room). Taking the mouse right off the window's side pans at full speed. |
 | Click an inventory slot | Hold that item on the cursor. Then click something in the room to use the item on it. |
-| Drag from an inventory slot | The same in one move: let go over the target (a room object, a mat cell, a radio slot). |
+| Drag from an inventory slot | The same in one move: let go over the target (a room object, a crafting slot, a radio slot). |
 | Right click | Put the held item back. Otherwise step back one level (out of a map zoom, then out of the map or a close-up). |
 | Esc | Put the held item back, then go straight back to the room. From the room, open the pause / settings menu. |
 | J or L | Open or close the cabin log (everything heard or looked into so far). |
@@ -58,12 +58,17 @@ What's in the room so far:
   the hole in the wall behind it open: water spills out over the bottom row and a puddle spreads across the floor
   (`scripts/room/leak.gd`). Once the cabin points it out, a red ! marks the sandbags; click them to drop the bag
   back in. You can't end the day until you do.
-- **Water filter:** a two-bucket gravity filter beside the hole. With the bag back in, click it to run its intake
-  out through the hole in the bag's place (`scripts/room/water_filter.gd`). It only runs with the shutters open
-  (the sealed top bucket needs air to drain) and while it's raining; then it drips into the water jug on the floor
-  beside it. Click the full jug to take it (CLEAN WATER). Put in one of the reef tank's slots, it's a water change
-  that eases the tank's pH and oxygen toward safe, and the empty jug goes back under the tap
-  (`scripts/tank/tank_water.gd`). Opening the shutters while it's hotter outside than the tank warms the tank's water.
+- **UV purifier:** under the window's left end, fed by a rain catcher hung on the sill: with the shutters open the
+  storm blows in across the sill and runs off into it. It runs while they're open and it's raining (its UV window
+  glows), filtering the rain (sediment, carbon, UV-C) into a jerrycan beside it (`scripts/room/water_filter.gd`).
+  Click the full jerrycan to take PURE WATER.
+- **Reef salt:** an open sack right of the supply cabinet; click it for a scoop of REEF SALT. It cakes in damp, warm
+  air (`scripts/room/salt_bag.gd`); the gauges above the workbench show the cabin's humidity and temperature
+  (`scripts/room/cabin_climate.gd`, hover them for the numbers). Caked salt still works but dissolves slowly.
+- **The reef's water** (`scripts/tank/tank_water.gd`): it evaporates, faster when warm and dry, so the level drops
+  and the salinity climbs, and the pH and oxygen drift back toward where the cabin's air holds them. In the tank's
+  slots, PURE WATER tops the level back up; SALTWATER (pure water + reef salt on the workbench) is a water change
+  that brings the pH and oxygen up, for a while. A warmer cabin (shutters open in hot weather) warms the tank.
 - **Day and temperature** (top left): the day, and the temperature outside with the weather (orange when it's
   hotter outside than the tank, so an open window will warm it).
 - **Hanging lamp:** its pull chain is lights out: the room goes dark, the next day's card shows, and the morning
@@ -73,10 +78,11 @@ What's in the room so far:
   battery standing in a charging dock on a crate, left of the power station: the dock's light blinks green while
   it charges and stays green once it's full. The ham radio has a red light: dark while it's broken, red once it
   has power, blinking while a call waits.
-- **Workbench:** the crafting view, looking straight down on the cutting mat. Hold an item and click a cell to put it
-  on the mat; click it again to take it back. When the mat holds exactly a recipe's ingredients, the result appears in
-  the big slot right of the mat; click it to make it. There are no recipes yet (`RECIPES` in
-  `scripts/crafting/crafting.gd`).
+- **Workbench:** the crafting view, looking straight down on the cutting mat. Crafting is one plus one: put two
+  things in the two slots (hold one and click a slot, or drag it); click a slot again to take it back. When the two
+  make something, it appears in the big slot right of the mat; click it to make it. PURE WATER + REEF SALT make
+  SALTWATER. Made with caked salt, the saltwater sits in the inventory with a progress bar until it has dissolved
+  (`RECIPES` in `scripts/crafting/crafting.gd`).
 - **Ham radio:** while it's broken, clicking it opens a close-up of the rig. The player's thoughts on it play and the
   close-up shows two square slots, SPEAKER (over the empty speaker hole) and BATTERY (over the power supply). Drag
   the PA speaker and the battery into them (or hold one and click its slot); click a filled slot to take the part
@@ -116,13 +122,14 @@ scripts/
   main.gd                           the root node: builds the parts below, runs them each frame, routes input
   game_state.gd                     autoload GameState: day, story flags, radio stations reached, map reveals
   room/                             the 3D room: materials, hover picking, interactions, shutters, cabinet,
-                                    ambience, weather, the leak and the water filter, the hanging lamp,
+                                    ambience, weather, the leak, the UV purifier, the salt, the cabin's
+                                    air and its gauges, the hanging lamp,
                                     camera, post-processing
   views/                            close-up camera views: the crafting table and the ham radio
-  crafting/                         the crafting rules: what's on the mat, the recipes, making things
+  crafting/                         the crafting rules: one plus one, the recipes, making things
   radio/                            fixing the radio: the close-up's speaker and battery slots
   tank/                             the reef tank close-up's panel (live readings, item slots) and what the
-                                    open window and the water filter do to its water
+                                    tank's water: warming, evaporation, top-offs and water changes
   ui/                               the pixel UI: overlay, inventory bar, drawing helpers
     microfiche/                     the microfiche map panel and its sheets/zoom maths
   inventory/                        autoload InventoryManager and the ItemData / InventoryData resources
@@ -130,7 +137,8 @@ scripts/
 shaders/
   toon.gdshader                     every 3D surface, plus the object-id mask pass
   post.gdshader                     toon banding, dither, 42-colour palette, hover outline, heat
-items/                              one ItemData .tres per item (jar, papers, cig, speaker, battery, water_jug)
+items/                              one ItemData .tres per item (jar, papers, cig, speaker, battery,
+                                    pure_water, salt, saltwater)
 data/stations.json                  radio stations and the map areas printed at the start (placeholders)
 assets/                             shelter.glb (the room), scene_meta.json, palette.json   [generated]
 ui/                                 font, cursors, item icons, microfiche sheets            [generated]

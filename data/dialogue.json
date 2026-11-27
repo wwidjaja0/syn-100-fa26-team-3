@@ -88,10 +88,11 @@
     "inspect_instruments": {
       "style": "monologue",
       "speaker": "INTERNAL MONOLOGUE",
-      "title": "WEATHER GAUGES",
+      "title": "GAUGES",
       "once_flag": "dlg_inspect_instruments_seen",
       "lines": [
-        "BAROMETER AND HYGROMETER. THE NEEDLES ARE PEGGED IN THE RED."
+        "HYGROMETER, BAROMETER, THERMOMETER. THE CABIN'S HUMIDITY, THE STORM'S PRESSURE, THE HEAT.",
+        "THE HUMIDITY'S THE ONE TO WATCH. PAST HALF, THE REEF SALT STARTS PULLING WATER OUT OF THE AIR AND CAKING. WARMER MAKES IT WORSE."
       ]
     },
     "inspect_power": {
@@ -110,7 +111,7 @@
       "title": "WATER FILTER",
       "once_flag": "dlg_inspect_filter_seen",
       "lines": [
-        "GRAVITY WATER FILTER. SLOW DRIP, CLEAN WATER."
+        "UV WATER PURIFIER. RAIN IN, PURE WATER OUT."
       ]
     },
     "inspect_crates": {
@@ -148,74 +149,75 @@
       "title": "PLUGGED",
       "once_flag": "dlg_sandbag_plugged_seen",
       "lines": [
-        "THERE. BAG'S BACK OVER THE HOLE. THE FLOOR CAN DRY OUT NOW.",
-        "SHAME TO WASTE ALL THAT RAIN, THOUGH. THE FILTER'S INTAKE WOULD FIT THROUGH THERE."
-      ]
-    },
-    "filter_hole_open": {
-      "style": "monologue",
-      "speaker": "INTERNAL MONOLOGUE",
-      "title": "WATER FILTER",
-      "repeatable": true,
-      "lines": [
-        "NOT WITH WATER POURING IN UNDER THE WINDOW. THE SANDBAG GOES BACK IN THAT HOLE FIRST."
-      ]
-    },
-    "filter_installed": {
-      "style": "monologue",
-      "speaker": "INTERNAL MONOLOGUE",
-      "title": "WATER FILTER",
-      "once_flag": "dlg_filter_installed_seen",
-      "lines": [
-        "INTAKE OUT THROUGH THE HOLE, A RUBBER BOOT AND SOME RAGS AROUND IT. THE BAG CAN SIT ON THE PILE.",
-        "THE RAIN RUNS IN, DRIPS THROUGH THE CERAMIC CANDLES, AND OUT OF THE TAP INTO THE JUG.",
-        "THE TOP BUCKET'S SEALED TO THE INTAKE, THOUGH. IT ONLY DRAINS WITH THE SHUTTERS OPEN TO LET AIR IN."
+        "THERE. BAG'S BACK OVER THE HOLE. THE FLOOR CAN DRY OUT NOW."
       ]
     },
     "filter_shutters_shut": {
       "style": "monologue",
       "speaker": "INTERNAL MONOLOGUE",
-      "title": "WATER FILTER",
+      "title": "UV PURIFIER",
       "repeatable": true,
       "lines": [
-        "IT JUST GURGLES. NO AIR GETTING IN - THE SHUTTERS HAVE TO BE OPEN FOR IT TO DRAIN.",
-        "IF IT'S HOT OUT, THE TANK WILL FEEL IT, THOUGH."
+        "THE GUTTER ON THE SILL'S DRY. THE SHUTTERS HAVE TO BE OPEN FOR THE RAIN TO BLOW IN ACROSS IT.",
+        "IF IT'S HOT OUT, THE TANK WILL FEEL IT, THOUGH. AND THE DAMP GETS INTO THE SALT."
       ]
     },
     "filter_no_rain": {
       "style": "monologue",
       "speaker": "INTERNAL MONOLOGUE",
-      "title": "WATER FILTER",
+      "title": "UV PURIFIER",
       "repeatable": true,
       "lines": [
-        "NOTHING COMING IN. NO RAIN, NO WATER. NO POINT LETTING THE HEAT IN FOR IT TODAY."
+        "NO RAIN, NOTHING IN THE GUTTER. NO POINT LETTING THE HEAT IN FOR IT TODAY."
       ]
     },
     "filter_running": {
       "style": "monologue",
       "speaker": "INTERNAL MONOLOGUE",
-      "title": "WATER FILTER",
+      "title": "UV PURIFIER",
       "repeatable": true,
       "lines": [
-        "SLOW DRIP, CLEAN WATER. THE JUG UNDER THE TAP IS FILLING."
+        "RAIN OFF THE SILL, THROUGH THE CARTRIDGES, PAST THE UV LAMP AND INTO THE JERRYCAN."
       ]
     },
-    "jug_empty": {
+    "filter_intro": {
       "style": "monologue",
       "speaker": "INTERNAL MONOLOGUE",
-      "title": "WATER JUG",
-      "repeatable": true,
+      "title": "UV PURIFIER",
+      "once_flag": "dlg_seen_filter_intro",
       "lines": [
-        "AN EMPTY JUG UNDER THE FILTER'S TAP. NOTHING'S COMING THROUGH WITHOUT WATER GOING IN THE TOP."
+        "RAIN CATCHER ON THE SILL, A SEDIMENT CARTRIDGE, CARBON, AND A UV LAMP RUNNING OFF THE POWER STATION.",
+        "RAIN'S ALREADY CLOSE TO DISTILLED. THE CARTRIDGES TAKE OUT THE GRIT AND THE SMOKE, THE LAMP KILLS WHATEVER'S LIVING IN IT.",
+        "PURE WATER, THEN. NO SALT IN IT, NOTHING TO HOLD THE PH UP. GOOD FOR TOPPING THE TANK UP, BUT A REEF NEEDS SEAWATER."
       ]
     },
     "jug_filling": {
       "style": "monologue",
       "speaker": "INTERNAL MONOLOGUE",
-      "title": "WATER JUG",
+      "title": "JERRYCAN",
       "repeatable": true,
       "lines": [
-        "NOT FULL YET. IT ONLY FILLS WHILE THE FILTER'S RUNNING: SHUTTERS OPEN, RAIN COMING IN."
+        "NOT FULL YET. IT ONLY FILLS WHILE THE PURIFIER'S RUNNING: SHUTTERS OPEN, RAIN COMING IN."
+      ]
+    },
+    "salt_scoop": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "title": "REEF SALT",
+      "once_flag": "dlg_salt_scoop_seen",
+      "lines": [
+        "REEF SALT MIX. SEA SALT, PLUS THE MAGNESIUM AND CALCIUM AND CARBONATES THAT MAKE SEAWATER SEAWATER.",
+        "THE CARBONATES ARE WHAT HOLD THE PH UP. MIXED INTO PURE WATER ON THE BENCH, THAT'S NEW SEAWATER FOR A WATER CHANGE."
+      ]
+    },
+    "salt_caked": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "title": "CAKED SALT",
+      "once_flag": "dlg_salt_caked_seen",
+      "lines": [
+        "IT'S CAKED. THE DAMP'S GOT INTO THE SACK AND CRUSTED IT INTO LUMPS.",
+        "IT'LL STILL DISSOLVE, JUST SLOWLY. KEEPING THE SHUTTERS SHUT IN THE WET WOULD HAVE KEPT IT DRIER."
       ]
     },
     "tank_water_change": {
@@ -224,8 +226,27 @@
       "title": "WATER CHANGE",
       "once_flag": "dlg_tank_water_change_seen",
       "lines": [
-        "FRESH WATER IN. IT THINS OUT THE CO2 AND BRINGS SOME OXYGEN WITH IT.",
-        "ONE JUG WON'T FIX IT. BACK UNDER THE TAP IT GOES."
+        "TWENTY LITRES OUT, TWENTY OF NEW SEAWATER IN. THE PH COMES UP, AND THERE'S OXYGEN IN IT.",
+        "IT WON'T LAST, THOUGH. AS THE WATER EVAPORATES, THIS AIR PULLS THE PH RIGHT BACK DOWN. IT BUYS TIME, THAT'S ALL."
+      ]
+    },
+    "tank_top_off": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "title": "TOP-OFF",
+      "once_flag": "dlg_tank_top_off_seen",
+      "lines": [
+        "PURE WATER TO REPLACE WHAT EVAPORATED. THE SALT STAYS BEHIND WHEN WATER EVAPORATES, SO THIS BRINGS THE SALINITY BACK DOWN.",
+        "IT DOES NOTHING FOR THE PH, THOUGH. THAT NEEDS THE SALT MIX'S BUFFER."
+      ]
+    },
+    "tank_full": {
+      "style": "monologue",
+      "speaker": "INTERNAL MONOLOGUE",
+      "title": "TOP-OFF",
+      "repeatable": true,
+      "lines": [
+        "IT'S ALREADY FULL TO THE LINE. IT WOULD JUST SPILL."
       ]
     },
     "bed_leaking": {

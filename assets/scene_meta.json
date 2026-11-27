@@ -18,7 +18,8 @@
   "sandbags",
   "flashlight",
   "battery",
-  "pendant"
+  "pendant",
+  "salt"
  ],
  "group_roots": {
   "shutters": [
@@ -74,16 +75,28 @@
    "04_portable_power_station"
   ],
   "jug": [
-   "jug_body_0052",
-   "jug_cap_0055",
-   "jug_handle_0056",
-   "jug_handle_grip_0057",
-   "jug_neck_0054",
-   "jug_shoulder_0053",
-   "jug_water_0058"
+   "jug_body_0037",
+   "jug_cap_0044",
+   "jug_handle_0040",
+   "jug_handle_post_0041",
+   "jug_handle_post_0042",
+   "jug_neck_0043",
+   "jug_rib_0038",
+   "jug_shoulder_0039",
+   "jug_water_0045"
   ],
   "filter": [
-   "07_gravity_water_filter"
+   "07_uv_water_filter",
+   "rain_catcher_bracket",
+   "rain_catcher_bracket.001",
+   "rain_catcher_bracket.002",
+   "rain_catcher_downpipe",
+   "rain_catcher_end",
+   "rain_catcher_end.001",
+   "rain_catcher_inside",
+   "rain_catcher_lip",
+   "rain_catcher_trough",
+   "rain_catcher_water"
   ],
   "crates": [
    "09_supply_crates"
@@ -132,6 +145,9 @@
    "pendant_pull_chain",
    "pendant_pull_knob",
    "pendant_shade"
+  ],
+  "salt": [
+   "16_reef_salt_bag"
   ]
  },
  "start_hidden": [
@@ -1674,96 +1690,6 @@
    ],
    "strength": 0.0
   },
-  "mat_clean_bucket_10": {
-   "kind": "toon",
-   "color": [
-    0.886274516582489,
-    0.843137264251709,
-    0.7450980544090271
-   ],
-   "strength": 0.0
-  },
-  "mat_clean_bucket_hoop_12": {
-   "kind": "toon",
-   "color": [
-    0.7098039388656616,
-    0.6549019813537598,
-    0.5411764979362488
-   ],
-   "strength": 0.0
-  },
-  "mat_clean_bucket_hoop_13": {
-   "kind": "toon",
-   "color": [
-    0.7098039388656616,
-    0.6549019813537598,
-    0.5411764979362488
-   ],
-   "strength": 0.0
-  },
-  "mat_clean_bucket_rim_11": {
-   "kind": "toon",
-   "color": [
-    0.7098039388656616,
-    0.6549019813537598,
-    0.5411764979362488
-   ],
-   "strength": 0.0
-  },
-  "mat_clean_level_tube_14": {
-   "kind": "toon",
-   "color": [
-    0.7607843279838562,
-    0.8470588326454163,
-    0.8117647171020508
-   ],
-   "strength": 0.0
-  },
-  "mat_clean_level_water_15": {
-   "kind": "toon",
-   "color": [
-    0.5098039507865906,
-    0.7098039388656616,
-    0.7058823704719543
-   ],
-   "strength": 0.0
-  },
-  "mat_clean_tap_16": {
-   "kind": "toon",
-   "color": [
-    0.7411764860153198,
-    0.5960784554481506,
-    0.33725491166114807
-   ],
-   "strength": 0.0
-  },
-  "mat_clean_tap_handle_17": {
-   "kind": "toon",
-   "color": [
-    0.19607843458652496,
-    0.22745098173618317,
-    0.24705882370471954
-   ],
-   "strength": 0.0
-  },
-  "mat_clean_tap_spout_19": {
-   "kind": "toon",
-   "color": [
-    0.13725490868091583,
-    0.16862745583057404,
-    0.1882352977991104
-   ],
-   "strength": 0.0
-  },
-  "mat_clean_tap_tube_18": {
-   "kind": "toon",
-   "color": [
-    0.13725490868091583,
-    0.16862745583057404,
-    0.1882352977991104
-   ],
-   "strength": 0.0
-  },
   "mat_coax_cable_76": {
    "kind": "toon",
    "color": [
@@ -2196,7 +2122,7 @@
    ],
    "strength": 3.0
   },
-  "mat_filter_drip_20": {
+  "mat_filter_drip_36": {
    "kind": "emit",
    "color": [
     0.550000011920929,
@@ -3033,177 +2959,6 @@
    ],
    "strength": 0.0
   },
-  "mat_intake_elbow_34": {
-   "kind": "toon",
-   "color": [
-    0.529411792755127,
-    0.5686274766921997,
-    0.5843137502670288
-   ],
-   "strength": 0.0
-  },
-  "mat_intake_hole_boot_42": {
-   "kind": "toon",
-   "color": [
-    0.14901961386203766,
-    0.18039216101169586,
-    0.1882352977991104
-   ],
-   "strength": 0.0
-  },
-  "mat_intake_hole_hose_37": {
-   "kind": "toon",
-   "color": [
-    0.13725490868091583,
-    0.16862745583057404,
-    0.1882352977991104
-   ],
-   "strength": 0.0
-  },
-  "mat_intake_hole_hose_38": {
-   "kind": "toon",
-   "color": [
-    0.13725490868091583,
-    0.16862745583057404,
-    0.1882352977991104
-   ],
-   "strength": 0.0
-  },
-  "mat_intake_hole_hose_39": {
-   "kind": "toon",
-   "color": [
-    0.13725490868091583,
-    0.16862745583057404,
-    0.1882352977991104
-   ],
-   "strength": 0.0
-  },
-  "mat_intake_hole_hose_40": {
-   "kind": "toon",
-   "color": [
-    0.13725490868091583,
-    0.16862745583057404,
-    0.1882352977991104
-   ],
-   "strength": 0.0
-  },
-  "mat_intake_hole_hose_41": {
-   "kind": "toon",
-   "color": [
-    0.13725490868091583,
-    0.16862745583057404,
-    0.1882352977991104
-   ],
-   "strength": 0.0
-  },
-  "mat_intake_hole_rag_43": {
-   "kind": "toon",
-   "color": [
-    0.5882353186607361,
-    0.5254902243614197,
-    0.4117647111415863
-   ],
-   "strength": 0.0
-  },
-  "mat_intake_hole_rag_44": {
-   "kind": "toon",
-   "color": [
-    0.7607843279838562,
-    0.6745098233222961,
-    0.5098039507865906
-   ],
-   "strength": 0.0
-  },
-  "mat_intake_hose_clamp_36": {
-   "kind": "toon",
-   "color": [
-    0.6980392336845398,
-    0.7058823704719543,
-    0.6784313917160034
-   ],
-   "strength": 0.0
-  },
-  "mat_intake_idle_coil_49": {
-   "kind": "toon",
-   "color": [
-    0.13725490868091583,
-    0.16862745583057404,
-    0.1882352977991104
-   ],
-   "strength": 0.0
-  },
-  "mat_intake_idle_coil_50": {
-   "kind": "toon",
-   "color": [
-    0.14901961386203766,
-    0.18039216101169586,
-    0.1882352977991104
-   ],
-   "strength": 0.0
-  },
-  "mat_intake_idle_hose_45": {
-   "kind": "toon",
-   "color": [
-    0.13725490868091583,
-    0.16862745583057404,
-    0.1882352977991104
-   ],
-   "strength": 0.0
-  },
-  "mat_intake_idle_hose_46": {
-   "kind": "toon",
-   "color": [
-    0.13725490868091583,
-    0.16862745583057404,
-    0.1882352977991104
-   ],
-   "strength": 0.0
-  },
-  "mat_intake_idle_hose_47": {
-   "kind": "toon",
-   "color": [
-    0.13725490868091583,
-    0.16862745583057404,
-    0.1882352977991104
-   ],
-   "strength": 0.0
-  },
-  "mat_intake_idle_hose_48": {
-   "kind": "toon",
-   "color": [
-    0.13725490868091583,
-    0.16862745583057404,
-    0.1882352977991104
-   ],
-   "strength": 0.0
-  },
-  "mat_intake_idle_strainer_51": {
-   "kind": "toon",
-   "color": [
-    0.30980393290519714,
-    0.3450980484485626,
-    0.35686275362968445
-   ],
-   "strength": 0.0
-  },
-  "mat_intake_pipe_33": {
-   "kind": "toon",
-   "color": [
-    0.529411792755127,
-    0.5686274766921997,
-    0.5843137502670288
-   ],
-   "strength": 0.0
-  },
-  "mat_intake_pipe_out_35": {
-   "kind": "toon",
-   "color": [
-    0.529411792755127,
-    0.5686274766921997,
-    0.5843137502670288
-   ],
-   "strength": 0.0
-  },
   "mat_interior_flame_glow_5": {
    "kind": "emit",
    "color": [
@@ -3267,7 +3022,7 @@
    ],
    "strength": 0.0
   },
-  "mat_jug_body_52": {
+  "mat_jug_body_37": {
    "kind": "toon",
    "color": [
     0.886274516582489,
@@ -3276,7 +3031,7 @@
    ],
    "strength": 0.0
   },
-  "mat_jug_cap_55": {
+  "mat_jug_cap_44": {
    "kind": "toon",
    "color": [
     0.2078431397676468,
@@ -3285,7 +3040,7 @@
    ],
    "strength": 0.0
   },
-  "mat_jug_handle_56": {
+  "mat_jug_handle_40": {
    "kind": "toon",
    "color": [
     0.886274516582489,
@@ -3294,7 +3049,34 @@
    ],
    "strength": 0.0
   },
-  "mat_jug_handle_grip_57": {
+  "mat_jug_handle_post_41": {
+   "kind": "toon",
+   "color": [
+    0.886274516582489,
+    0.843137264251709,
+    0.7450980544090271
+   ],
+   "strength": 0.0
+  },
+  "mat_jug_handle_post_42": {
+   "kind": "toon",
+   "color": [
+    0.886274516582489,
+    0.843137264251709,
+    0.7450980544090271
+   ],
+   "strength": 0.0
+  },
+  "mat_jug_neck_43": {
+   "kind": "toon",
+   "color": [
+    0.886274516582489,
+    0.843137264251709,
+    0.7450980544090271
+   ],
+   "strength": 0.0
+  },
+  "mat_jug_rib_38": {
    "kind": "toon",
    "color": [
     0.7098039388656616,
@@ -3303,7 +3085,7 @@
    ],
    "strength": 0.0
   },
-  "mat_jug_neck_54": {
+  "mat_jug_shoulder_39": {
    "kind": "toon",
    "color": [
     0.886274516582489,
@@ -3312,16 +3094,7 @@
    ],
    "strength": 0.0
   },
-  "mat_jug_shoulder_53": {
-   "kind": "toon",
-   "color": [
-    0.886274516582489,
-    0.843137264251709,
-    0.7450980544090271
-   ],
-   "strength": 0.0
-  },
-  "mat_jug_water_58": {
+  "mat_jug_water_45": {
    "kind": "emit",
    "color": [
     0.44999998807907104,
@@ -4599,114 +4372,6 @@
    ],
    "strength": 4.0
   },
-  "mat_raw_bucket_22": {
-   "kind": "toon",
-   "color": [
-    0.8392156958580017,
-    0.6117647290229797,
-    0.3294117748737335
-   ],
-   "strength": 0.0
-  },
-  "mat_raw_bucket_handle_32": {
-   "kind": "toon",
-   "color": [
-    0.529411792755127,
-    0.5686274766921997,
-    0.5843137502670288
-   ],
-   "strength": 0.0
-  },
-  "mat_raw_bucket_handle_side_30": {
-   "kind": "toon",
-   "color": [
-    0.529411792755127,
-    0.5686274766921997,
-    0.5843137502670288
-   ],
-   "strength": 0.0
-  },
-  "mat_raw_bucket_handle_side_31": {
-   "kind": "toon",
-   "color": [
-    0.529411792755127,
-    0.5686274766921997,
-    0.5843137502670288
-   ],
-   "strength": 0.0
-  },
-  "mat_raw_bucket_hoop_24": {
-   "kind": "toon",
-   "color": [
-    0.658823549747467,
-    0.3176470696926117,
-    0.2666666805744171
-   ],
-   "strength": 0.0
-  },
-  "mat_raw_bucket_label_26": {
-   "kind": "toon",
-   "color": [
-    0.7882353067398071,
-    0.7333333492279053,
-    0.6274510025978088
-   ],
-   "strength": 0.0
-  },
-  "mat_raw_bucket_label_band_27": {
-   "kind": "toon",
-   "color": [
-    0.658823549747467,
-    0.3176470696926117,
-    0.2666666805744171
-   ],
-   "strength": 0.0
-  },
-  "mat_raw_bucket_label_text_28": {
-   "kind": "toon",
-   "color": [
-    0.13725490868091583,
-    0.16862745583057404,
-    0.1882352977991104
-   ],
-   "strength": 0.0
-  },
-  "mat_raw_bucket_label_text_29": {
-   "kind": "toon",
-   "color": [
-    0.13725490868091583,
-    0.16862745583057404,
-    0.1882352977991104
-   ],
-   "strength": 0.0
-  },
-  "mat_raw_bucket_lid_25": {
-   "kind": "toon",
-   "color": [
-    0.1921568661928177,
-    0.23137255012989044,
-    0.24313725531101227
-   ],
-   "strength": 0.0
-  },
-  "mat_raw_bucket_rim_23": {
-   "kind": "toon",
-   "color": [
-    0.658823549747467,
-    0.3176470696926117,
-    0.2666666805744171
-   ],
-   "strength": 0.0
-  },
-  "mat_raw_bucket_seat_21": {
-   "kind": "toon",
-   "color": [
-    0.529411792755127,
-    0.5686274766921997,
-    0.5843137502670288
-   ],
-   "strength": 0.0
-  },
   "mat_readout_bezel_38": {
    "kind": "toon",
    "color": [
@@ -4870,6 +4535,177 @@
    "strength": 0.0
   },
   "mat_rubber_power_button_13": {
+   "kind": "toon",
+   "color": [
+    0.658823549747467,
+    0.3176470696926117,
+    0.2666666805744171
+   ],
+   "strength": 0.0
+  },
+  "mat_salt_crust_a_15": {
+   "kind": "toon",
+   "color": [
+    0.7098039388656616,
+    0.6549019813537598,
+    0.5411764979362488
+   ],
+   "strength": 0.0
+  },
+  "mat_salt_crust_b_16": {
+   "kind": "toon",
+   "color": [
+    0.8588235378265381,
+    0.772549033164978,
+    0.6039215922355652
+   ],
+   "strength": 0.0
+  },
+  "mat_salt_crust_c_17": {
+   "kind": "toon",
+   "color": [
+    0.7098039388656616,
+    0.6549019813537598,
+    0.5411764979362488
+   ],
+   "strength": 0.0
+  },
+  "mat_salt_heap_14": {
+   "kind": "toon",
+   "color": [
+    0.9490196108818054,
+    0.9411764740943909,
+    0.9098039269447327
+   ],
+   "strength": 0.0
+  },
+  "mat_salt_sack_1": {
+   "kind": "toon",
+   "color": [
+    0.886274516582489,
+    0.843137264251709,
+    0.7450980544090271
+   ],
+   "strength": 0.0
+  },
+  "mat_salt_sack_band_5": {
+   "kind": "toon",
+   "color": [
+    0.2078431397676468,
+    0.2980392277240753,
+    0.3686274588108063
+   ],
+   "strength": 0.0
+  },
+  "mat_salt_sack_base_2": {
+   "kind": "toon",
+   "color": [
+    0.7098039388656616,
+    0.6549019813537598,
+    0.5411764979362488
+   ],
+   "strength": 0.0
+  },
+  "mat_salt_sack_cuff_10": {
+   "kind": "toon",
+   "color": [
+    0.7882353067398071,
+    0.7333333492279053,
+    0.6274510025978088
+   ],
+   "strength": 0.0
+  },
+  "mat_salt_sack_cuff_11": {
+   "kind": "toon",
+   "color": [
+    0.7882353067398071,
+    0.7333333492279053,
+    0.6274510025978088
+   ],
+   "strength": 0.0
+  },
+  "mat_salt_sack_cuff_12": {
+   "kind": "toon",
+   "color": [
+    0.7882353067398071,
+    0.7333333492279053,
+    0.6274510025978088
+   ],
+   "strength": 0.0
+  },
+  "mat_salt_sack_cuff_13": {
+   "kind": "toon",
+   "color": [
+    0.7882353067398071,
+    0.7333333492279053,
+    0.6274510025978088
+   ],
+   "strength": 0.0
+  },
+  "mat_salt_sack_label_6": {
+   "kind": "toon",
+   "color": [
+    0.9490196108818054,
+    0.9411764740943909,
+    0.9098039269447327
+   ],
+   "strength": 0.0
+  },
+  "mat_salt_sack_label_text_7": {
+   "kind": "toon",
+   "color": [
+    0.2078431397676468,
+    0.2980392277240753,
+    0.3686274588108063
+   ],
+   "strength": 0.0
+  },
+  "mat_salt_sack_label_text_8": {
+   "kind": "toon",
+   "color": [
+    0.5098039507865906,
+    0.7098039388656616,
+    0.7058823704719543
+   ],
+   "strength": 0.0
+  },
+  "mat_salt_sack_wave_9": {
+   "kind": "toon",
+   "color": [
+    0.5098039507865906,
+    0.7098039388656616,
+    0.7058823704719543
+   ],
+   "strength": 0.0
+  },
+  "mat_salt_sack_weave_3": {
+   "kind": "toon",
+   "color": [
+    0.7098039388656616,
+    0.6549019813537598,
+    0.5411764979362488
+   ],
+   "strength": 0.0
+  },
+  "mat_salt_sack_weave_4": {
+   "kind": "toon",
+   "color": [
+    0.7098039388656616,
+    0.6549019813537598,
+    0.5411764979362488
+   ],
+   "strength": 0.0
+  },
+  "mat_salt_scoop_cup_19": {
+   "kind": "toon",
+   "color": [
+    0.658823549747467,
+    0.3176470696926117,
+    0.2666666805744171
+   ],
+   "strength": 0.0
+  },
+  "mat_salt_scoop_handle_18": {
    "kind": "toon",
    "color": [
     0.658823549747467,
@@ -6561,6 +6397,240 @@
    ],
    "strength": 0.0
   },
+  "mat_uv_ballast_29": {
+   "kind": "toon",
+   "color": [
+    0.529411792755127,
+    0.5686274766921997,
+    0.5843137502670288
+   ],
+   "strength": 0.0
+  },
+  "mat_uv_ballast_label_30": {
+   "kind": "toon",
+   "color": [
+    0.886274516582489,
+    0.843137264251709,
+    0.7450980544090271
+   ],
+   "strength": 0.0
+  },
+  "mat_uv_ballast_lead_32": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_uv_board_10": {
+   "kind": "toon",
+   "color": [
+    0.6666666865348816,
+    0.45098039507865906,
+    0.2862745225429535
+   ],
+   "strength": 0.0
+  },
+  "mat_uv_board_edge_11": {
+   "kind": "toon",
+   "color": [
+    0.3960784375667572,
+    0.2549019753932953,
+    0.18431372940540314
+   ],
+   "strength": 0.0
+  },
+  "mat_uv_carbon_bowl_ring_19": {
+   "kind": "toon",
+   "color": [
+    0.2078431397676468,
+    0.2980392277240753,
+    0.3686274588108063
+   ],
+   "strength": 0.0
+  },
+  "mat_uv_carbon_cap_18": {
+   "kind": "toon",
+   "color": [
+    0.2078431397676468,
+    0.2980392277240753,
+    0.3686274588108063
+   ],
+   "strength": 0.0
+  },
+  "mat_uv_carbon_core_17": {
+   "kind": "toon",
+   "color": [
+    0.14901961386203766,
+    0.18039216101169586,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_uv_carbon_housing_16": {
+   "kind": "toon",
+   "color": [
+    0.7607843279838562,
+    0.8470588326454163,
+    0.8117647171020508
+   ],
+   "strength": 0.0
+  },
+  "mat_uv_cord_exit_31": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_uv_inlet_port_22": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_uv_lamp_27": {
+   "kind": "emit",
+   "color": [
+    0.550000011920929,
+    0.6200000047683716,
+    1.0
+   ],
+   "strength": 3.0
+  },
+  "mat_uv_outlet_33": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_uv_outlet_34": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_uv_outlet_35": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
+  "mat_uv_pipe_between_20": {
+   "kind": "toon",
+   "color": [
+    0.529411792755127,
+    0.5686274766921997,
+    0.5843137502670288
+   ],
+   "strength": 0.0
+  },
+  "mat_uv_pipe_down_28": {
+   "kind": "toon",
+   "color": [
+    0.529411792755127,
+    0.5686274766921997,
+    0.5843137502670288
+   ],
+   "strength": 0.0
+  },
+  "mat_uv_pipe_inlet_21": {
+   "kind": "toon",
+   "color": [
+    0.529411792755127,
+    0.5686274766921997,
+    0.5843137502670288
+   ],
+   "strength": 0.0
+  },
+  "mat_uv_sediment_bowl_ring_15": {
+   "kind": "toon",
+   "color": [
+    0.2078431397676468,
+    0.2980392277240753,
+    0.3686274588108063
+   ],
+   "strength": 0.0
+  },
+  "mat_uv_sediment_cap_14": {
+   "kind": "toon",
+   "color": [
+    0.2078431397676468,
+    0.2980392277240753,
+    0.3686274588108063
+   ],
+   "strength": 0.0
+  },
+  "mat_uv_sediment_core_13": {
+   "kind": "toon",
+   "color": [
+    0.886274516582489,
+    0.843137264251709,
+    0.7450980544090271
+   ],
+   "strength": 0.0
+  },
+  "mat_uv_sediment_housing_12": {
+   "kind": "toon",
+   "color": [
+    0.7607843279838562,
+    0.8470588326454163,
+    0.8117647171020508
+   ],
+   "strength": 0.0
+  },
+  "mat_uv_tube_23": {
+   "kind": "toon",
+   "color": [
+    0.6980392336845398,
+    0.7058823704719543,
+    0.6784313917160034
+   ],
+   "strength": 0.0
+  },
+  "mat_uv_tube_cap_24": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_uv_tube_cap_25": {
+   "kind": "toon",
+   "color": [
+    0.19607843458652496,
+    0.22745098173618317,
+    0.24705882370471954
+   ],
+   "strength": 0.0
+  },
+  "mat_uv_window_bezel_26": {
+   "kind": "toon",
+   "color": [
+    0.13725490868091583,
+    0.16862745583057404,
+    0.1882352977991104
+   ],
+   "strength": 0.0
+  },
   "mat_vent_cap_14": {
    "kind": "toon",
    "color": [
@@ -6850,6 +6920,42 @@
    ],
    "strength": 0.0
   },
+  "rain_catcher_downpipe": {
+   "kind": "toon",
+   "color": [
+    0.4000000059604645,
+    0.4399999976158142,
+    0.46000000834465027
+   ],
+   "strength": 0.0
+  },
+  "rain_catcher_inside": {
+   "kind": "toon",
+   "color": [
+    0.10000000149011612,
+    0.11999999731779099,
+    0.14000000059604645
+   ],
+   "strength": 0.0
+  },
+  "rain_catcher_steel": {
+   "kind": "toon",
+   "color": [
+    0.47999998927116394,
+    0.5199999809265137,
+    0.5400000214576721
+   ],
+   "strength": 0.0
+  },
+  "rain_catcher_water": {
+   "kind": "emit",
+   "color": [
+    0.550000011920929,
+    0.8199999928474426,
+    0.949999988079071
+   ],
+   "strength": 1.399999976158142
+  },
   "stone_0_0": {
    "kind": "toon",
    "color": [
@@ -7002,6 +7108,24 @@
     0.012000000104308128
    ],
    "strength": 1.0
+  },
+  "uv_power_cord": {
+   "kind": "toon",
+   "color": [
+    0.019999999552965164,
+    0.02500000037252903,
+    0.029999999329447746
+   ],
+   "strength": 0.0
+  },
+  "uv_power_plug": {
+   "kind": "toon",
+   "color": [
+    0.05000000074505806,
+    0.05999999865889549,
+    0.07000000029802322
+   ],
+   "strength": 0.0
   },
   "wall_hole_crack": {
    "kind": "toon",

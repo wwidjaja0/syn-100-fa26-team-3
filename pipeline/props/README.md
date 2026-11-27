@@ -32,7 +32,7 @@ trimesh is pinned because newer versions export without the single `world` root 
 | `04_portable_power_station` | battery, socket panel, display, handle | 0.8 m high |
 | `05_storm_shutters_closed` | two bolted wood panels over the window | 3.0 m across |
 | `06_sandbag_flood_barrier` | stacked burlap bags; the second row's left bag (`loose_bag_*`) plugs the wall hole and moves in the game | 2.5 m across |
-| `07_gravity_water_filter` | two stacked buckets on a pallet, a tap into a water jug on the floor (`jug_*`, the `jug` group), and its intake twice: coiled (`intake_idle_*`) and out through the wall hole (`intake_hole_*`) | 1.0 m high |
+| `07_uv_water_filter` | a UV water purifier on a pallet: sediment and carbon cartridges, a UV-C tube (window `uv_lamp`), a ballast (cord from `uv_cord_exit`), an inlet for the sill's rain catcher, and a 20 L jerrycan on the floor (`jug_*`, the `jug` group) | 0.85 m high |
 | `08_wall_weather_instruments` | two gauges and a thermometer on a board | 1.9 m mounting height |
 | `09_supply_crates` | three crates, one open with food tins | 1.5 m across |
 | `10_emergency_lantern` | caged lantern: glass, flame, handle | 0.8 m high |
@@ -40,6 +40,7 @@ trimesh is pinned because newer versions export without the single `world` root 
 | `12_supply_cabinet_open` | the cabinet open, with supplies inside | 2.0 m high |
 | `13_storm_shutters_stowed` | the shutters parked to the sides | 5.4 m across |
 | `14_microfiche_reader` | the wall-mounted map display in a wooden frame, control strip below | map-sized |
+| `16_reef_salt_bag` | an open sack of reef salt mix, top rolled down, a red scoop in it; crust lumps `salt_crust_*` show as it cakes | 0.5 m high |
 | `15_battery_charger` | lead-acid battery (`leadacid_*`, the `battery` group) in a charging dock (`charger_*`, LED `charge_led`) on a supply crate | 0.7 m high |
 
 The open/closed pairs (`03`/`12`, `05`/`13`) give the Blender scene both states. In the game, the shutters and

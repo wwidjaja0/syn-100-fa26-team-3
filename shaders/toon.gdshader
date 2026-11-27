@@ -8,7 +8,7 @@ render_mode specular_disabled, cull_back, depth_prepass_alpha;
 
 const uint MASK_LAYER = 524288u;      // 1 << 19, render layer 20
 const int ID_OFFSET = 4;              // keep in step with post.gdshader and scripts/room/object_picker.gd
-const float ID_STEP = 10.0;           // ids are (id + ID_OFFSET) * ID_STEP / 255: room for 21 groups
+const float ID_STEP = 8.0;            // ids are (id + ID_OFFSET) * ID_STEP / 255: room for 27 groups
 
 // geometry about to cross the near plane dissolves with the same 4x4 Bayer the post pass uses,
 // instead of slicing off on a hard line. The close-up swing stays under the ceiling

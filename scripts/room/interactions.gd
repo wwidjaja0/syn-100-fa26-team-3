@@ -18,19 +18,23 @@ extends Node
 ##
 ## The hole under the window (room/leak.gd): the game starts with a sandbag thrown off it and the
 ## storm running in. Clicking the sandbags drops the bag back in; a red ! marks them once the cabin
-## has pointed the leak out. The water filter beside it (room/water_filter.gd) can then run its
-## intake out through the hole instead; while it runs it fills the water jug beside it, and the full jug
-## goes into the inventory as CLEAN WATER (for the reef tank's slots). The hanging lamp's pull chain (room/pendant.gd) ends the day,
-## but not while water is still coming in.
+## has pointed the leak out. The hanging lamp's pull chain (room/pendant.gd) ends the day, but not
+## while water is still coming in.
+##
+## The reef's water: the UV purifier under the window (room/water_filter.gd) fills a jerrycan with
+## PURE WATER while the shutters are open and it rains (its gutter on the sill catches it). The open
+## sack of reef salt by the cabinet (room/salt_bag.gd) gives REEF SALT, which cakes in damp air; the
+## gauges above the workbench show the cabin's humidity and temperature (room/cabin_climate.gd). Pure
+## water + salt on the workbench make SALTWATER; either goes in the tank's slots (tank/tank_water.gd).
 
 ## hover text per object group. Capitals, and only the pixel font's characters
 ## (A-Z 0-9 . , ' - : ? ! ( ) / + = %). Groups not listed here can't be hovered or clicked.
 const LABELS := {
 	"shutters": "STORM SHUTTERS", "cabinet": "SUPPLY CABINET", "microfiche": "MICROFICHE MAP", "speaker": "PA SPEAKER",
 	"radio": "HAM RADIO (BROKEN)", "jar": "DRIED MUSHROOMS", "papers": "ROLLING PAPERS", "bench": "WORKBENCH",
-	"lantern": "LANTERN", "instruments": "WEATHER GAUGES", "power": "POWER STATION", "filter": "WATER FILTER",
+	"lantern": "LANTERN", "instruments": "WEATHER GAUGES", "power": "POWER STATION", "filter": "UV PURIFIER",
 	"crates": "SUPPLY CRATES", "sandbags": "SANDBAGS", "flashlight": "FLASHLIGHT", "battery": "BATTERY",
-	"tank": "REEF TANK", "tank_gauges": "TANK GAUGES", "pendant": "PULL CHAIN: LIGHTS OUT", "jug": "WATER JUG",
+	"tank": "REEF TANK", "tank_gauges": "TANK GAUGES", "pendant": "PULL CHAIN: LIGHTS OUT", "jug": "JERRYCAN", "salt": "REEF SALT MIX",
 }
 
 var _main: Node
@@ -67,6 +71,10 @@ func label_for(group: String, held: ItemData) -> String:
 		name = _main.water_filter.label()
 	elif group == "jug":
 		name = _main.water_filter.jug_label()
+	elif group == "salt":
+		name = _main.salt_bag.label()
+	elif group == "instruments":
+		name = _main.climate.label()
 	if held != null and name != "":
 		return "USE %s ON %s" % [held.name, name]
 	return name
@@ -118,6 +126,8 @@ func click(group: String) -> void:
 			_main.water_filter.click_jug()
 		"pendant":
 			_main.pendant.pull()
+		"salt":
+			_main.salt_bag.click()
 		"lantern", "instruments", "power", "crates", "flashlight":
 			_main.ui.dialogue.start("inspect_" + group)
 

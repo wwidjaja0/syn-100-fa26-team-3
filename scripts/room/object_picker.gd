@@ -17,7 +17,7 @@ extends Node
 ## ids are stored as (id + MASK_ID_OFFSET) * ID_STEP in the mask's red channel; keep in step with
 ## shaders/toon.gdshader and shaders/post.gdshader
 const MASK_ID_OFFSET := 4
-const ID_STEP := 10.0              # (id + 4) * 10 <= 255: room for 21 groups
+const ID_STEP := 8.0               # (id + 4) * 8 <= 255: room for 27 groups
 const LEADS := ["coax", "cord", "cable", "wire"]   # thin parts screen_top() leaves out
 const WINDOW_FRAME := ["window_sill", "window_lintel", "window_jamb_l", "window_jamb_r", "window_mullion", "window_transom"]
 

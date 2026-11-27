@@ -14,7 +14,9 @@ extends Node
 ##   room/weather.gd          the weather outside the window (storm, rain, fog, ...) and its light
 ##   room/fish_tank.gd        wires up scenes/fish_tank.tscn (the widened cabin is scenes/room_left.tscn)
 ##   room/leak.gd             the hole under the window, its sandbag, and the puddle when it's open
-##   room/water_filter.gd     the bucket filter: its intake through the hole, when it runs, the jug it fills
+##   room/water_filter.gd     the UV purifier and its rain catcher: when it runs, the jerrycan it fills
+##   room/cabin_climate.gd    the cabin's temperature and humidity, and the gauges above the workbench
+##   room/salt_bag.gd         the open sack of reef salt mix, and how it cakes
 ##   room/pendant.gd          the hanging lamp's pull chain: lights out, on to the next day
 ##   room/room_camera.gd      panning, pixel snapping, hand-over to close-ups
 ##   room/post_process.gd     feeds the post shader
@@ -24,7 +26,7 @@ extends Node
 ##   crafting/crafting.gd     what lies on the cutting mat, the recipes, crafting   <- crafting rules
 ##   radio/radio_repair.gd    the radio close-up's slots for its missing speaker and battery
 ##   tank/tank_panel.gd       the tank close-up's live readings and item slots
-##   tank/tank_water.gd       what the open window and a jug of clean water do to the tank's readings
+##   tank/tank_water.gd       the tank's water: warming, evaporation, top-offs and water changes
 ##   ui/overlay.gd            the pixel UI (its own node, UI/Overlay)
 ##   ui/start_menu.gd         the title screen (its own node, UI/StartMenu); calls start_game()
 ##   ui/pause_menu.gd         the pause / settings menu (its own node, UI/PauseMenu)
@@ -56,6 +58,8 @@ const TankPanel := preload("res://scripts/tank/tank_panel.gd")
 const FishTank := preload("res://scripts/room/fish_tank.gd")
 const Leak := preload("res://scripts/room/leak.gd")
 const WaterFilter := preload("res://scripts/room/water_filter.gd")
+const CabinClimate := preload("res://scripts/room/cabin_climate.gd")
+const SaltBag := preload("res://scripts/room/salt_bag.gd")
 const Pendant := preload("res://scripts/room/pendant.gd")
 const TankWater := preload("res://scripts/tank/tank_water.gd")
 const DebugMenu := preload("res://scripts/dev/debug_menu.gd")
@@ -120,6 +124,8 @@ var tank_panel: TankPanel
 var fish_tank: FishTank
 var leak: Leak
 var water_filter: WaterFilter
+var climate: CabinClimate
+var salt_bag: SaltBag
 var pendant: Pendant
 var tank_water: TankWater
 var views: Array[Node] = []             # every close-up view
@@ -164,7 +170,13 @@ func _ready() -> void:
 	leak.setup(self, room)
 	water_filter = WaterFilter.new()
 	_add(water_filter, "WaterFilter")
-	water_filter.setup(self, room)
+	water_filter.setup(self, room, materials)
+	climate = CabinClimate.new()
+	_add(climate, "CabinClimate")
+	climate.setup(self, room)
+	salt_bag = SaltBag.new()
+	_add(salt_bag, "SaltBag")
+	salt_bag.setup(self, room)
 	pendant = Pendant.new()              # after ambience: it keeps the lamp's light as ambience left it
 	_add(pendant, "Pendant")
 	pendant.setup(self, $WorldVP/Lights, materials, room)
@@ -239,6 +251,8 @@ func _process(delta: float) -> void:
 	weather.update(delta, clock)
 	leak.update(delta)
 	water_filter.update(delta)
+	climate.update(delta)
+	salt_bag.update(delta)
 	tank_water.update(delta)
 	pendant.update()
 	fish_tank.update()

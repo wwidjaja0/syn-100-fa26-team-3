@@ -270,78 +270,86 @@ def sandbags():
  return m
 
 def water_filter():
- # A two-bucket gravity filter on a low pallet, squat enough to sit under the window beside the
- # hole in the wall (build_pixel_scene.py lines its 'intake_hole_boot' up with 'wall_hole'). Raw
- # water runs in through an intake hose at the top bucket's lid, drips through the ceramic candles
- # into the bottom bucket, and out of a tap on its left into a water jug on the floor ('jug_*', the
- # game's 'jug' group: it fills while the filter runs and the player takes it; 'jug_water' is the
- # level showing through its side, 'filter_drip' the drop falling from the tap).
- # The intake comes twice: 'intake_idle_*' coiled on the floor, and 'intake_hole_*' run out through
- # the hole, sealed with a rubber boot and rags (scripts/room/water_filter.gd shows one or the other).
- m=Model('Bucket gravity filter with an intake through the wall')
- HX,HY,HZ=.92,.30,.31                          # the wall hole's centre, from the filter's centre
- # ---- pallet
+ # A powered UV water purifier on a low pallet under the window. Rain blowing in through the open
+ # window runs off a gutter on the sill (build_pixel_scene.py's 'rain_catcher_*') and down a hose into
+ # 'uv_inlet_port'; it passes a sediment cartridge, an activated-carbon cartridge and a UV-C lamp
+ # (UV kills what lives in it; the cartridges take out grit, smoke and organics), and runs out of a
+ # tube into a 20 L jerrycan on the floor ('jug_*', the game's 'jug' group; 'jug_water' is the level
+ # showing through its side, 'filter_drip' the drop falling from the tube). 'uv_lamp' is the lamp's
+ # viewing window, lit while it runs. Its power cord runs from 'uv_cord_exit' to the power station
+ # (laid by build_pixel_scene.py). Rainwater is nature's distilled water, so this comes out near pure.
+ m=Model('UV water purifier with a jerrycan')
  PT=.1425                                      # pallet top
  for x in [-.24,0,.24]:m.box('pallet_stringer',(x,0,.06),(.05,.44,.09),'wood_dark')
  for k in range(4):m.box('pallet_slat',(0,-.165+k*.11,PT-.0125),(.56,.085,.025),'wood' if k%2 else 'wood_light')
  for y in [-.18,.18]:m.box('pallet_base_board',(0,y,.0075),(.56,.08,.015),'wood_dark')
- # ---- bottom bucket: the clean water
- cb=PT+.17
- m.cone('clean_bucket',(0,0,cb),.150,.168,.34,'off_white',sections=16)
- m.ring('clean_bucket_rim',(0,0,PT+.33),.178,.160,.024,'cream_shadow',sections=16)
- for z in [PT+.08,PT+.22]:m.ring('clean_bucket_hoop',(0,0,z),.168 if z>PT+.1 else .158,.150,.012,'cream_shadow',sections=16)
- m.box('clean_level_tube',(-.085,-.162,PT+.17),(.022,.014,.22),'glass')
- m.box('clean_level_water',(-.085,-.171,PT+.12),(.012,.008,.11),'aqua')
- # the tap, on the bucket's left, and a short tube over to the jug
- ty=-.04
- m.rod('clean_tap',(-.14,ty,PT+.20),(-.22,ty,PT+.20),.017,'brass')
- m.cyl('clean_tap_handle',(-.20,ty,PT+.235),.03,.012,'steel_dark',sections=8)
- JX=-.46                                       # the jug's centre x
- m.rod('clean_tap_tube',(-.22,ty,PT+.20),(JX,ty,PT+.20),.011,'black')
- m.rod('clean_tap_spout',(JX,ty,PT+.20),(JX,ty,.30),.011,'black')
- m.box('filter_drip',(JX,ty,.282),(.012,.012,.014),'aqua')
- # ---- top bucket: the raw water, with the filter candles inside
- m.cyl('raw_bucket_seat',(0,0,PT+.345),.172,.016,'steel_light',sections=16)
- rb=PT+.353+.16
- m.cone('raw_bucket',(0,0,rb),.150,.168,.32,'orange',sections=16)
- m.ring('raw_bucket_rim',(0,0,PT+.67),.178,.160,.024,'red',sections=16)
- m.ring('raw_bucket_hoop',(0,0,PT+.45),.160,.150,.012,'red',sections=16)
- m.cyl('raw_bucket_lid',(0,0,PT+.69),.176,.022,'graphite',sections=16)
- m.box('raw_bucket_label',(0,-.162,PT+.56),(.15,.006,.07),'cream')
- m.box('raw_bucket_label_band',(0,-.166,PT+.585),(.15,.004,.014),'red')
- for k,w in enumerate([.10,.07]):m.box('raw_bucket_label_text',(-.03+w/2,-.166,PT+.552-k*.018),(w,.004,.007),'black')
- # wire handle over the lid
- for x in [-.17,.17]:m.rod('raw_bucket_handle_side',(x,0,PT+.62),(x*.8,0,PT+.75),.007,'steel_light')
- m.rod('raw_bucket_handle',(-.136,0,PT+.75),(.136,0,PT+.75),.007,'steel_light')
- # ---- the intake: a grey pipe up through the lid, elbowing toward the hole
- lt=PT+.70
- m.rod('intake_pipe',(.07,0,lt),(.07,0,lt+.08),.022,'steel_light')
- m.sphere('intake_elbow',(.07,0,lt+.08),(.026,.026,.026),'steel_light',1)
- m.rod('intake_pipe_out',(.07,0,lt+.08),(.19,0,lt+.08),.022,'steel_light')
- m.cyl('intake_hose_clamp',(.19,0,lt+.08),.026,.02,'silver','x',10)
- e=(.20,0,lt+.08)
- def hose(prefix,pts,r=.02):
-  for a,b in zip(pts,pts[1:]):m.rod(prefix,a,b,r,'black')
- # run out through the hole: over the bottom row of sandbags and in through a rubber boot
- hose('intake_hole_hose',[e,(.42,.05,lt-.04),(.66,.15,.52),(.82,.24,HZ+.03),(HX,HY-.03,HZ),(HX,HY+.14,HZ)])
- m.rod('intake_hole_boot',(HX,HY-.05,HZ),(HX,HY+.01,HZ),.052,'charcoal',sections=12)
- # two wads of rag packed in under and beside the boot; the outside still shows round them
- for dx,dz,w,h,c in [(-.075,-.045,.07,.045,'canvas_dark'),(.07,-.05,.06,.04,'canvas')]:
-  m.box('intake_hole_rag',(HX+dx,HY-.03,HZ+dz),(w,.05,h),c)
- # coiled on the floor in front of the hole, the strainer end loose
- hose('intake_idle_hose',[e,(.29,-.04,lt-.08),(.34,-.10,.45),(.35,-.16,.12),(.32,-.20,.04)])
- m.ring('intake_idle_coil',(.30,-.22,.022),.10,.074,.036,'black',sections=14)
- m.ring('intake_idle_coil',(.29,-.215,.05),.085,.062,.03,'charcoal',sections=14)
- m.cyl('intake_idle_strainer',(.17,-.30,.03),.03,.07,'steel','x',10)
- # ---- the jug on the floor under the tube: a pale plastic jug, its water showing through the side
- JH=.22
- m.box('jug_body',(JX,ty,JH/2+.004),(.19,.13,JH),'off_white')
- m.box('jug_shoulder',(JX,ty,JH+.014),(.14,.10,.024),'off_white')
- m.cyl('jug_neck',(JX,ty,JH+.036),.024,.022,'off_white',sections=10)
- m.cyl('jug_cap',(JX-.10,ty-.07,.012),.026,.02,'navy',sections=10)
- m.box('jug_handle',(JX+.108,ty,JH*.62),(.026,.05,.12),'off_white')
- m.box('jug_handle_grip',(JX+.117,ty,JH*.62),(.012,.035,.08),'cream_shadow')
- m.box('jug_water',(JX,ty-.067,.014+(JH-.04)/2),(.16,.006,JH-.04),'aqua')
+ # the mounting board at the back of the pallet
+ m.box('uv_board',(0,.17,PT+.33),(.52,.03,.66),'wood')
+ m.box('uv_board_edge',(0,.15,PT+.665),(.54,.06,.02),'wood_dark')
+ # two cartridge housings: sediment (white core) and carbon (black core)
+ for x,core,tag in [(-.12,'off_white','sediment'),(.04,'charcoal','carbon')]:
+  m.cyl(f'uv_{tag}_housing',(x,.08,PT+.43),.058,.26,'glass',sections=14)
+  m.box(f'uv_{tag}_core',(x,.08-.061,PT+.43),(.05,.006,.2),core)
+  m.cyl(f'uv_{tag}_cap',(x,.08,PT+.575),.064,.035,'navy',sections=14)
+  m.cyl(f'uv_{tag}_bowl_ring',(x,.08,PT+.31),.062,.016,'navy',sections=14)
+ m.rod('uv_pipe_between',(-.12,.08,PT+.60),(.04,.08,PT+.60),.012,'steel_light')
+ m.rod('uv_pipe_inlet',(-.12,.08,PT+.60),(-.12,.08,PT+.68),.012,'steel_light')
+ m.cyl('uv_inlet_port',(-.12,.08,PT+.69),.018,.02,'black',sections=10)
+ # the UV sterilizer: a steel tube along the bottom, its lamp's little viewing window, its ballast
+ uz=PT+.17
+ m.cyl('uv_tube',(0,.07,uz),.042,.36,'silver','x',14)
+ for x in [-.18,.18]:m.cyl('uv_tube_cap',(x,.07,uz),.048,.03,'steel_dark','x',14)
+ m.box('uv_window_bezel',(.02,.07-.045,uz),(.08,.008,.03),'black')
+ m.box('uv_lamp',(.02,.07-.05,uz),(.06,.006,.018),'screen_glow')
+ m.rod('uv_pipe_down',(.04,.08,PT+.30),(.04,.08,uz+.04),.012,'steel_light')
+ m.box('uv_ballast',(.19,.10,PT+.42),(.08,.05,.13),'steel_light')
+ m.box('uv_ballast_label',(.19,.074,PT+.45),(.05,.004,.03),'off_white')
+ m.cyl('uv_cord_exit',(.235,.10,PT+.37),.01,.016,'black','x',8)
+ m.rod('uv_ballast_lead',(.19,.10,PT+.355),(.14,.07,uz+.03),.008,'black')
+ # out of the tube's left end, up and over to the jerrycan's neck
+ JX,ty,JH=-.50,-.03,.32                        # the jerrycan: centre x, centre y, body height
+ nx=JX-.06                                     # its neck, toward the left
+ m.rod('uv_outlet',(-.195,.07,uz),(-.26,.03,uz+.12),.011,'black')
+ m.rod('uv_outlet',(-.26,.03,uz+.12),(nx,ty,.46),.011,'black')
+ m.rod('uv_outlet',(nx,ty,.46),(nx,ty,.415),.011,'black')
+ m.box('filter_drip',(nx,ty,.398),(.012,.012,.014),'aqua')
+ # ---- the jerrycan on the floor under the tube: pale plastic, its water showing through the side
+ m.box('jug_body',(JX,ty,JH/2+.004),(.24,.15,JH),'off_white')
+ m.box('jug_rib',(JX,ty-.077,JH*.5),(.20,.004,.012),'cream_shadow')
+ m.box('jug_shoulder',(JX+.03,ty,JH+.012),(.16,.12,.02),'off_white')
+ m.box('jug_handle',(JX+.05,ty,JH+.05),(.11,.03,.026),'off_white')
+ for x in [JX+.005,JX+.095]:m.box('jug_handle_post',(x,ty,JH+.03),(.016,.03,.04),'off_white')
+ m.cyl('jug_neck',(nx,ty,JH+.02),.026,.04,'off_white',sections=10)
+ m.cyl('jug_cap',(JX-.12,ty-.09,.012),.028,.02,'navy',sections=10)
+ m.box('jug_water',(JX,ty-.078,.014+(JH-.05)/2),(.19,.006,JH-.05),'aqua')
+ return m
+
+def salt_bag():
+ # An open 25 kg sack of reef salt mix (sea salts with the magnesium, calcium and carbonates that
+ # hold seawater's pH up), its top rolled down and a scoop stuck in. The salt cakes in the cabin's
+ # damp air: the game shows the crust lumps ('salt_crust_*') as it does (scripts/room/salt_bag.gd).
+ m=Model('Open sack of reef salt mix')
+ W,D,H=.40,.27,.48
+ m.box('salt_sack',(0,0,H/2),(W,D,H),'off_white')
+ m.box('salt_sack_base',(0,0,.03),(W+.02,D+.02,.06),'cream_shadow')
+ for z in [.16,.34]:m.box('salt_sack_weave',(0,-D/2-.002,z),(W,.004,.008),'cream_shadow')
+ m.box('salt_sack_band',(0,-D/2-.003,H*.6),(W,.006,.10),'navy')
+ m.box('salt_sack_label',(0,-D/2-.006,H*.6),(.17,.004,.06),'#f2f0e8')
+ m.box('salt_sack_label_text',(0,-D/2-.008,H*.6+.008),(.12,.004,.012),'navy')
+ m.box('salt_sack_label_text',(-.02,-D/2-.008,H*.6-.014),(.08,.004,.008),'aqua')
+ m.box('salt_sack_wave',(0,-D/2-.003,H*.36),(W*.8,.006,.02),'aqua')
+ # the top rolled down into a fat cuff
+ m.box('salt_sack_cuff',(0,-D/2-.01,H-.02),(W+.03,.03,.05),'cream')
+ m.box('salt_sack_cuff',(0,D/2+.01,H-.02),(W+.03,.03,.05),'cream')
+ for x in [-W/2-.01,W/2+.01]:m.box('salt_sack_cuff',(x,0,H-.02),(.03,D+.03,.05),'cream')
+ # the salt inside: a white heap, and the lumps a damp cabin crusts it into
+ m.sphere('salt_heap',(0,0,H-.012),(W*.44,D*.42,.045),'#f2f0e8',2)
+ m.sphere('salt_crust_a',(-.09,-.04,H+.018),(.06,.045,.03),'cream_shadow',1)
+ m.sphere('salt_crust_b',(.06,.05,H+.02),(.07,.05,.032),'canvas_light',1)
+ m.sphere('salt_crust_c',(-.01,-.07,H+.022),(.05,.04,.028),'cream_shadow',1)
+ # a red plastic scoop stuck in it
+ m.rod('salt_scoop_handle',(.11,.02,H+.02),(.19,.07,H+.17),.012,'red')
+ m.cyl('salt_scoop_cup',(.10,.015,H+.012),.045,.05,'red',sections=10)
  return m
 
 def weather_instruments():
@@ -525,7 +533,7 @@ BUILDERS = [
  ('04_portable_power_station',power_station),
  ('05_storm_shutters_closed',storm_shutters),
  ('06_sandbag_flood_barrier',sandbags),
- ('07_gravity_water_filter',water_filter),
+ ('07_uv_water_filter',water_filter),
  ('08_wall_weather_instruments',weather_instruments),
  ('09_supply_crates',crates),
  ('10_emergency_lantern',lantern),
@@ -534,6 +542,7 @@ BUILDERS = [
  ('13_storm_shutters_stowed',lambda: storm_shutters(True)),
  ('14_microfiche_reader',microfiche_reader),
  ('15_battery_charger',battery_charger),
+ ('16_reef_salt_bag',salt_bag),
 ]
 
 if __name__=='__main__':

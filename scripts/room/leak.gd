@@ -5,10 +5,8 @@ extends Node
 ## second row (pipeline/scene/build_pixel_scene.py's "wall_hole"). That row's left bag (its parts are
 ## "loose_bag_*") was built sitting in it, but the game starts with the bag thrown up on top of the
 ## pile, so the storm runs in: water spills out of the hole, down between the bottom row's bags, and
-## spreads over the floor. Clicking
-## the sandbags drops the bag back into the hole (flag "hole_plugged"). Later the water filter's intake
-## can go out through the hole in its place (room/water_filter.gd calls make_way(), and the bag goes
-## back up on top; flag "filter_installed"). Either one seals the hole.
+## spreads over the floor. Clicking the sandbags drops the bag back into the hole (flag
+## "hole_plugged"), which seals it for good.
 ##
 ## The puddle grows while the hole is open and it is raining outside (room/weather.gd's rain), and
 ## dries slowly once the hole is sealed. Timings in seconds unless named in frames (24 fps clock).
@@ -65,21 +63,14 @@ func setup(main: Node, room: Node3D) -> void:
 ## back to how a new game starts: the bag on top of the pile, the puddle part-spread
 func reset() -> void:
 	level = START_LEVEL
-	var up := 0.0 if GameState.flag("hole_plugged") and not GameState.flag("filter_installed") else 1.0
+	var up := 0.0 if GameState.flag("hole_plugged") else 1.0
 	_move_from = up
 	_move_to = up
 	_moved_at = -1e9
 
 
-## what fills the hole: "open" (nothing, water runs in), "bag" or "filter"
-func state() -> String:
-	if GameState.flag("filter_installed"):
-		return "filter"
-	return "bag" if GameState.flag("hole_plugged") else "open"
-
-
 func leaking() -> bool:
-	return state() == "open"
+	return not GameState.flag("hole_plugged")
 
 
 ## the player clicked the sandbags with the hole open: drop the bag into it
@@ -89,11 +80,6 @@ func plug() -> void:
 	GameState.set_flag("hole_plugged")
 	_hop(0.0)
 	UiSounds.play("pick")
-
-
-## the filter's intake is going through the hole: the bag goes back up on top of the pile
-func make_way() -> void:
-	_hop(1.0)
 
 
 func _hop(to: float) -> void:

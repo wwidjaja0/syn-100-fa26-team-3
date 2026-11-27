@@ -167,9 +167,9 @@ BENCH_X = 2.75
 place('05_storm_shutters_closed', WIN_X, y_back=WALL_Y, coll=sh_closed)
 place('13_storm_shutters_stowed', WIN_X, y_back=WALL_Y, coll=sh_stowed)
 place('06_sandbag_flood_barrier', WIN_X, y_back=WALL_Y - 0.05)
-# the bucket filter stands just left of the hole behind the sandbags' loose bag; it is lined up
-# with the hole below, once the hole is known
-place('07_gravity_water_filter', WIN_X - 1.6, y_back=WALL_Y - 0.08)
+# the UV water purifier stands under the window's left end, left of the hole behind the sandbags'
+# loose bag; it is slid into place below, once the hole is known
+place('07_uv_water_filter', WIN_X - 1.6, y_back=WALL_Y - 0.08)
 place('09_supply_crates', -4.55, y=-0.55, rot_z=-8)
 place('04_portable_power_station', 0.9, y=1.0, rot_z=12)
 place('01_wooden_workbench', BENCH_X, y_back=WALL_Y - 0.05)
@@ -188,6 +188,8 @@ place('11_flashlight', 0.9, y=1.0, on_surface='04_portable_power_station', rot_z
 # the lead-acid battery in its charging dock, on a crate left of the power station; the dock's
 # mains cord drops to the floor and runs up into the station's left AC socket
 place('15_battery_charger', 0.1, y=0.93, rot_z=6)
+# an open sack of reef salt mix on the floor right of the supply cabinet
+place('16_reef_salt_bag', 5.47, y=1.45, rot_z=-10)
 
 
 def rod(name, a, b, r, mat, coll=props_coll):
@@ -216,7 +218,6 @@ def centre(stem, prefix, pick=min):
 # with that bag thrown up on top of the pile, so the storm runs in here: water spills out of the hole,
 # down between the bottom row's bags, and spreads across the floor in front of the pile
 # (scripts/room/leak.gd scales 'leak_puddle*' and flickers 'leak_stream_*').
-# The water filter's intake can be run out through the hole instead (scripts/room/water_filter.gd).
 HOLE = centre('06_sandbag_flood_barrier', 'loose_bag_stuffed_burlap_bag')
 HOLE.y, HOLE.z = WALL_Y, 0.31
 HOLE_W, HOLE_H = 0.34, 0.19
@@ -314,9 +315,46 @@ moss_mat = base_mat('wall_hole_moss', (0.22, 0.30, 0.13))
 for i, (dx, w) in enumerate([(-0.10, 0.05), (-0.03, 0.035), (0.07, 0.045)]):
     box(f'wall_hole_moss_{i}', (HOLE.x + dx, WALL_Y - 0.005, lo + 0.004), (w, 0.01, 0.014), moss_mat)
 
-# the filter: slide it so its intake's rubber boot sits in the hole
-boot = centre('07_gravity_water_filter', 'intake_hole_boot')
-placed['07_gravity_water_filter'][0].location += Vector((HOLE.x, WALL_Y - 0.075, HOLE.z)) - boot
+# the purifier: its board 0.95 m left of the hole, clear of the bottom row of sandbags
+board = centre('07_uv_water_filter', 'uv_board')
+placed['07_uv_water_filter'][0].location.x += HOLE.x - 0.95 - board.x
+
+# the rain catcher: a galvanised gutter hung on the front edge of the window sill, under the
+# shutters. With them open the storm blows in across the sill and runs off into it; a downpipe at
+# its left end takes the water down to the purifier's inlet. Its parts ('rain_catcher_*') click as
+# the water filter (pipeline/godot/export_glb.py).
+gut_mat = base_mat('rain_catcher_steel', (0.48, 0.52, 0.54))
+gut_dark = base_mat('rain_catcher_inside', (0.10, 0.12, 0.14))
+inlet = centre('07_uv_water_filter', 'uv_inlet_port')
+SILL_FRONT, SILL_Z = WALL_Y - 0.12, 0.90       # the sill box's front face and underside
+G0, G1 = inlet.x - 0.02, inlet.x + 1.05         # the gutter's ends (x)
+gy, gz = SILL_FRONT - 0.045, SILL_Z - 0.01
+box('rain_catcher_trough', ((G0 + G1) / 2, gy, gz - 0.035), (G1 - G0, 0.08, 0.012), gut_mat, coll=props_coll)
+box('rain_catcher_lip', ((G0 + G1) / 2, gy - 0.04, gz - 0.012), (G1 - G0, 0.012, 0.05), gut_mat, coll=props_coll)
+box('rain_catcher_inside', ((G0 + G1) / 2, gy - 0.002, gz - 0.026), (G1 - G0 - 0.02, 0.062, 0.006), gut_dark, coll=props_coll)
+box('rain_catcher_water', ((G0 + G1) / 2, gy - 0.004, gz - 0.021), (G1 - G0 - 0.03, 0.05, 0.004),
+    base_mat('rain_catcher_water', (0.45, 0.72, 0.86)), coll=props_coll)
+for x in (G0, G1):
+    box('rain_catcher_end', (x, gy, gz - 0.02), (0.012, 0.08, 0.04), gut_mat, coll=props_coll)
+for x in (G0 + 0.25, (G0 + G1) / 2 + 0.1, G1 - 0.15):
+    box('rain_catcher_bracket', (x, gy + 0.03, gz - 0.005), (0.02, 0.07, 0.05), gut_dark, coll=props_coll)
+pipe_mat = base_mat('rain_catcher_downpipe', (0.40, 0.44, 0.46))
+top = Vector((G0 + 0.04, gy, gz - 0.04))
+rod('rain_catcher_downpipe', top, inlet + Vector((0, 0, 0.03)), 0.016, pipe_mat)
+
+# the purifier's power cord: from its ballast down to the floor, along the foot of the wall behind
+# the sandbags, and up into the power station's right-hand socket
+cord_mat_uv = base_mat('uv_power_cord', (0.02, 0.025, 0.03))
+cex = centre('07_uv_water_filter', 'uv_cord_exit')
+sock2 = centre('04_portable_power_station', 'output_socket_dark_center', pick=max)
+st_dir = Vector((math.sin(math.radians(12)), -math.cos(math.radians(12)), 0))
+plug2 = sock2 + st_dir * 0.035
+path = [cex, cex + Vector((0.04, -0.02, -0.05)), Vector((cex.x + 0.06, WALL_Y - 0.06, 0.012)),
+        Vector((plug2.x - 0.25, WALL_Y - 0.06, 0.012)), plug2 + st_dir * 0.12 + Vector((0, 0, 0.012 - plug2.z)),
+        plug2 + st_dir * 0.07 + Vector((0, 0, -0.06)), plug2 + st_dir * 0.03]
+for i, (a, b) in enumerate(zip(path, path[1:])):
+    rod(f'uv_power_cord_{i}', a, b, 0.006, cord_mat_uv)
+rod('uv_power_plug', plug2 + st_dir * 0.03, sock2 + st_dir * 0.005, 0.016, base_mat('uv_power_plug', (0.05, 0.06, 0.07)))
 
 
 def joined(name, parts, mat, origin):
@@ -453,7 +491,9 @@ EMISSIVE = {'storm_window': ((0.25, 0.68, 1.0), 2.5), 'flame': ((1.0, 0.55, 0.15
             # the water running in under the window catches the storm light (scripts/room/leak.gd)
             'leak_stream': ((0.55, 0.82, 0.95), 1.6), 'leak_puddle_sheen': ((0.35, 0.58, 0.72), 1.0),
             # the water filter's jug: its level and the drop from the tap (scripts/room/water_filter.gd)
-            'jug_water': ((0.45, 0.75, 0.92), 1.4), 'filter_drip': ((0.55, 0.82, 0.95), 1.6)}
+            'jug_water': ((0.45, 0.75, 0.92), 1.4), 'filter_drip': ((0.55, 0.82, 0.95), 1.6),
+            # the purifier's UV lamp window and the water in its rain catcher, lit while it runs
+            'uv_lamp': ((0.55, 0.62, 1.0), 3), 'rain_catcher_water': ((0.55, 0.82, 0.95), 1.4)}
 
 
 BAND = 0.16  # brightness step in perceptual space; bigger = fewer, chunkier bands

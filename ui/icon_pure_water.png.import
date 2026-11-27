@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bw46cqqv0ehk0"
-path="res://.godot/imported/icon_water_jug.png-06533b8e59579ee005154e0170c57145.ctex"
+uid="uid://cb6bdt16v7b26"
+path="res://.godot/imported/icon_pure_water.png-f6e40e3939dc7d794995026acc71472c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://ui/icon_water_jug.png"
-dest_files=["res://.godot/imported/icon_water_jug.png-06533b8e59579ee005154e0170c57145.ctex"]
+source_file="res://ui/icon_pure_water.png"
+dest_files=["res://.godot/imported/icon_pure_water.png-f6e40e3939dc7d794995026acc71472c.ctex"]
 
 [params]
 

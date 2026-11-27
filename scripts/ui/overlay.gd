@@ -132,7 +132,7 @@ func _hover_label(text: String, cur: Vector2) -> void:
 func over_ui(p: Vector2) -> bool:
 	if top_modal() != "":
 		return true
-	return inventory.slot_at(p) >= 0 or _over_back(p) or _over_result(p) \
+	return inventory.slot_at(p) >= 0 or _over_back(p) or _over_result(p) or main.workbench.slot_at(p) >= 0 \
 			or main.radio_repair.slot_at(p) != "" or main.tank_panel.over(p)
 
 
@@ -292,7 +292,7 @@ func _draw() -> void:
 	_draw_night()
 
 	# the cursor: a hand over anything clickable, pressed in while a click is fresh
-	var hand: bool = ui_hover or (live and (hover != "" or inventory.held != null or craft.hover_cell != craft.NO_CELL))
+	var hand: bool = ui_hover or (live and (hover != "" or inventory.held != null))
 	var hs: Array = _hotspots["hand" if hand else "arrow"]
 	var pressed: bool = main.clicking()
 	var at := cur - Vector2(hs[0], hs[1]) + Vector2(0, 1 if pressed else 0)
@@ -372,22 +372,28 @@ func _draw_radio_slots(cur: Vector2, live: bool) -> String:
 	return label
 
 
-## the crafting view's UI: the items lying on the mat, the hovered cell (2 px white on its grid
-## lines, inked outside) and the result slot (empty until the mat holds a recipe; crafting/crafting.gd).
-## Returns the hover label.
+## the crafting view's UI, one plus one (crafting/crafting.gd): two slots on the mat with a + between
+## them, an = and the result slot right of the mat (empty until the two make something; clicking it
+## makes it). Returns the hover label.
 func _draw_crafting(craft, cur: Vector2, live: bool) -> String:
 	var bench = main.workbench
 	var label := ""
-	for cell: Vector2i in bench.placed:
-		inventory.draw_icon(bench.placed[cell], Vector2(craft.cell_rect(cell).position) + Vector2(5, 5))
-	if live and craft.hover_cell != craft.NO_CELL:
-		var cr := Rect2(craft.cell_rect(craft.hover_cell))
-		Px.frame(self, cr.grow(1), Px.INK)
-		Px.frame(self, cr, Px.WHITE)
-		Px.frame(self, cr.grow(-1), Px.WHITE)
-		var on: ItemData = bench.item_at(craft.hover_cell)
-		if on != null and inventory.held == null:
-			label = "TAKE " + on.name
+	for i in bench.SLOTS.size():
+		var r: Rect2 = bench.SLOTS[i]
+		var hot: bool = live and r.has_point(cur)
+		draw_rect(r, panel_col)
+		Px.frame(self, r.grow(1), Px.INK)
+		Px.frame(self, r, Px.WHITE if hot else panel_hi)
+		var it: ItemData = bench.slots[i]
+		if it != null and it.icon != null:
+			draw_texture_rect(it.icon, Rect2(r.position + (r.size - Vector2(36, 36)) / 2.0, Vector2(36, 36)), false)
+		elif it != null:
+			Px.text(self, "?", r.get_center() - Vector2(2, 3), Px.WHITE, Px.INK)
+		if hot:
+			label = bench.slot_label(i, inventory.held)
+	var mid: float = bench.SLOTS[0].get_center().y
+	_sign("+", Vector2((bench.SLOTS[0].end.x + bench.SLOTS[1].position.x) / 2.0, mid))
+	_sign("=", Vector2((bench.SLOTS[1].end.x + RESULT.position.x) / 2.0, mid))
 	var out: String = bench.result()
 	var hot := live and out != "" and RESULT.has_point(cur)
 	draw_rect(RESULT, panel_col)
@@ -401,8 +407,19 @@ func _draw_crafting(craft, cur: Vector2, live: bool) -> String:
 		else:
 			Px.text(self, "?", RESULT.get_center() - Vector2(2, 3), Px.WHITE, Px.INK)
 		if hot:
-			label = "MAKE " + item.name
+			var wait: float = bench.ready_frames(out)
+			label = "MAKE " + item.name + (" (CAKED SALT: SLOW TO DISSOLVE)" if wait > 0.0 else "")
 	return label
+
+
+## a + or = between the crafting slots, drawn 2x in a dark box so it reads on the mat
+func _sign(s: String, c: Vector2) -> void:
+	var r := Rect2((c - Vector2(8, 9)).floor(), Vector2(17, 17))
+	draw_rect(r, panel_col)
+	Px.frame(self, r, Px.INK)
+	draw_set_transform(r.position + Vector2(4, 2), 0.0, Vector2(2, 2))
+	Px.text(self, s, Vector2.ZERO, Px.WHITE, Px.INK)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
 ## a red ! sign pointing straight down at the radio. Story guidance only: an incoming call, or the

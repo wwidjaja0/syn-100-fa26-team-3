@@ -57,19 +57,21 @@ order every frame, and routes input. Each part is one file with one job.
 | `room/cabinet.gd` | Supply cabinet doors and the light inside | `toggle()` |
 | `room/weather.gd` | The weather outside the window: presets (storm, rain, overcast, marine fog, clear, wildfire smoke) picked at random and cross-faded, a new one each day, day 1 (the tutorial) rainy only; lightning, and the window lights' colour to match; the outside temperature and the rain | `set_weather(name)`, `pick(name)`, `choices()`, `after(name)`, `temperature()`, `rain()`, `heat(open)`, `update(delta, clock)` |
 | `room/leak.gd` | The hole under the window: the sandbag that belongs in it (starts thrown up on the pile), the stream and the puddle while it's open | `state()` ("open", "bag", "filter"), `leaking()`, `plug()`, `make_way()`, `level` |
-| `room/water_filter.gd` | The bucket filter beside the hole: its intake run out through the hole (flag `filter_installed`), when it runs (shutters open + rain), and the jug it fills, taken as CLEAN WATER | `installed()`, `blocked()`, `running()`, `fill`, `click()`, `click_jug()`, `return_jug()` |
+| `room/water_filter.gd` | The UV purifier under the window and the rain catcher on the sill that feeds it: runs while the shutters are open and it rains, fills the jerrycan, taken as PURE WATER | `blocked()`, `running()`, `fill`, `click()`, `click_jug()`, `return_jug()` |
+| `room/cabin_climate.gd` | The cabin's temperature and humidity (toward the outside air with the shutters open, back to its own shut), and the gauges above the workbench that show them | `temp`, `humid`, `label()`, `update(delta)` |
+| `room/salt_bag.gd` | The open sack of reef salt mix: caking with humidity and warmth, a scoop of REEF SALT per click (carrying its `cake`) | `cake`, `rate()`, `label()`, `click()` |
 | `room/pendant.gd` | The hanging lamp's pull chain: lights out, a fade, `GameState.advance_day()`, the morning; not while the hole leaks | `pull()`, `busy()`, `blackout()`, `card()` |
 | `room/ambience.gd` | Things that move on their own: storm sky, PA status light, lantern, the battery dock's green light (blinks while charging, solid when full, flag `battery_charged`) and the radio's red one | |
 | `room/room_camera.gd` | Edge panning, pixel snapping, blending into close-up views | `x`, `push`, `cam_px` |
 | `room/post_process.gd` | Hooks the renders and palette into `post.gdshader`; updates its uniforms | |
 | `room/ease.gd` | Easing curves (`smooth`, `out_back`) | static functions |
 | `views/close_view.gd` | Base class for close-ups: camera eases from the room to a fixed pose and back | `enter(now)`, `exit(now)`, `settled()`, `active()`, signals `entered`, `exited` |
-| `views/crafting_view.gd` | Close-up straight down onto the cutting mat; the build grid | `cell_at(p)`, `cell_rect`, `cell_world`, signals `cell_hovered`, `cell_clicked` |
+| `views/crafting_view.gd` | Close-up straight down onto the cutting mat (the backdrop for the crafting slots) | `mat_px`, signal `clicked(p, held)` |
 | `views/radio_view.gd` | Close-up of the ham radio's front panel | signal `clicked`, `screen_point(world)` |
-| `crafting/crafting.gd` | **The crafting rules** (`main.workbench`): items lying on the mat, `RECIPES`, making the result | `placed`, `item_at(cell)`, `result()`, `craft(from)`, signals `changed`, `crafted` |
+| `crafting/crafting.gd` | **The crafting rules** (`main.workbench`): one plus one in two slots, `RECIPES`, making the result, results that need time (caked salt dissolving) | `SLOTS`, `slots`, `slot_at(p)`, `result()`, `ready_frames(out)`, `craft(from)`, signals `changed`, `crafted` |
 | `views/tank_view.gd` | Close-up of the reef tank, framed left of centre to leave room for its panel; first visit plays `interactions.inspect_tank()` | signal `clicked` |
 | `tank/tank_panel.gd` | The tank close-up's panel (`main.tank_panel`): live readings with safe bands, and item slots that take anything | `readings`, `live_value(i)`, `contents`, `click(p, held)`, `slot_rect(i)`, signal `changed` |
-| `tank/tank_water.gd` | What the cabin does to the tank's readings: an open window in hot weather warms it; a jug of CLEAN WATER in a tank slot is a water change (pH and oxygen part way to safe) and sends the jug back | `update(delta)` |
+| `tank/tank_water.gd` | The saltwater reef's water: warm air warms it; evaporation drops the level, raises the salinity and lets pH and oxygen drift back; PURE WATER in a slot tops it off, SALTWATER does a water change; either sends the jerrycan back | `litres()`, `top_off()`, `water_change()`, `update(delta)` |
 | `radio/radio_repair.gd` | The radio close-up's slots for its missing parts (`main.radio_repair`); filling them all sets `radio_fixed` | `SLOTS`, `filled`, `showing()`, `slot_rect(id)`, `click(p, held)`, signal `changed` |
 | `ui/overlay.gd` | Draws all UI; gets every click first; owns the open panel | `panel`, `open_panel`, `close_panel`, `handle_click`, `over_ui` |
 | `ui/inventory_bar.gd` | The slots along the bottom, the held item, items flying in, dragging | `held`, `fly`, `has_room`, `click`, `drag_released(p)` |
@@ -133,14 +135,16 @@ which must agree:
 
 | File | Constant |
 |---|---|
-| `shaders/toon.gdshader` | `ID_OFFSET = 4`, `ID_STEP = 10.0` |
-| `shaders/post.gdshader` | `ID_OFFSET = 4`, `ID_STEP = 10.0` |
-| `scripts/room/object_picker.gd` | `MASK_ID_OFFSET = 4`, `ID_STEP = 10` |
+| `shaders/toon.gdshader` | `ID_OFFSET = 4`, `ID_STEP = 8.0` |
+| `shaders/post.gdshader` | `ID_OFFSET = 4`, `ID_STEP = 8.0` |
+| `scripts/room/object_picker.gd` | `MASK_ID_OFFSET = 4`, `ID_STEP = 8` |
 
-One 8-bit channel fits `(id + 4) * 10 ≤ 255`, so there's room for **21 groups**. 19 are used: 17 from the room
-(the battery is the last), plus two added in code at start-up (appending to `meta.groups` before the picker
-numbers them): the reef tank and its gauges (`room/fish_tank.gd`). (The step was 12, room for
-17, until the tank needed more.)
+One 8-bit channel fits `(id + 4) * 8 ≤ 255`, so there's room for **27 groups**. 22 are used: 20 from the room
+(the salt bag is the last), plus two added in code at start-up (appending to `meta.groups` before the picker
+numbers them): the reef tank and its gauges (`room/fish_tank.gd`). (The step was 12, room for 17, until the
+tank needed more; then 10, room for 21, until the salt bag.) Neighbouring ids are 8 levels apart, so the
+picker's rounding still has 4 levels of slack either way, which Compatibility's precision loss near black
+(the reason for the offset) stays well inside.
 
 A group is only hoverable if `interactions.hoverable(group)` says so: it needs a label in `LABELS`. The window's
 `sky` group is the exception; it can be hovered only while the shutters are open.
@@ -197,24 +201,28 @@ transform), `_size` (orthographic width in metres) and `_focus` (the point it lo
 - `room_camera.gd` asks the active view for `camera_pose(room_pose, room_size)` and uses it for both cameras.
 - While a view is active, room hover is off and the
   overlay shows BACK once `settled()`.
-- Clicks go to the view's `click(cursor, held)`. The views only *emit signals* (`cell_clicked`, `clicked`).
-  `crafting/crafting.gd` listens to `cell_clicked` (see "Crafting" below). The radio's repair slots are UI, so
+- Clicks go to the view's `click(cursor, held)`. The views only *emit signals* (`clicked`).
+  `crafting/crafting.gd` listens to the crafting view's `clicked` (see "Crafting" below). The radio's repair slots are UI, so
   `overlay.gd` hands them clicks before the view sees any (see "Fixing the radio" below).
 
 `main.views` lists every view. `main.active_view()` returns the one opening or open, else one still easing out.
 
 ## Crafting
 
-`crafting/crafting.gd` (`main.workbench`; `main.crafting` is the camera view) owns what lies on the cutting mat:
-`placed`, a map of grid cell → `ItemData`. In the crafting view:
-- holding an item and clicking an empty cell takes it out of the inventory and puts it on the mat;
-- clicking a placed item with nothing held flies it back into the inventory;
-- `result()` is the recipe whose ingredients are exactly the mat's items (cells don't matter), or `""`;
-- `overlay.gd` draws the placed icons, and the result slot (`RESULT`) right of the mat: empty until `result()` names
-  something, then that item's icon at 3x. Clicking it calls `craft()`, which uses up the mat, flies the result into
-  the inventory and sets the flag `crafted_<id>`.
+Crafting is one plus one: two things make one (x + y = xy), which can go with a third (xy + z = xyz).
+`crafting/crafting.gd` (`main.workbench`; `main.crafting` is the camera view) owns two slots drawn over the
+cutting mat (`SLOTS`, the mat itself is only the backdrop) and what's in them (`slots`). In the crafting view:
+- holding an item and clicking (or dragging onto) an empty slot takes it out of the inventory and puts it there;
+- clicking a filled slot with nothing held flies it back into the inventory;
+- `result()` is the recipe whose two ingredients are the two slots' items (either order), or `""`;
+- `overlay.gd` draws the slots with a + between them, an =, and the result slot (`RESULT`) right of the mat: empty
+  until `result()` names something, then that item's icon at 3x. Clicking it calls `craft()`, which uses up both,
+  flies the result into the inventory and sets the flag `crafted_<id>`.
 
-There are no recipes yet; the radio is fixed in its own close-up instead.
+A result can need time before it's usable: `ready_frames(out)` says how long, and `craft()` gives the result its
+own copy of the ItemData with metas `ready_at` (a clock frame) and `wait`. `inventory_bar.gd` draws such an item
+dimmed with a progress bar and won't let it be picked up until then. The one recipe so far is PURE WATER + REEF
+SALT = SALTWATER; salt caked past `CAKED_AT` takes up to `DISSOLVE_SECONDS` to dissolve, loose salt none.
 
 ## Fixing the radio
 
@@ -241,13 +249,16 @@ either opens `views/tank_view.gd`; the first time it settles, `interactions.insp
 then "inspect_tank_gauges" (both `once_flag`). While it's settled, `tank/tank_panel.gd` is up: `overlay.gd` draws its
 `readings` (each a value with a bar range and a safe band, wobbling slightly via `live_value(i)`) and its `SLOTS`
 item slots, and sends it clicks first. The slots take any item; nothing reads `contents` yet. To make items affect
-the tank, connect to `tank_panel.changed` and change a reading's `value`. `tank/tank_water.gd` already does: the
-shutters open while it's hotter outside than the water (`weather.temperature()`) warm it toward the outside
-temperature, and a CLEAN WATER jug put in a slot is poured in at once (pH and oxygen move `WATER_CHANGE` of the way
-to their targets) and the empty jug goes back under the filter's tap. Its rates are first guesses, to be balanced
-with the rest of the tank's chemistry (issue #35).
+the tank, connect to `tank_panel.changed` and change a reading's `value`. `tank/tank_water.gd` already does (see
+its header). The readings are water temperature, pH, oxygen, salinity and water level. A warmer cabin
+(`climate.temp`) warms the water. Evaporation, faster when warm and dry, drops the level and concentrates the salt,
+and pulls pH and oxygen back toward where the cabin's air holds them (`PH_CABIN`, `OXYGEN_CABIN`), so a water change
+only buys time. PURE WATER in a slot is a top-off (level up, salinity down, nothing for pH); SALTWATER is a water
+change, the canon fix (salinity and temperature mixed by volume, pH and oxygen `CHANGE_SHARE` of the way to new
+seawater's). Either sends the empty jerrycan back under the purifier. Rates are first guesses, to be balanced with
+the rest of the tank's chemistry (issue #35).
 
-## The leak, the water filter and the day
+## The leak, the purifier, the salt and the day
 
 A hole is knocked through the wall low under the window, behind the left end of the sandbag pile's second row
 (`build_pixel_scene.py`'s `wall_hole`). That row's left bag (parts `loose_bag_*`) is built in the hole;
@@ -255,11 +266,19 @@ A hole is knocked through the wall low under the window, behind the left end of 
 `leak_stream_a_*` / `_b_*` flicker while it's open and raining, and `leak_puddle*` scale with `level`, which
 fills with the rain and dries once the hole is sealed. After the waking thoughts main.gd plays "leak_noticed"
 (flag `dlg_leak_seen`), and from then `interactions.leak_alert()` puts the red ! over the sandbags. Clicking them
-calls `leak.plug()` (flag `hole_plugged`). Clicking the water filter then calls `water_filter.click()`: its
-`intake_idle_*` parts hide, its `intake_hole_*` parts show, the bag goes back up (`leak.make_way()`) and flag
-`filter_installed` is set. The filter runs while the shutters are open and `weather.rain()` is above `MIN_RAIN`,
-dripping (`filter_drip`) into the jug beside it (the `jug` group; `jug_water` is scaled up from the jug's floor
-with `fill`). Clicking the full jug picks it up as `items/water_jug.tres`; `return_jug()` puts it back empty.
+calls `leak.plug()` (flag `hole_plugged`), which seals it for good.
+
+The UV purifier (`07_uv_water_filter`) stands under the window's left end, and a gutter hung on the sill's front
+edge (`rain_catcher_*`, built by `build_pixel_scene.py`, part of the `filter` group) feeds it. It runs while the
+shutters are open and `weather.rain()` is above `MIN_RAIN`: its `uv_lamp` window and the gutter's water light up,
+and it drips (`filter_drip`) into the jerrycan beside it (the `jug` group; `jug_water` is scaled up from its floor
+with `fill`). Clicking the full jerrycan picks it up as `items/pure_water.tres`; `return_jug()` puts it back empty.
+
+The sack of reef salt mix (`16_reef_salt_bag`, the `salt` group) right of the supply cabinet cakes while the cabin's
+humidity (`climate.humid`) is above `CAKE_FROM`, faster when warm; its `salt_crust_*` lumps show as it goes.
+Clicking it gives REEF SALT (or CAKED REEF SALT) carrying meta `cake`. The gauges above the workbench
+(`08_wall_weather_instruments`) are live: `cabin_climate.gd` turns the hygrometer's and barometer's pointers
+about their hubs and scales the thermometer's column, and the board's hover label gives the numbers.
 
 The hanging lamp, its cord and its pull chain are the `pendant` group. `room/pendant.gd` turns the `pendant_key`
 light and the bulb off, `overlay.gd` fades to black (`blackout()`) and shows the DAY card (`card()`), and

@@ -1,54 +1,86 @@
 extends Node
-## The crafting rules: what is lying on the workbench's cutting mat, the recipes, and making things.
+## The crafting rules, one plus one: put two things down on the workbench and, if they go together,
+## they make one new thing (x + y = xy), which can go together with a third (xy + z = xyz).
 ## main.gd creates it as `main.workbench` (main.crafting is the camera view, views/crafting_view.gd).
 ##
-## In the crafting view, hold an item and click an empty cell to put it down: it leaves the
-## inventory and sits on the mat (`placed`). Click a placed item with nothing held to send it back to
-## the inventory. Where things sit on the grid doesn't matter: when the mat holds exactly a
-## recipe's ingredients, result() names what they make, overlay.gd shows it big in the result slot
-## to the right of the mat, and clicking that slot calls craft().
+## In the crafting view the cutting mat is only the backdrop. Over it sit two slots with a + between
+## them (SLOTS), and the result slot to the right (overlay.gd's RESULT). Hold an item and click a slot
+## (or drag it there) to put it down: it leaves the inventory. Click a filled slot with nothing held to
+## take it back. When the two slots hold a recipe, result() names what they make, overlay.gd shows it
+## big in the result slot, and clicking that slot calls craft(): the two are used up and the result
+## flies into the inventory.
 ##
-## To add a recipe, add a line to RECIPES (the result and every ingredient are item ids, i.e.
+## Some results take time before they can be used: craft() asks ready_frames() how long, and marks the
+## item (ItemData meta "ready_at", a clock frame) so the inventory bar shows a progress bar on it and
+## won't let it be picked up until then. Reef salt that has caked in the damp (room/salt_bag.gd) takes
+## longer to dissolve into SALTWATER; loose salt is ready at once.
+##
+## To add a recipe, add a line to RECIPES (the result and both ingredients are item ids, i.e.
 ## res://items/<id>.tres; see "Add a crafting recipe" in docs/HOW_TO.md).
 
-## emitted whenever the mat changes (an item put down or taken back, or something crafted)
+## emitted whenever the slots change (an item put down or taken back, or something crafted)
 signal changed
 ## something was made; the result item is flying into the inventory
 signal crafted(result: ItemData)
 
-## result item id -> its ingredients' item ids (any order, any cells), e.g.
-##     "cig": ["jar", "papers"],
-## None yet: the radio is fixed in its own close-up instead (radio/radio_repair.gd).
+## result item id -> its two ingredients' item ids (either order)
 const RECIPES := {
+	"saltwater": ["pure_water", "salt"],    # reef salt mix dissolved in purified water: new seawater
 }
+const SLOTS := [Rect2(146, 112, 46, 46), Rect2(232, 112, 46, 46)]   # the two ingredient slots, on the mat
+const DISSOLVE_SECONDS := 90.0          # fully caked salt takes this long to dissolve into saltwater
+const CAKED_AT := 0.25                  # salt caked less than this dissolves at once
 
-var placed := {}                        # Vector2i cell -> ItemData lying there
+var slots: Array = [null, null]         # the ItemData in each slot, or null
 
 var _main: Node
 
 
 func setup(main: Node) -> void:
 	_main = main
-	main.crafting.cell_clicked.connect(_on_cell_clicked)
+	main.crafting.clicked.connect(_on_clicked)
 
 
-## the item lying in a cell, or null
-func item_at(cell: Vector2i) -> ItemData:
-	return placed.get(cell)
+## the slot under a screen pixel, or -1
+func slot_at(p: Vector2) -> int:
+	if not _main.crafting.settled():
+		return -1
+	for i in SLOTS.size():
+		if SLOTS[i].has_point(p):
+			return i
+	return -1
 
 
-## the id of what the mat's items make, or "" when they don't make anything
+## the id of what the two slots make, or ""
 func result() -> String:
-	if placed.is_empty():
+	if slots[0] == null or slots[1] == null:
 		return ""
-	var have := _sorted_ids(placed.values().map(func(i: ItemData): return i.id))
 	for out: String in RECIPES:
-		if _sorted_ids(RECIPES[out]) == have:
+		var need: Array = RECIPES[out]
+		if (need[0] == slots[0].id and need[1] == slots[1].id) or (need[1] == slots[0].id and need[0] == slots[1].id):
 			return out
 	return ""
 
 
-## make the result: the ingredients are used up and the result flies from `from` (a screen point)
+## the hover label over a slot
+func slot_label(i: int, held: ItemData) -> String:
+	if held != null:
+		return "PUT DOWN " + held.name if slots[i] == null else "SLOT TAKEN"
+	return "TAKE BACK " + slots[i].name if slots[i] != null else "EMPTY SLOT"
+
+
+## how many clock frames the result needs before it can be used (0: ready now)
+func ready_frames(out: String) -> float:
+	if out != "saltwater":
+		return 0.0
+	for it in slots:
+		if it != null and it.id == "salt":
+			var cake: float = it.get_meta("cake", 0.0)
+			return 0.0 if cake < CAKED_AT else cake * DISSOLVE_SECONDS * _main.TICK
+	return 0.0
+
+
+## make the result: both ingredients are used up and the result flies from `from` (a screen point)
 ## into the inventory. False when nothing matches or the inventory has no room.
 func craft(from: Vector2) -> bool:
 	var out := result()
@@ -56,8 +88,12 @@ func craft(from: Vector2) -> bool:
 	if out == "" or not bar.has_room():
 		UiSounds.play("back")
 		return false
-	var item := InventoryManager.get_item(out)
-	placed.clear()
+	var item: ItemData = InventoryManager.get_item(out).duplicate()   # its own copy: it may carry a timer
+	var wait := ready_frames(out)
+	if wait > 0.0:
+		item.set_meta("ready_at", _main.clock + wait)
+		item.set_meta("wait", wait)
+	slots = [null, null]
 	bar.fly(item, from, _main.clock)
 	UiSounds.play("start")
 	GameState.set_flag("crafted_" + out)
@@ -66,28 +102,25 @@ func craft(from: Vector2) -> bool:
 	return true
 
 
-func _on_cell_clicked(cell: Vector2i, held: ItemData) -> void:
+func _on_clicked(p: Vector2, held: ItemData) -> void:
+	var i := slot_at(p)
+	if i < 0:
+		return
 	var bar = _main.ui.inventory
 	if held != null:
-		if placed.has(cell):             # occupied: keep holding it
+		if slots[i] != null:             # taken: keep holding it
 			UiSounds.play("back")
 			return
 		bar.held = null
 		InventoryManager.remove_item(held)
-		placed[cell] = held
+		slots[i] = held
 		UiSounds.play("pick")
 		changed.emit()
-	elif placed.has(cell):
+	elif slots[i] != null:
 		if not bar.has_room():
 			UiSounds.play("back")
 			return
-		bar.fly(placed[cell], Vector2(_main.crafting.cell_rect(cell).get_center()), _main.clock)
-		placed.erase(cell)
+		bar.fly(slots[i], SLOTS[i].get_center(), _main.clock)
+		slots[i] = null
 		UiSounds.play("pick")
 		changed.emit()
-
-
-static func _sorted_ids(ids: Array) -> Array:
-	var s := ids.duplicate()
-	s.sort()
-	return s

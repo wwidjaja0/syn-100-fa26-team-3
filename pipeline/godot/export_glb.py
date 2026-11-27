@@ -82,9 +82,10 @@ GROUPS = {
     'lantern': kids('10_emergency_lantern'),
     'instruments': kids('08_wall_weather_instruments'),
     'power': kids('04_portable_power_station'),
-    # the water filter's jug fills while it runs and is taken into the inventory (water_filter.gd)
-    'jug': [o for o in kids('07_gravity_water_filter') if o.name.startswith('jug_')],
-    'filter': kids('07_gravity_water_filter'),
+    # the purifier's jerrycan fills while it runs and is taken into the inventory (water_filter.gd)
+    'jug': [o for o in kids('07_uv_water_filter') if o.name.startswith('jug_')],
+    # the purifier and the rain catcher on the window sill that feeds it
+    'filter': kids('07_uv_water_filter') + named('rain_catcher_'),
     'crates': kids('09_supply_crates'),
     'sandbags': kids('06_sandbag_flood_barrier'),
     'flashlight': kids('11_flashlight'),
@@ -92,6 +93,8 @@ GROUPS = {
     'battery': [o for o in kids('15_battery_charger') if o.name.startswith('leadacid_')],
     # the hanging lamp over the bench and its pull chain: lights out ends the day
     'pendant': named('pendant_'),
+    # the open sack of reef salt mix by the supply cabinet (scripts/room/salt_bag.gd)
+    'salt': kids('16_reef_salt_bag'),
 }
 taken = set()
 for name in GROUPS:                                  # an object belongs to the first group that lists it
