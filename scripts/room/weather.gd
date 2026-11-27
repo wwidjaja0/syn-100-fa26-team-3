@@ -6,14 +6,20 @@ extends Node
 ## tints the light the window throws into the room (the storm_window spot and the storm_moon_rim light)
 ## to match.
 ##
-## The weather starts in the storm and moves on through PRESETS in CYCLE order, holding each for
-## HOLD seconds and cross-fading over BLEND. The F9 debug menu can jump to any of them (set()).
+## The weather is random. It holds each weather for HOLD seconds, then cross-fades over BLEND into
+## another picked at random from today's choices, and each new day (GameState.day, moved on by the
+## hanging lamp: room/pendant.gd) starts on a fresh random one, swapped in while the screen is black.
+## Day 1 is the tutorial: it starts in the storm and stays rainy (TUTORIAL: storm and rain only), so
+## the leak under the window and the water filter have water to work with. From day 2 any of CYCLE
+## can come. The F9 debug menu steps through CYCLE in order (after(), set_weather()).
 ##
 ## To add a kind of weather, add a preset below (every key, colours linear) and put it in CYCLE.
 
 const HOLD := 150.0                     # s each weather lasts
 const BLEND := 20.0                     # s to cross-fade into the next
 const CYCLE := ["storm", "rain", "overcast", "marine fog", "clear", "wildfire smoke"]
+const TUTORIAL := ["storm", "rain"]     # day 1's choices: it stays rainy
+const TUTORIAL_DAYS := 1
 
 ## cover: cloud cover 0..1. storm: 1 for the storm's blue (day 2: orange) clouds, 0 for plain `cloud`.
 ## sky_top / sky_low: the clear sky. vis: m, how far the haze lets you see. haze: its colour.
@@ -86,12 +92,15 @@ var _light_base: Array = []             # ... their colours and energies as set 
 var _since := 0.0                       # s in the current weather
 var _flash_at := -1e9                   # the last lightning strike (24 fps frames)
 var _rng := RandomNumberGenerator.new()
+var _day := 1                           # the day the weather was last picked for
 var _now: Dictionary = PRESETS["storm"] # this frame's blend of presets
 
 
 func setup(main: Node, lights: Node3D, materials: Node) -> void:
 	_main = main
 	_materials = materials
+	_rng.randomize()
+	_day = GameState.day
 	for n in ["storm_window", "storm_moon_rim"]:
 		var l := lights.get_node_or_null(n) as Light3D
 		if l:
@@ -124,16 +133,32 @@ func set_weather(name: String) -> void:
 		_since = 0.0
 
 
-## the weather after `name` in CYCLE
+## the weather after `name` in CYCLE (the debug menu's W line)
 func after(name: String) -> String:
 	return CYCLE[(CYCLE.find(name) + 1) % CYCLE.size()]
+
+
+## what the weather can be today: rainy only through the tutorial
+func choices() -> Array:
+	return TUTORIAL if GameState.day <= TUTORIAL_DAYS else CYCLE
+
+
+## a random weather from today's choices, other than `name` when there's another to pick
+func pick(name: String) -> String:
+	var options := choices().filter(func(w): return w != name)
+	if options.is_empty():
+		return name
+	return options[_rng.randi() % options.size()]
 
 
 ## per frame, from main.gd. delta in seconds; clock in 24 fps frames.
 func update(delta: float, clock: float) -> void:
 	_since += delta
-	if next == "" and _since >= HOLD:
-		next = after(current)
+	if GameState.day != _day:           # a new day: a new weather, straight away
+		_day = GameState.day
+		set_weather(pick(current))
+	elif next == "" and _since >= HOLD:
+		next = pick(current)
 		_since = 0.0
 	var w: Dictionary = PRESETS[current]
 	if next != "":

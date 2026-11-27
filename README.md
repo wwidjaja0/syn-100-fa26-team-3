@@ -51,8 +51,9 @@ What's in the room so far:
   they're open, and how much depends on the weather: hardly any in rain, most under wildfire smoke. Behind them, the view from the cabin's
   summit: the Oregon coast from Neahkahnie Mountain (real terrain, `make_window_view.py`), under changing weather
   (`scripts/room/weather.gd`): storm, rain, overcast, the coast's marine fog filling the valleys below, clear
-  skies, and wildfire smoke. Each holds a couple of minutes, then fades into the next; the window's light into
-  the room follows it. F9's W line jumps to the next one.
+  skies, and wildfire smoke. The weather is random: each holds a couple of minutes, then fades into another, and
+  every new day starts on a new one. Day 1, the tutorial, starts in the storm and stays rainy (storm or rain).
+  The window's light into the room follows it. F9's W line steps through them in order.
 - **The leak under the window:** the game starts in the storm with one sandbag thrown up on top of the pile, and
   the hole in the wall behind it open: water spills out over the bottom row and a puddle spreads across the floor
   (`scripts/room/leak.gd`). Once the cabin points it out, a red ! marks the sandbags; click them to drop the bag
