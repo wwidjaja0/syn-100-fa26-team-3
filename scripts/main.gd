@@ -141,7 +141,6 @@ func _ready() -> void:
 	materials = RoomMaterials.new()
 	_add(materials, "RoomMaterials")
 	materials.setup(room, meta, picker.group_of, compat)
-	sleep_cycle.setup_lighting(materials, $WorldVP/Lights)
 	shutters = Shutters.new()
 	_add(shutters, "Shutters")
 	shutters.setup(self, room)
@@ -151,6 +150,7 @@ func _ready() -> void:
 	ambience = Ambience.new()
 	_add(ambience, "Ambience")
 	ambience.setup(self, $WorldVP/Lights, materials, $WorldVP/Lights/lantern_glow, compat)
+	sleep_cycle.setup_lighting(materials, $WorldVP/Lights)   # after Compatibility scales shadow lights
 	weather = Weather.new()              # after ambience: it reads the window lights as ambience left them
 	_add(weather, "Weather")
 	weather.setup(self, $WorldVP/Lights, materials)

@@ -27,7 +27,7 @@ const PRESETS := {
 		"sky_top": Vector3(0.05, 0.12, 0.30), "sky_low": Vector3(0.20, 0.35, 0.55),
 		"vis": 30000.0, "haze": Vector3(0.20, 0.30, 0.45), "land": Vector3(1.0, 1.0, 1.0),
 		"fog": 0.0, "fog_top": 300.0, "fog_col": Vector3(0.5, 0.55, 0.62),
-		"rain": 0.55, "lightning": 1.0, "light": Vector3(1.0, 1.0, 1.0), "heat": 0.45, "heat_in": 0.0,
+		"rain": 0.55, "lightning": 0.0, "light": Vector3(1.0, 1.0, 1.0), "heat": 0.45, "heat_in": 0.0,
 	},
 	"rain": {
 		"cover": 1.0, "storm": 0.0, "cloud": Vector3(0.16, 0.19, 0.24),

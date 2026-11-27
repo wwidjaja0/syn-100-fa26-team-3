@@ -78,8 +78,7 @@ func update() -> void:
 
 	if _radio_glow != null:
 		if radio_lit:
-			var target_glow := 1.6 + 0.6 * sin(clock * 0.65) + 0.25 * sin(clock * 1.9)
-			_radio_glow.light_energy = lerpf(_radio_glow.light_energy, target_glow, 0.2)
+			_radio_glow.light_energy = lerpf(_radio_glow.light_energy, 1.6, 0.2)
 		else:
 			_radio_glow.light_energy = lerpf(_radio_glow.light_energy, 0.0, 0.15)
 
@@ -101,7 +100,13 @@ func _status_lights(clock: float, radio_lit: bool) -> void:
 		charge = LED_ON if GameState.flag("battery_charged") or _blink(secs, CHARGE_BLINK) else 0.0
 	_materials.set_param(_charge_led, "emission_energy", charge)
 	if _dock_glow:
-		_dock_glow.light_energy = DOCK_GLOW * charge / LED_ON
+		if GameState.flag("took_battery"):
+			_dock_glow.light_energy = 0.0
+		elif GameState.flag("battery_charged"):
+			_dock_glow.light_energy = DOCK_GLOW
+		else:
+			# The tiny LED can blink, but its actual room illumination stays steady while charging.
+			_dock_glow.light_energy = DOCK_GLOW * 0.35
 	var radio := 0.0
 	if GameState.flag("radio_fixed"):
 		radio = LED_ON if not radio_lit or _blink(secs, RADIO_BLINK) else 0.0
