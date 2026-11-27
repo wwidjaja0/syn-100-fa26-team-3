@@ -254,7 +254,9 @@ func _do(s: Array, out: String) -> void:
 			main.cursor_override = s[2]
 		"pan":                           # park the cursor on that screen edge so the view pans
 			main.cursor_override = Vector2(1.0 if s[2] == "left" else main.W - 2.0, main.H / 2.0)
-		"click":
+		"click":                         # where the cursor was just put, even if no frame has read it yet
+			if main.cursor_override != null:
+				main.cursor = main.cursor_override
 			main.click()
 		"close_box":                     # the microfiche's close box
 			main.cursor_override = main.ui.microfiche.CLOSE

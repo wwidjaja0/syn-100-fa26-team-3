@@ -5,7 +5,8 @@ extends Node
 ##   the warm air: when the cabin (room/cabin_climate.gd) is hotter than the water, the water warms
 ##     toward it, faster the bigger the gap. Cooler air doesn't cool it: the tank's lamp and pumps
 ##     keep it warm, so cooling is a job for the player (issue #35).
-##   evaporation: the open tank loses water, faster when it's warm and the air is dry. The salt stays
+##   evaporation: the open tank loses water, faster when it's warm and the air is dry (about 1-2 % a
+##     day, as a real one does; overnight, at lights out, it loses NIGHT_SHARE of a day's worth). The salt stays
 ##     behind, so the level drops and the salinity climbs. And it undoes a water change: while the water
 ##     turns over, the cabin's CO2-heavy air dissolves back in and the oxygen drains off again, so pH and
 ##     oxygen drift back toward where the cabin pushes them (PH_CABIN, OXYGEN_CABIN), DRIFT_LITRES of
@@ -28,10 +29,16 @@ const FULL_LITRES := 260.0              # the tank at 100 %
 const JUG_LITRES := 20.0
 const WARM_PER_DEGREE := 1.0 / 420.0    # degC a second, per degC the cabin is warmer than the water
 const TEMP_CAP := 34.0                  # the gauge's top: the water stops climbing here
-const EVAP_LITRES := 0.02               # litres a second at EVAP_TEMP in half-saturated air...
-const EVAP_TEMP := 30.0                 # ...doubling every EVAP_SPAN degC warmer
+## A warm, open reef tank loses about 1-2 % of its water a day: 4 L of 260 at EVAP_TEMP in half-saturated
+## air, doubling every EVAP_SPAN degC warmer and in proportion to how dry the air is. Topping off every
+## few days is normal reef keeping; leave it a week and the salinity creeps past 38 ppt.
+const EVAP_PER_DAY := 4.0               # litres
+const EVAP_TEMP := 30.0
 const EVAP_SPAN := 10.0
-const DRIFT_LITRES := 8.0               # evaporating this much takes pH and oxygen ~63 % back
+const DAY_SECONDS := 720.0              # the play time a day's rates are spread over (12 min)
+const NIGHT_SHARE := 0.4                # lights out to morning (pendant.gd) evaporates this much of a day's
+const MIN_LEVEL := 60.0                 # % the water can't evaporate below (weeks of neglect)
+const DRIFT_LITRES := 3.0               # evaporating this much takes pH and oxygen ~63 % back
 const PH_CABIN := 7.74                  # where the cabin's air holds the pH...
 const OXYGEN_CABIN := 3.6               # ...and the oxygen, mg/L
 const NEW_SALINITY := 35.0              # freshly mixed seawater
@@ -42,10 +49,12 @@ const PURE_PH_DROP := 0.01              # what a jerrycan of unbuffered water do
 const CHANGE_SHARE := 0.3               # share of the gap a saltwater change closes for pH and oxygen
 
 var _main: Node
+var _day := 1
 
 
 func setup(main: Node) -> void:
 	_main = main
+	_day = GameState.day
 	main.tank_panel.changed.connect(_on_slots_changed)
 
 
@@ -60,16 +69,31 @@ func update(delta: float) -> void:
 	var temp: float = r[TEMP].value
 	if climate.temp > temp and temp < TEMP_CAP:
 		r[TEMP].value = minf(temp + (climate.temp - temp) * WARM_PER_DEGREE * delta, minf(climate.temp, TEMP_CAP))
-	# evaporation: water out, salt stays, the cabin's air takes back pH and oxygen
+	evaporate(evap_rate() * delta)
+	if GameState.day != _day:           # the night just passed: its share of a day's evaporation
+		_day = GameState.day
+		evaporate(evap_rate() * DAY_SECONDS * NIGHT_SHARE)
+
+
+## litres a second evaporating now
+func evap_rate() -> float:
+	var r: Array = _main.tank_panel.readings
+	var dry: float = (1.0 - _main.climate.humid) / 0.5
+	return EVAP_PER_DAY / DAY_SECONDS * pow(2.0, (r[TEMP].value - EVAP_TEMP) / EVAP_SPAN) * dry
+
+
+## water out, salt stays, and the cabin's air takes back pH and oxygen
+func evaporate(lost: float) -> void:
+	var r: Array = _main.tank_panel.readings
 	var v := litres()
-	var lost: float = EVAP_LITRES * pow(2.0, (r[TEMP].value - EVAP_TEMP) / EVAP_SPAN) * (1.0 - climate.humid) / 0.5 * delta
-	lost = minf(lost, v - FULL_LITRES * 0.5)
-	if lost > 0.0:
-		r[SALINITY].value *= v / (v - lost)
-		r[LEVEL].value = (v - lost) / FULL_LITRES * 100.0
-		var k := 1.0 - exp(-lost / DRIFT_LITRES)
-		r[PH].value += (PH_CABIN - r[PH].value) * k
-		r[OXYGEN].value += (OXYGEN_CABIN - r[OXYGEN].value) * k
+	lost = minf(lost, v - FULL_LITRES * MIN_LEVEL / 100.0)
+	if lost <= 0.0:
+		return
+	r[SALINITY].value *= v / (v - lost)
+	r[LEVEL].value = (v - lost) / FULL_LITRES * 100.0
+	var k := 1.0 - exp(-lost / DRIFT_LITRES)
+	r[PH].value += (PH_CABIN - r[PH].value) * k
+	r[OXYGEN].value += (OXYGEN_CABIN - r[OXYGEN].value) * k
 
 
 ## an item went into a tank slot: a jerrycan of pure water or saltwater is poured in at once

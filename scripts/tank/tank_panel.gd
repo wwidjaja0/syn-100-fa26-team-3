@@ -26,8 +26,8 @@ var readings := [
 	{"name": "OXYGEN", "value": 3.6, "format": "%.1f MG/L", "min": 0.0, "max": 9.0, "safe": [5.0, 9.0], "drift": 0.08},
 	# a saltwater reef: natural seawater is about 35 parts per thousand. Evaporation leaves the salt
 	# behind, so it climbs as the level drops (tank/tank_water.gd)
-	{"name": "SALINITY", "value": 35.6, "format": "%.1f PPT", "min": 30.0, "max": 40.0, "safe": [33.0, 36.0], "drift": 0.02},
-	{"name": "WATER LEVEL", "value": 95.0, "format": "%d%%", "min": 70.0, "max": 100.0, "safe": [92.0, 100.0], "drift": 0.0},
+	{"name": "SALINITY", "value": 35.1, "format": "%.1f PPT", "min": 30.0, "max": 42.0, "safe": [33.0, 36.0], "drift": 0.02},
+	{"name": "WATER LEVEL", "value": 97.0, "format": "%d%%", "min": 70.0, "max": 100.0, "safe": [92.0, 100.0], "drift": 0.0},
 ]
 var contents: Array = []                # one ItemData (or null) per slot
 
