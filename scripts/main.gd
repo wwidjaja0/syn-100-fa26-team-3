@@ -92,7 +92,6 @@ var _web_frame := 0
 var _mask_wait := false                 # web: read the mask the frame after it was asked to render
 var _shutter_seen := -1.0
 var _cabinet_seen := -1.0
-var _tired_monologue_pending := false
 
 # the parts (see the list above)
 var materials: RoomMaterials
@@ -208,7 +207,6 @@ func _process(delta: float) -> void:
 	_drive_web_mask()
 	ui.dialogue.update(clock, step)
 	_check_dialogue_triggers()
-	_check_end_of_day()
 	interactions.update()
 	var room_hover: bool = not landing_active and ui.panel == "" and not ui.over_ui(cursor) and not ui.inventory.flying() \
 			and active_view() == null
@@ -251,8 +249,6 @@ func _unhandled_input(event: InputEvent) -> void:
 			if ui.inventory.drag_released(cursor):
 				click()                  # dropping a dragged item works like clicking with it held
 	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
-		if GameState.is_exhausted():
-			return
 		if debug_menu.open:
 			debug_menu.open = false
 		elif ui.dialogue.is_active():
@@ -275,8 +271,6 @@ func _unhandled_input(event: InputEvent) -> void:
 			elif event.keycode == KEY_ESCAPE:
 				ui.dialogue.close()
 				return
-		if GameState.is_exhausted():
-			return
 		match event.keycode:
 			KEY_ESCAPE:
 				if ui.inventory.held != null:
@@ -402,12 +396,6 @@ func _check_dialogue_triggers() -> void:
 func click() -> void:
 	click_at = clock
 	ui.ripple(cursor, clock)
-	if GameState.is_exhausted():
-		if ui.dialogue.is_active():
-			ui.handle_click(cursor)
-		elif ui.panel == "" and active_view() == null and not debug_menu.open:
-			interactions.click(picker.hover)
-		return
 	if ui.handle_click(cursor):
 		return
 	if active_view() != null:
@@ -420,45 +408,6 @@ func click() -> void:
 			interactions.use_item(held, picker.hover)
 		return
 	interactions.click(picker.hover)
-
-
-## Called after a successful, state-changing task. When the final stamina point is spent, return
-## to the room and wait for any task dialogue to finish before the tired monologue.
-func complete_task() -> void:
-	if not GameState.spend_stamina():
-		return
-	_tired_monologue_pending = true
-	ui.inventory.held = null
-	if ui.panel != "":
-		ui.close_panel()
-	debug_menu.open = false
-	for v in views:
-		v.exit(clock)
-	picker.hover = ""
-	picker.hover_t = 0.0
-
-
-func _check_end_of_day() -> void:
-	if not _tired_monologue_pending or ui.dialogue.is_active():
-		return
-	_tired_monologue_pending = false
-	ui.dialogue.start("end_of_day_tired")
-
-
-## The lantern is the bed-time control once exhausted.
-func sleep_until_next_day() -> void:
-	if not GameState.is_exhausted():
-		return
-	GameState.advance_day()
-	picker.hover = ""
-	picker.hover_t = 0.0
-	ui.dialogue.start_entry({
-		"style": "monologue",
-		"speaker": "INTERNAL MONOLOGUE",
-		"title": "DAY %d" % GameState.day,
-		"repeatable": true,
-		"lines": ["A NEW DAY. I FEEL RESTED ENOUGH TO GET BACK TO WORK."],
-	}, "day_%d_started" % GameState.day)
 
 
 ## Esc / right-click / BACK: close the panel, or leave the close-up view. Right-click (full = false)

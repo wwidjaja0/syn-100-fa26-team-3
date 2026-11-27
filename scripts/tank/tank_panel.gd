@@ -101,14 +101,12 @@ func click(p: Vector2, held: ItemData) -> bool:
 		contents[i] = held
 		UiSounds.play("pick")
 		changed.emit()
-		_main.complete_task()
 	elif contents[i] != null:
 		if bar.has_room():
 			bar.fly(contents[i], slot_rect(i).get_center(), _main.clock)
 			contents[i] = null
 			UiSounds.play("pick")
 			changed.emit()
-			_main.complete_task()
 		else:
 			UiSounds.play("back")
 	return true

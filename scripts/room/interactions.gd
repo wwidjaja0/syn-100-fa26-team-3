@@ -44,16 +44,12 @@ func update() -> void:
 
 ## can the cursor pick this group? (the open window's sky only while the shutters are open)
 func hoverable(group: String) -> bool:
-	if GameState.is_exhausted():
-		return group == "lantern"
 	return LABELS.has(group) or (group == "sky" and _main.shutters.is_open)
 
 
 ## the label to show while hovering a group, given the item held on the cursor (or null)
 func label_for(group: String, held: ItemData) -> String:
 	var name: String = "CLOSE SHUTTERS" if group == "sky" else LABELS.get(group, "")
-	if group == "lantern" and GameState.is_exhausted():
-		return "GO TO BED"
 	if group == "radio" and GameState.flag("radio_fixed"):
 		name = "INCOMING SIGNAL" if _main.ui.dialogue.has_pending_radio() else "CABIN LOG"
 	if held != null and name != "":
@@ -64,16 +60,11 @@ func label_for(group: String, held: ItemData) -> String:
 ## a click on a room object with nothing in hand
 func click(group: String) -> void:
 	var clock: float = _main.clock
-	if GameState.is_exhausted():
-		if group == "lantern":
-			_main.sleep_until_next_day()
-		return
 	match group:
 		"shutters", "sky":
 			_main.shutters.toggle()
 			if _main.shutters.is_open and not _main.suppress_auto_dialogue:
 				_main.ui.dialogue.start("inspect_shutters_open")
-			_main.complete_task()
 		"microfiche":
 			_main.ui.open_panel("fiche", clock)
 			GameState.set_flag("fiche_seen")
@@ -81,14 +72,12 @@ func click(group: String) -> void:
 			if not GameState.flag("radio_fixed"):
 				_main.radio_view.enter(clock)    # main.gd calls inspect_broken_radio() once it settles
 			elif _main.ui.dialogue.has_pending_radio():
-				if _main.ui.dialogue.answer_pending_radio(clock):
-					_main.complete_task()
+				_main.ui.dialogue.answer_pending_radio(clock)
 			else:
 				_main.ui.open_panel("journal", clock)
 				UiSounds.play("click")
 		"cabinet":
 			_main.cabinet.toggle()
-			_main.complete_task()
 		"jar":
 			pick_up("jar", "jar")
 		"papers":
@@ -110,8 +99,6 @@ func click(group: String) -> void:
 ## The item goes back to its slot either way; if the use consumes it, remove it here with
 ## InventoryManager.remove_item(item).
 func use_item(item: ItemData, group: String) -> bool:
-	if GameState.is_exhausted():
-		return false
 	if group == "radio" and not GameState.flag("radio_fixed"):
 		_main.radio_view.enter(_main.clock)    # its parts go in the close-up's slots
 		return true
@@ -125,7 +112,7 @@ func use_item(item: ItemData, group: String) -> bool:
 ## told it is the way forward and it is still broken. Not the battery, the speaker, or any
 ## other click-around discovery.
 func radio_alert() -> bool:
-	if _main.landing_active or GameState.is_exhausted() or _main.active_view() != null:
+	if _main.landing_active or _main.active_view() != null:
 		return false
 	if GameState.flag("radio_fixed"):
 		return _main.ui.dialogue.has_pending_radio()
@@ -170,4 +157,3 @@ func pick_up(group: String, item_id: String, hide := true) -> void:
 		_main.picker.groups[group].visible = false
 	bar.fly(InventoryManager.get_item(item_id), from, _main.clock)
 	GameState.set_flag("took_" + item_id)
-	_main.complete_task()

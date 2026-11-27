@@ -126,8 +126,6 @@ func _hover_label(text: String, cur: Vector2) -> void:
 func over_ui(p: Vector2) -> bool:
 	if top_modal() != "":
 		return true
-	if GameState.is_exhausted():
-		return false
 	return inventory.slot_at(p) >= 0 or _over_back(p) or _over_result(p) \
 			or main.radio_repair.slot_at(p) != "" or main.tank_panel.over(p)
 
@@ -144,8 +142,6 @@ func _over_back(p: Vector2) -> bool:
 ## the left button went down. True when the UI took the click and the room should ignore it.
 ## A popup eats every click: only its own controls run, and nothing under the scrim does.
 func handle_click(p: Vector2) -> bool:
-	if GameState.is_exhausted() and top_modal() != "dialogue":
-		return false
 	match top_modal():
 		"debug":
 			main.debug_menu.click(p)
@@ -211,8 +207,7 @@ func _draw() -> void:
 
 	# close-ups and the inventory stay on screen under a popup, but they don't highlight or take clicks
 	var top := top_modal()
-	var room_live := top == ""
-	var live := room_live and not GameState.is_exhausted()
+	var live := top == ""
 	var craft = main.crafting
 	if craft.settled():
 		var craft_label := _draw_crafting(craft, cur, live)
@@ -240,7 +235,7 @@ func _draw() -> void:
 	ui_hover = ui_hover or label != ""
 
 	var hover: String = main.picker.hover
-	if room_live and label == "" and hover != "":
+	if live and label == "" and hover != "":
 		label = main.interactions.label_for(hover, inventory.held)
 	if label != "":
 		_hover_label(label, cur)
@@ -287,8 +282,7 @@ func _draw() -> void:
 		ui_hover = true
 
 	# the cursor: a hand over anything clickable, pressed in while a click is fresh
-	var hand: bool = ui_hover or (room_live and (hover != "" \
-			or (not GameState.is_exhausted() and (inventory.held != null or craft.hover_cell != craft.NO_CELL))))
+	var hand: bool = ui_hover or (live and (hover != "" or inventory.held != null or craft.hover_cell != craft.NO_CELL))
 	var hs: Array = _hotspots["hand" if hand else "arrow"]
 	var pressed: bool = main.clicking()
 	var at := cur - Vector2(hs[0], hs[1]) + Vector2(0, 1 if pressed else 0)

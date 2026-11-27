@@ -32,7 +32,7 @@ func commands() -> Array:
 		["6", "CLEAR INVENTORY", _clear_inventory],
 		["7", "OPEN / CLOSE SHUTTERS", func(): _main.shutters.toggle(); say("SHUTTERS")],
 		["8", "OPEN / CLOSE CABINET", func(): _main.cabinet.toggle(); say("CABINET")],
-		["9", "NEXT DAY", func(): GameState.advance_day(); say("DAY %d" % GameState.day)],
+		["9", "NEXT DAY", func(): GameState.day += 1; say("DAY %d" % GameState.day)],
 		["W", "WEATHER: " + _main.weather.current.to_upper() + " (NEXT)", _next_weather],
 		["0", "LIGHT UP RADIO SIGNAL" if GameState.flag("radio_fixed") else "FIX THE RADIO", _trigger_radio_chatter],
 	]
@@ -97,8 +97,8 @@ func draw(overlay: Control, cur: Vector2) -> bool:
 
 
 func _status() -> String:
-	return "DAY %d   ENERGY %d/%d   ITEMS %d/%d" % [GameState.day, GameState.stamina,
-			GameState.DAILY_STAMINA, InventoryManager.inventory.items.size(), InventoryManager.MAX_ITEMS]
+	return "DAY %d   STATIONS %d/%d   ITEMS %d/%d" % [GameState.day, GameState.contacted.size(),
+			GameState.stations.size(), InventoryManager.inventory.items.size(), InventoryManager.MAX_ITEMS]
 
 
 func _rect() -> Rect2:

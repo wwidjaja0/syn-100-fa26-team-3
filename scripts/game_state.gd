@@ -6,10 +6,7 @@ signal changed
 ## a station was reached over the radio for the first time (it now shows on the microfiche)
 signal station_contacted(id: String)
 
-const DAILY_STAMINA := 5
-
 var day := 1
-var stamina := DAILY_STAMINA
 var flags := {}                            # e.g. "fiche_seen", "window_opened", "took_jar"
 var stations := {}                         # id -> {callsign, name, lat, lon, problems}, from data/stations.json
 var contacted: Array[String] = []          # station ids, in the order they were reached
@@ -40,27 +37,6 @@ func flag(name: String) -> bool:
 
 func set_flag(name: String, value := true) -> void:
 	flags[name] = value
-	changed.emit()
-
-
-## Spend energy on one completed piece of work. Looking around and opening views are free.
-## Returns true when this action used the last of the player's energy.
-func spend_stamina(amount := 1) -> bool:
-	if stamina <= 0 or amount <= 0:
-		return stamina <= 0
-	stamina = maxi(stamina - amount, 0)
-	changed.emit()
-	return stamina == 0
-
-
-func is_exhausted() -> bool:
-	return stamina <= 0
-
-
-## Sleeping at the lantern starts a fresh day without undoing story or inventory progress.
-func advance_day() -> void:
-	day += 1
-	stamina = DAILY_STAMINA
 	changed.emit()
 
 
@@ -142,7 +118,6 @@ func mark_log_read(id: String) -> void:
 ## a new game: day 1, nothing done, the map as it started (pause menu's QUIT TO TITLE)
 func reset() -> void:
 	day = 1
-	stamina = DAILY_STAMINA
 	flags.clear()
 	cabin_log.clear()
 	unread_logs = 0
